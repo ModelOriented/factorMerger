@@ -32,6 +32,13 @@ Załóżmy, że mamy do czynienia z dwoma zmiennymi - jedną ilościową $y$, dr
 Przykład (pakiet `PBImisc`): dane są ceny mieszkań, które zostały sprzedane w latach 2007-2009 mieszczące się na wybranych ulicach Warszawy. Chcemy zbadać, pomiędzy którymi ulicami średnie ceny mieszkań istotnie się różnią.
 
 ```{r}
+recodeLevels <- function(y, c) {
+    data <- data.table(y = y, c = c)
+    newOrder <- data[, mean(y), by = c] %>% arrange(V1)
+    c <- factor(c, levels = as.character(newOrder[, 1]))
+    c
+}
+
 apartmentsSubset <- PBImisc::apartments
 apartmentsSubset <- subset(apartmentsSubset, select = c(transaction.price, street))
 apartmentsSubset <- filter(apartmentsSubset, street %in% c("Chelmska", 
@@ -49,6 +56,9 @@ apartmentsSubset <- as.data.table(apartmentsSubset)
 apartmentsSubset[, mean := mean(transaction.price), by = street]
 apartmentsSubset[, sd := sd(transaction.price), by = street]
 apartmentsSubset[, transaction.price := transaction.price / (0.00001 *sd) + mean]
+
+apartmentsSubset$street <- recodeLevels(apartmentsSubset$transaction.price, 
+                                        apartmentsSubset$street)
 
 apartmentsSubset %>% ggplot() + geom_boxplot(aes(x = street, y = transaction.price)) + 
     theme(axis.text.x = element_text(angle = 90)) + 
@@ -306,13 +316,6 @@ Pytania: Czy możemy policzyć nowe p-value bez ponownego wyliczania modelu? Czy
 
 
 ```{r}
-recodeLevels <- function(y, c) {
-    data <- data.table(y = y, c = c)
-    newOrder <- data[, mean(y), by = c] %>% arrange(V1)
-    c <- factor(c, levels = as.character(newOrder[, 1]))
-    c
-}
-
 mergeLevels <- function(c, whichEnds) {
     newLetter <- paste0(levels(c)[whichEnds - 1], levels(c)[whichEnds])
     levels(c) <- c(levels(c), newLetter)
