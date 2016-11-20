@@ -1,0 +1,75 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+rm(list = ls())
+N <- 1000
+k <- 6
+y <- rnorm(N)
+C <- as.factor(sample(1:k, size = N, replace = TRUE))
+for (i in 1:k) {
+    random <- sample(seq(0,1,0.1), size = 1)
+    print(random)
+    y[C == i] <- y[C == i] + random
+}
+myData <- data.frame(y = y, C = C)
+ggplot(myData) + geom_boxplot(aes(x = C, group = C, y = y, fill = C))
+aggregate(y ~ C, myData, mean)
+```
+
+```{r}
+library(e1071)
+library(dplyr)
+library(plyr)
+
+chooseGroups <- function(y, class) {
+    data <- data.frame(y = y, C = class) #refactor class to be in {1,2,...,N}
+    N <- length(unique(class))
+    perm <- permutations(N)
+    twoElements <- unique(perm[,1:2])
+    pVals <- vector()
+    for (i in 1:nrow(twoElements)) {
+        tmpData <- filter(data, C %in% twoElements[i,])    
+        tmpModel <- lm(y ~ C, data = tmpData)
+        tmpCoef <- summary(tmpModel)$coefficients
+        pVals[i] <- tmpCoef[2,4]
+    }
+    toBeMerged <- twoElements[which.max(pVals),]
+    list(toBeMerged = toBeMerged, pVals = max(pVals))
+}
+
+chooseGroups(y, C)
+
+class <- C; which <- chooseGroups(y, C)$toBeMerged
+mergeGroups <- function(class, which) {
+    class[class %in% which] <- which[1]
+    class <- factor(class, levels = as.factor(unique(class)))
+    class <- mapvalues(class, from = levels(class), to = 1:length(levels(class)))
+    class
+}
+
+#mergeGroups(class, which)
+pVals <- vector()
+merged <- matrix(, ncol = 2, nrow = 4)
+
+tmpY <- y; tmpC <- C
+    
+for (i in 1:4) {
+    result <- chooseGroups(tmpY, tmpC)
+    which <- result$toBeMerged
+    merged[i, ] <- which
+    pVals[i] <- result$pVals
+    tmpC <- mergeGroups(tmpC, which)
+}
+pVals
+tmpC
+merged
+```
+
