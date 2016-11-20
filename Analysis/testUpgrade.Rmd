@@ -148,8 +148,8 @@ $$T(\beta_W, \beta_X) = \frac{\frac{RSS(\beta_W) - RSS(\beta_X)}{p - q}}{\frac{R
 ma rozkład $F$ (z odpowiednimi parametrami) i sprawdzenie prawdziwości $H_0$ sprowadza się do sprawdzenia wartości dystrybuanty rozkładu $F$ w punkcie $T(\hat{\beta}_W, \hat{\beta}_X)$.
 
 ******
-
 ### ANOVA na przykładzie cen mieszkań
+
 Wracając do ANOVY i naszego przykładu. Możemy przetestować równość średnich na ulicach na co najmniej trzy sposoby.
 
 **Sposób I**
@@ -297,7 +297,6 @@ Plusy:
 Minusy:
 
  - w każdym kroku na nowo liczymy model pomniejszony o jeden parametr.
-
 
 Implementacja: kontrasty!
  
