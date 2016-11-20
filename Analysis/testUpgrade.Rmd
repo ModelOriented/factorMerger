@@ -29,7 +29,7 @@ library(ggrepel)
 
 Załóżmy, że mamy do czynienia z dwoma zmiennymi - jedną ilościową $y$, drugą jakościową $C$. Naszym zadaniem jest zweryfikowanie, czy średnie $y$ w poszczególnych grupach wyznaczonych przez $C$ różnią się w sposób istotny statystycznie. Jeżeli okaże się, że średnie grupowe nie są równe, to będziemy chcieli zbadać istotność różnic dla każdej pary grup. 
 
-**Przykład** (pakiet `PBImisc`): dane są ceny mieszkań, które zostały sprzedane w latach 2007-2009 mieszczące się na wybranych ulicach Warszawy. Chcemy zbadać, pomiędzy którymi ulicami średnie ceny mieszkań istotnie się różnią.
+Przykład (pakiet `PBImisc`): dane są ceny mieszkań, które zostały sprzedane w latach 2007-2009 mieszczące się na wybranych ulicach Warszawy. Chcemy zbadać, pomiędzy którymi ulicami średnie ceny mieszkań istotnie się różnią.
 
 ```{r}
 apartmentsSubset <- PBImisc::apartments
@@ -45,6 +45,11 @@ apartmentsSubset <- filter(apartmentsSubset, street %in% c("Chelmska",
 
 apartmentsSubset$street <- factor(apartmentsSubset$street)
 
+apartmentsSubset <- as.data.table(apartmentsSubset)
+apartmentsSubset[, mean := mean(transaction.price), by = street]
+apartmentsSubset[, sd := sd(transaction.price), by = street]
+apartmentsSubset[, transaction.price := transaction.price / (0.00001 *sd) + mean]
+
 apartmentsSubset %>% ggplot() + geom_boxplot(aes(x = street, y = transaction.price)) + 
     theme(axis.text.x = element_text(angle = 90)) + 
     coord_flip()
@@ -57,6 +62,14 @@ Niech: $C \in \{1, 2, ..., k\}$ będzie zmienną grupującą, $y_{ij}$ będzie w
 Dodatkowo założymy, że
 
 $$y_{ij} \sim \mathcal{N} (\mu_i, \sigma^2), \;\;\;\;\; 1 \le i \le k,  \;\;\;\;\; 1 \le j \le n_i \;\;\;\;\; \sum_{i = 1}^k n_i = n.$$
+
+**Uwaga:** Zauważmy, że zakładamy równość wariancji we wszystkich grupach. To założenie wymaga dodatkowego sprawdzenia. Możemy do tego użyć np. testu Levene'a (`levene.test{Rcmdr}`).
+
+```{r, echo = TRUE, results = 'hold'}
+library(Rcmdr)
+leveneTest(apartmentsSubset$transaction.price, apartmentsSubset$street)
+```
+
 
 
 ## Analiza wariancji
@@ -75,17 +88,17 @@ $$\mu_1 = \mu, \\ \mu_2 = \mu + \alpha_2, \\ ... \\ \mu_k = \mu + \alpha_k,$$
 
 powyższy problem możemy przedstawić inczej
 
-$$H_0: \alpha_2 = ... = \alpha_k = 0, \;\;\;\; H_a = \exists_i \;\; \alpha_i \neq 0. $$
+$$H_0: \alpha_2 = ... = \alpha_k = 0, \;\;\;\; H_a: \exists_i \;\; \alpha_i \neq 0. $$
 
 Pierwszym krokiem będzie przekodowanie zmiennej objaśniającej $X$. Przedstawimy ją w postaci macierzy $n \times k$, w której pierwszą kolumną będzie stała, zaś następne kolumny będą reprezentować kolejne poziomy zmiennej $C$ (z pominięciem poziomu referencyjnego). Przykładowo wektor
 
 $$
 C = \begin{bmatrix}
-       Srodmiescie \\
-       Srodmiescie \\
-       Mokotow \\
-       Mokotow \\
-       Ursus
+       Jana Pawla \\
+       Jana Pawla \\
+       Chelmska \\
+       Chelmska \\
+       KEN
     \end{bmatrix}
 $$
 zapiszemy jako macierz
@@ -115,7 +128,7 @@ $$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}(0, I_{n \times n})$$
 dla $X$ i $\beta$ stałych.
 
 Wówczas $y$ ma także rozkład normalny ze średnią $X\beta$ i wariancją $\sigma^2$. Zatem możemy napisać funkcję wiarygodności 
-$$L(\sigma, \beta |y) = \frac{1}{(2\pi\sigma^2)^{n/2}} \exp \left(\frac{1}{2} \frac{RSS(\beta)}{\sigma^2}\right)$$
+$$L(\sigma, \beta |y) = \frac{1}{(2\pi\sigma^2)^{n/2}} \exp \left(- \frac{1}{2} \frac{RSS(\beta)}{\sigma^2}\right)$$
 oraz jej logarytm
 
 $$l(\sigma, \beta |y) = -\frac{n}{2}\log(2\pi) -\frac{n}{2}\log(\sigma^2) - \frac{RSS(\beta)}{2\sigma^2}.$$
@@ -123,10 +136,10 @@ Maksymalizując $l(\sigma, \beta |y)$ ze względu na $\sigma^2$ daje nam estymat
 
 $$\hat{\sigma}^2 = \frac{RSS(\beta)}{n}.$$
 Po wstawieniu estymatora do funkcji wiarygodności dostajemy
-$$L(\sigma, \beta |y) \propto \left(\frac{RSS(\beta)}{n}\right)^{-n/2}.$$
+$$L(\hat{\sigma}^2, \hat{\beta} |y) \propto \left(\frac{RSS(\hat{\beta})}{n}\right)^{-n/2}.$$
 
 Załóżmy, że testujemy hipotezę $H_0: \beta_q = \beta_{q+1} = ... = \beta_{q} = 0.$ Niech $RSS_X, RSS_W$ oznaczają sumę kwadratów reszt policzoną dla modelu pełnego i modelu z ograniczeniami. Wówczas iloraz wiarygodności
-$$\frac{L(\hat{\sigma}_X, \hat{\beta}_X |y)}{L(\hat{\sigma}_W, \hat{\beta}_W |y)} = \frac{RSS(\hat{\beta}_W)}{RSS(\hat{\beta}_X)}$$
+$$\frac{L(\hat{\sigma}_X, \hat{\beta}_X |y)}{L(\hat{\sigma}_W, \hat{\beta}_W |y)} = \left(\frac{RSS(\hat{\beta}_W)}{RSS(\hat{\beta}_X)}\right)^{n/2}$$
 powinien być duży dla nieprawdziwej hipotezy zerowej. 
 
 Bardziej formalnie: można pokazać, że 
@@ -135,12 +148,21 @@ $$T(\beta_W, \beta_X) = \frac{\frac{RSS(\beta_W) - RSS(\beta_X)}{p - q}}{\frac{R
 ma rozkład $F$ (z odpowiednimi parametrami) i sprawdzenie prawdziwości $H_0$ sprowadza się do sprawdzenia wartości dystrybuanty rozkładu $F$ w punkcie $T(\hat{\beta}_W, \hat{\beta}_X)$.
 
 ******
-Wracając do ANOVY i naszego przykładu. Możemy przetestować równość średnich na ulicach, używając formuły.
+Wracając do ANOVY i naszego przykładu. Możemy przetestować równość średnich na ulicach na co najmniej trzy sposoby.
+
+**Sposób I**
 
 ```{r, echo = TRUE, results = 'hold'}
 anova(lm(transaction.price ~ street, data = apartmentsSubset))
 ```
-Alternatywnie:
+
+**Sposób II**
+```{r, echo = TRUE, results = 'hold'}
+summary(lm(transaction.price ~ street, data = apartmentsSubset))
+```
+
+
+**Sposób III**
 ```{r,  echo = TRUE, results = 'hold'}
 summary(aov(transaction.price ~ street, data = apartmentsSubset))
 ```
@@ -151,13 +173,13 @@ Zatem nie możemy powiedzieć, że średnie na różnych ulicach są równe.
 
 Testy *post hoc* wykonujemy, gdy ANOVA wskazuje na brak równości między średnimi. Pozwalają zidentyfikować, które średnie są różne statystycznie. Najczęściej testy *post hoc* liczą pewne statystyki dla wszystkich par grup.
 
-Testów *post hoc* jest wiele. 
+Testów *post hoc* jest wiele. Część z nich zakłada, że wszystkie grupy są równoliczne. Przedstawimy test LSD Fishera, który nie posiada takiego założenia.
 
 ### Test LSD Fishera
 
 Dla każdej pary grup $i, j$ liczymy statystykę $t$
 
-$$t = \frac{\mu_i - \mu_j}{s_p \sqrt{\frac{1}{n_i} + \frac{1}{n_j}}}, \;\;\;\;\;\; s_p = \sqrt{\frac{(n_i - 1)s_i^2 + (n_j - 1)s_j^2}{n_1 + n_2 - 2}}.$$
+$$t_{ij} = \frac{\mu_i - \mu_j}{s_{ij} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}}}, \;\;\;\;\;\; s_{ij} = \sqrt{\frac{(n_i - 1)s_i^2 + (n_j - 1)s_j^2}{n_1 + n_2 - 2}}.$$
 Łącznie przeprowadzonych jest ${k \choose 2}$ testów. W związku z tym stosujemy poprawkę na wielokrotne testowanie.
 
 #### Wielokrotne testowanie
@@ -170,7 +192,7 @@ $$
 
 Dla $n = 20, \alpha = 0.05$ powyższe prawdopodobieństwo wynosi około $64%$.
 
-Żeby je zmniejszyć stosujemy poprawkę na wielokrotne testowanie. Przykładowo poprawka Bonferroniego polega na podzieleniu poziomu istotności przez liczbę testowanych hipotez.
+Żeby je zmniejszyć stosujemy poprawkę na wielokrotne testowanie. Przykładowo -- poprawka Bonferroniego polega na podzieleniu poziomu istotności przez liczbę testowanych hipotez. 
 
 ******
 
@@ -186,12 +208,15 @@ lsdResult$groups
 
 # Pytania badawcze 
 
- - Czy możemy stworzyć algorytm, którego wyniki będą zgodne (czyli otrzymane klastry będą rozłączne)? Jaka będzie złożoność takiego algorytmu?
+ - Czy możemy stworzyć algorytm, którego wyniki będą zgodne (czyli otrzymane klastry będą rozłączne)? 
  - Czy jesteśmy w stanie w prosty sposób przedstawić zmiany w klastrach w zależności od przyjętego poziomu istotności/wiarygodności?
 
 # Algorytm iteracyjnego zlepiania - pierwsze próby 
 
 ## Podejście pierwsze: każdy vs. każdy
+
+Pomysł: Załóżmy, że dla każdej pary testujemy hipotezę $H_0^{ij}: \mu_i = \mu_j$, stosując jednakowy test statystyczny. p-value dla wybranego testu to prawdopodobieństwo uzyskania wartości pewnej statystyki takiej, jak zaobserwowano w rzeczywistości przy założeniu prawdziwości hipotezy zerowej. Zatem para średnich, dla których p-value jest najwyższe powinna zostać złączona w jedną grupę. 
+
 ```{r, eval = FALSE, echo = TRUE}
 
 y = someResponse 
@@ -217,11 +242,15 @@ while (numberOfClasses > 1) {
 ```
 
 Plusy:
+
  - dostajemy hierarchiczną strukturę klastrów.
  
 Minusy:
+
  - wiele razy liczymy to samo,
  - porównujemy nadmiarową ilość par.
+ 
+Obserwacja: W pojedynczym kroku chcemy połączyć jedynie te średnie, które są wystarczająco blisko.
 
 ## Podejście drugie: każdy vs. kolejny
 
@@ -253,6 +282,22 @@ while (numberOfClasses > 1) {
     numberOfClasses = numberOfClasses - 1
 }
 ```
+
+Plusy:
+
+ - dostajemy hierarchiczną strukturę klastrów,
+ - w każdym testujemy mniej niż $k$ hipotez.
+ 
+Minusy:
+
+ - w każdym kroku na nowo liczymy cały model.
+
+
+Implementacja: kontrasty!
+ 
+Obserwacja: w każdym kroku łączymy tylko jedną parę średnich $\mu_i, \mu_{i+1}$. Jeżeli żadna ze średnich z wybranej pary $\mu_l, \mu_{l+1}$ nie sąsiadowała z $\mu_i, \mu_{i+1}$ to p-value dla hipotezy o równości średnich $\mu_l, \mu_{l+1}$ nie powinno się zmienić. Zatem w każdym kroku na nowo powinniśmy liczyć jedynie dwa p-value.
+
+Pytania: Czy możemy policzyć nowe p-value bez ponownego wyliczania modelu? Czy możemy iteracyjnie liczyć wiarygodność, korzystając jedynie z wartości poprzedniej wiarygodności oraz informacji dotyczącej łącząnych grup?
 
 
 ```{r}
@@ -374,12 +419,9 @@ plotTree <- function(list, rotate = 0) {
         ylim(c(lowerPlotBound, upperPlotBound))
         
     segmentPlot
-   
 }
-
 ```
 
-Implementacja: kontrasty!
 
 ## Testy
 
@@ -435,6 +477,12 @@ plotTree(apartmentsMerged, rotate = 90)
 
 # Inne rozwiązania 
 
+## Delete or Merge Regressors (DMR)
+
+Autor: Agnieszka Prochenka
+
+W uproszczeniu: dla każdej pary grup $i, j$ policz statystykę $t$ dla hipotezy $H_0: \mu_i = \mu_j$. Przyjmij macierz $[t_{ij}]_{i,j}$ jako macierz odległości pomiędzy grupami. Przeprowadź klastrowanie hierarchiczne metodą *complete linkage*.
+
 # Co dalej?
 
  - zoptymalizować przejście pomiędzy kolejnymi modelami,
@@ -442,3 +490,10 @@ plotTree(apartmentsMerged, rotate = 90)
  - poprawić rysowanie drzewa (szczególnie dla dużych nazw),
  - umożliwić edycję osi z poziomu użytkownika,
  - przeciążyć funkcję `plot`.
+ 
+ 
+# Literatura
+
+ - 'Analiza danych z programem R: modele liniowe z efektami stałymi, losowymi i mieszanymi' Przemysław Biecek,
+ - 'Delete or Merge Regressors algorithm' Agnieszka Prochenka,
+ - 'Clustering in an Object-Oriented Environment', Anja Struyf, Mia Hubert, Peter J. Rousseeuw.
