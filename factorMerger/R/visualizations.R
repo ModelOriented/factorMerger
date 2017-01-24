@@ -1,4 +1,4 @@
-#' Boxplot for generated data
+#' Visualization
 #'
 #' @param x generatesSample object
 #'
