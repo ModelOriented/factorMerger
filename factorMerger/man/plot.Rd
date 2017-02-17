@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{plot.generatedSample}
 \alias{plot.generatedSample}
-\title{Boxplot for generated data}
+\title{Visualization}
 \usage{
 \method{plot}{generatedSample}(data)
 }
@@ -10,6 +10,5 @@
 \item{x}{generatesSample object}
 }
 \description{
-Boxplot for generated data
+Visualization
 }
-

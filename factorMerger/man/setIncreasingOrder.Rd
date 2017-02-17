@@ -16,4 +16,3 @@ Given a numeric vector and a factor vector changes levels order
 in the factor. Means of the numeric variable in groups
 appointed by the new order of the factor are increasing.
 }
-

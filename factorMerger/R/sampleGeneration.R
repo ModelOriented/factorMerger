@@ -18,7 +18,9 @@
 #'
 #' @rdname generateSample
 #'
+#' @importFrom data.table data.table
 #'
+#' @export
 #'
 #'
 generateSample <- function(N, k, distr = "norm") {
@@ -39,8 +41,8 @@ generateSample <- function(N, k, distr = "norm") {
     }
 
     generatedSample <-
-        data.table::data.table(numericVec = numericVec,
-                               factorVec = setIncreasingOrder(numericVec, factorVec))
+        data.table(numericVec = numericVec,
+                   factorVec = setIncreasingOrder(numericVec, factorVec))
     class(generatedSample) <- append("generatedSample", class(generatedSample))
     generatedSample
 }
