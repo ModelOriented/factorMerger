@@ -8,6 +8,7 @@
 #' @param factorVec factor vector (same length as numbericVec).
 #'
 #' @rdname setIncreasingOrder
+#' @export
 #'
 
 setIncreasingOrder <- function(numericVec, factorVec) {
@@ -22,3 +23,16 @@ setIncreasingOrder <- function(numericVec, factorVec) {
         dplyr::arrange(numericVec)
     factor(factorVec, levels = as.character(newOrder[, 1]))
 }
+
+#' Merge factor
+#'
+#' @rdname setIncreasingOrder
+#' @export
+#'
+
+mergeFactor <- function(factor, groupA, groupB, groups) {
+    factor[factor == groupA] <- groupB
+    factor <- factor(factor, labels = groups)
+    factor
+}
+#'
