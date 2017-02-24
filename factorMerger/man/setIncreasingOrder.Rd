@@ -2,12 +2,9 @@
 % Please edit documentation in R/factorManipulation.R
 \name{setIncreasingOrder}
 \alias{setIncreasingOrder}
-\alias{mergeFactor}
 \title{Set increasing order}
 \usage{
 setIncreasingOrder(numericVec, factorVec)
-
-mergeFactor(factor, groupA, groupB, groups)
 }
 \arguments{
 \item{numericVec}{numeric vector}
@@ -18,6 +15,4 @@ mergeFactor(factor, groupA, groupB, groups)
 Given a numeric vector and a factor vector changes levels order
 in the factor. Means of the numeric variable in groups
 appointed by the new order of the factor are increasing.
-
-Merge factor
 }

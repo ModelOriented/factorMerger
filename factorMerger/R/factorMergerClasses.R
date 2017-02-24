@@ -8,7 +8,12 @@
 #'
 
 factorMerger <- function(response, factor, gaussian = TRUE,
-                         subsequent = TRUE) {
+                         subsequent = FALSE) {
+
+    if (NROW(response) != NROW(factor)) {
+        stop("Response and factor sizes do not match.")
+    }
+
     factor <- as.factor(factor)
     # TODO: Make it insensitive to input types changes
     fm <- list(
@@ -23,17 +28,21 @@ factorMerger <- function(response, factor, gaussian = TRUE,
 
     class(fm) <- "factorMerger"
 
-    if (!is.null(dim(response))) { # MANOVA
-        class(fm) <- append(class(fm), "multivariateFactorMerger")
-        subsequent <- FALSE
-    } else {
-        fm$mergingList[[1]]$means <- calculateMeans(response, factor)
-    }
-
     if (gaussian) { # Here t-test or Hotelling test is used
+
+        if (!is.null(dim(response))) { # MANOVA
+            class(fm) <- append(class(fm), "multivariateFactorMerger")
+            if (subsequent) {
+                warning("Subsequent merging is meaningless with multivariate response. All-to-all merging run instead.")
+                subsequent <- FALSE
+            }
+        } else {
+            fm$mergingList[[1]]$means <- calculateMeans(response, factor)
+        }
         class(fm) <- append(class(fm), "gaussianFactorMerger")
-    } else { # TODO: Here we'll use Kruskal-Wallis test (equality of c.d.fs)
-        class(fm) <- append(class(fm), "non-gaussianFactorMerger")
+
+    } else { # TODO: Here we'll use adonis{vegan}
+        class(fm) <- append(class(fm), "nonparametricFactorMerger")
     }
 
     if (subsequent) {
@@ -81,71 +90,6 @@ means.factorMerger <- function(factorMerger) {
                         function(x) { as.data.frame(x$means) })
     do.call(rbind, statsList) %>% unique()
 }
-
-# ---
-
-filterGroups <- function(response, factor, groupA, groupB) {
-    response <- as.matrix(response)
-    xA <- response[factor == groupA, ]
-    xB <- response[factor == groupB, ]
-    return(list(xA, xB))
-}
-
-# ---
-
-calculatePairStatistic <- function(factorMerger, factor,
-                                   groupA, groupB) {
-    UseMethod("calculatePairStatistic", factorMerger)
-}
-
-calculatePairStatistic.gaussianFactorMerger <- function(factorMerger, factor,
-                                                        groupA, groupB) {
-    groups <- filterGroups(factorMerger$response, factor, groupA, groupB)
-    if (groupA == groupB) {
-        return(-1)
-    }
-    return(t.test(groups[[1]], groups[[2]])$p.value)
-}
-
-#' Calculate multivariate pair statistic - ...
-#'
-#' @importFrom Hotelling hotel.test
-#'
-#' @export
-#'
-#'
-#'
-
-calculatePairStatistic.multivariateFactorMerger <- function(factorMerger, factor,
-                                                            groupA, groupB) {
-    groups <- filterGroups(factorMerger$response, factor, groupA, groupB)
-    if (groupA == groupB) {
-        return(-1)
-    }
-    return(hotel.test(groups[[1]], groups[[2]])$pval)
-}
-
-# ---
-
-calculateModelStatistic <- function(factorMerger) {
-    UseMethod("calculateModelStatistic", factorMerger)
-}
-
-calculateModelStatistic.gaussianFactorMerger <- function(factorMerger) {
-    y <- factorMerger$response
-    x <- factorMerger$mergingList[[length(factorMerger$mergingList)]]$factor
-    if (length(levels(x)) > 1) {
-        return(logLik(lm(y ~ x))[1])
-    } else {
-        return(logLik(lm(y ~ 1))[1])
-    }
-}
-
-calculateModelStatistic.multivariateFactorMerger <- function(factorMerger) {
-    return(NA) # TODO
-}
-
-# ---
 
 startMerging <- function(factorMerger) {
     UseMethod("startMerging", factorMerger)
@@ -312,7 +256,7 @@ mergePair.multiClassFactorMerger <- function(factorMerger) {
 
 # ---
 
-mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = TRUE) {
+mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) {
     fm <- factorMerger(response, factor, gaussian, subsequent)
     fm <- startMerging(fm)
     while (canBeMerged(fm)) {

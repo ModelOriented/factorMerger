@@ -40,7 +40,6 @@ mergeFactor <- function(factor, groupA, groupB, groups) {
 #'
 #' @rdname calculateMeans
 #' @importFrom dplyr group_by summarize arrange
-#' @export
 #'
 
 calculateMeans <- function(numericVec, factorVec) {
@@ -50,5 +49,14 @@ calculateMeans <- function(numericVec, factorVec) {
     data.frame(num = numericVec, level = factorVec) %>%
         group_by(level) %>% summarize(mean = mean(num)) %>%
         arrange(mean)
+}
+
+#' Filter groups - ...
+#'
+filterGroups <- function(response, factor, groupA, groupB) {
+    response <- as.matrix(response)
+    xA <- response[factor == groupA, ]
+    xB <- response[factor == groupB, ]
+    return(list(xA, xB))
 }
 

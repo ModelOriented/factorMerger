@@ -7,7 +7,7 @@
 \alias{factorMerger}
 \title{factorMerger: ...}
 \usage{
-factorMerger(response, factor, gaussian = TRUE, subsequent = TRUE)
+factorMerger(response, factor, gaussian = TRUE, subsequent = FALSE)
 }
 \description{
 Description
