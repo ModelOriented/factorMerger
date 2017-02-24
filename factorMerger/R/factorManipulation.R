@@ -26,7 +26,7 @@ setIncreasingOrder <- function(numericVec, factorVec) {
 
 #' Merge factor
 #'
-#' @rdname setIncreasingOrder
+#' @rdname mergeFactor
 #' @export
 #'
 
@@ -35,4 +35,20 @@ mergeFactor <- function(factor, groupA, groupB, groups) {
     factor <- factor(factor, labels = groups)
     factor
 }
+
+#' Calculate means by factor
 #'
+#' @rdname calculateMeans
+#' @importFrom dplyr group_by summarize arrange
+#' @export
+#'
+
+calculateMeans <- function(numericVec, factorVec) {
+    if (!is.null(dim(numericVec))) {
+        return(NA)
+    }
+    data.frame(num = numericVec, level = factorVec) %>%
+        group_by(level) %>% summarize(mean = mean(num)) %>%
+        arrange(mean)
+}
+
