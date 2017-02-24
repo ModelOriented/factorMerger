@@ -10,14 +10,15 @@
 factorMerger <- function(response, factor, gaussian = TRUE,
                          subsequent = TRUE) {
     factor <- as.factor(factor)
-    # TODO: Make it insensitive for changes in input types
+    # TODO: Make it insensitive to input types changes
     fm <- list(
         response = response,
         factor = factor,
         mergingList = list(`1` = list(groups = levels(factor),
                                 factor = factor,
                                 factorStats = list(),
-                                modelStats = list()))
+                                modelStats = list(),
+                                means = NA))
     )
 
     class(fm) <- "factorMerger"
@@ -25,6 +26,8 @@ factorMerger <- function(response, factor, gaussian = TRUE,
     if (!is.null(dim(response))) { # MANOVA
         class(fm) <- append(class(fm), "multivariateFactorMerger")
         subsequent <- FALSE
+    } else {
+        fm$mergingList[[1]]$means <- calculateMeans(response, factor)
     }
 
     if (gaussian) { # Here t-test or Hotelling test is used
@@ -47,8 +50,16 @@ factorMerger <- function(response, factor, gaussian = TRUE,
 }
 
 print.factorMerger <- function(factorMerger) {
-    lapply(factorMerger$mergingList, function(x) { print(x$groups) })
+    lapply(factorMerger$mergingList, function(x) {
+        cat("Merging p-value: ")
+        cat(ifelse(is.na(x$modelStats$pval), " NULL", round(x$modelStats$pval, 3)))
+        cat(", groups: ")
+        cat(paste(x$groups, collapse = "|"))
+        cat("\n")
+        })
 }
+
+# ---
 
 stats <- function(object) {
     UseMethod("stats", object)
@@ -57,6 +68,18 @@ stats <- function(object) {
 stats.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList, function(x) { x$modelStats })
     do.call(rbind, statsList)
+}
+
+# ---
+
+means <- function(object) {
+    UseMethod("means", object)
+}
+
+means.factorMerger <- function(factorMerger) {
+    statsList <- lapply(factorMerger$mergingList,
+                        function(x) { as.data.frame(x$means) })
+    do.call(rbind, statsList) %>% unique()
 }
 
 # ---
@@ -211,7 +234,9 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
     factorMerger$mergingList[["tmp"]] <- list(groups = groups,
                                               factor = factor,
                                               factorStats = factorStats,
-                                              modelStats = NULL)
+                                              modelStats = NULL,
+                                              means = calculateMeans(
+                                                  factorMerger$response, factor))
 
     names(factorMerger$mergingList)[step + 1] <- step + 1
     names(maxStat) <- NULL
@@ -268,7 +293,9 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
     factorMerger$mergingList[["tmp"]] <- list(groups = groups,
                                               factor = factor,
                                               factorStats = factorStats,
-                                              modelStats = NULL)
+                                              modelStats = NULL,
+                                              means = calculateMeans(
+                                                  factorMerger$response, factor))
 
     names(factorMerger$mergingList)[step + 1] <- step + 1
 
