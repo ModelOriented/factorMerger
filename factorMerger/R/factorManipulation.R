@@ -26,10 +26,6 @@ setIncreasingOrder <- function(numericVec, factorVec) {
 
 #' Merge factor
 #'
-#' @rdname mergeFactor
-#' @export
-#'
-
 mergeFactor <- function(factor, groupA, groupB, groups) {
     factor[factor == groupA] <- groupB
     factor <- factor(factor, labels = groups)
@@ -41,7 +37,6 @@ mergeFactor <- function(factor, groupA, groupB, groups) {
 #' @rdname calculateMeans
 #' @importFrom dplyr group_by summarize arrange
 #'
-
 calculateMeans <- function(numericVec, factorVec) {
     if (!is.null(dim(numericVec))) {
         return(NA)
