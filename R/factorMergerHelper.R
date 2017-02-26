@@ -66,7 +66,7 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
     groupAB <- paste0(groupA, groupB)
     groups <- fs$groups[-maxInd]
     groups[maxInd] <- groupAB
-    factor <- mergeFactor(fs$factor, groupA, groupB, groups)
+    factor <- mergeFactor(fs$factor, groupA, groupB, groupAB)
     factorStats <- fs$factorStats[-maxInd]
     names(factorStats) <- groups
 
@@ -125,9 +125,9 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
     maxStat <- factorStats[maxInd[1], maxInd[2]] # to można wrzucić do modelStats
     groups <- fs$groups
     groupA <- groups[maxInd[2]]; groupB <- groups[maxInd[1]]
-    groups <- fs$groups[-maxInd]
-    groups <- c(groups, groupAB <- paste0(groupA, groupB))
-    factor <- mergeFactor(fs$factor, groupA, groupB, groups)
+    groupAB <- paste0(groupA, groupB)
+    factor <- mergeFactor(fs$factor, groupA, groupB, groupAB)
+    groups <- levels(factor)
     colnames(factorStats)[maxInd[1]] <- groupAB; rownames(factorStats)[maxInd[1]] <- groupAB
     colnames(factorStats)[maxInd[2]] <- groupAB; rownames(factorStats)[maxInd[2]] <- groupAB
     for (i in 1:length(groups)) {
@@ -143,7 +143,6 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
         factorStats <- factorStats[-maxInd[2], ][-maxInd[2]]
     }
 
-    factor <- factor(factor, levels = colnames(factorStats))
     groups <- getNames(factorStats)
     factorMerger$mergingList <- c(factorMerger$mergingList,
                                   tmp = "tmp")

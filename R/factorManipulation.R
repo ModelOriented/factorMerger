@@ -26,9 +26,11 @@ setIncreasingOrder <- function(numericVec, factorVec) {
 
 #' Merge factor
 #'
-mergeFactor <- function(factor, groupA, groupB, groups) {
-    factor[factor == groupA] <- groupB
-    factor <- factor(factor, labels = groups)
+mergeFactor <- function(factor, groupA, groupB, groupAB) {
+    # factor[factor == groupA] <- groupB
+    whichLevels <- which(levels(factor) %in% c(groupA, groupB))
+    # factor <- factor(factor, labels = groups)
+    levels(factor)[whichLevels] <- groupAB
     factor
 }
 

@@ -105,10 +105,18 @@ means.factorMerger <- function(factorMerger) {
 #' @export
 #'
 mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) {
+
+    if (is.null(response)) {
+        stop('argument "response" is missing, with no default.')
+    }
+    if (is.null(factor)) {
+        stop('argument "factor" is missing, with no default.')
+    }
+
     fm <- merger(response, factor, gaussian, subsequent)
     fm <- startMerging(fm)
     while (canBeMerged(fm)) {
-        fm <- .mergePair(fm)
+        fm <- mergePair(fm)
     }
     return(fm)
 }
