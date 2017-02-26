@@ -54,3 +54,21 @@ filterGroups <- function(response, factor, groupA, groupB) {
     return(list(xA, xB))
 }
 
+#' Get final order - ...
+#'
+getFinalOrder <- function(factorMerger) {
+    lastLevel <- factorMerger$mergingList[[length(factorMerger$mergingList)]]$groups
+    splitted <- strsplit(lastLevel, split = "\\(|\\)|\\,")[[1]]
+    splitted[nchar(splitted) > 0]
+}
+
+bindLevels <- function(groups, groupVec) {
+    groupLabel <- paste(groupVec, sep = ":", collapse = ":")
+    groups[groups %in% groupVec] <- groupLabel
+    groups
+}
+
+getTree <- function(factorMerger) {
+    steps <- length(factorMerger$mergingList)
+    return(paste0(factorMerger$mergingList[[steps]]$groups, ";"))
+}

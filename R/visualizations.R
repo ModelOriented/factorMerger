@@ -1,8 +1,8 @@
-#' Visualization
+#' Generated sample visualization
 #'
 #' @param x generatesSample object
 #'
-#' @rdname plot
+#' @rdname plot.generatedSample
 #' @importFrom ggplot2 ggplot geom_boxplot aes ylab xlab stat_summary labs
 #' @importFrom magrittr %>%
 #' @importFrom dplyr group_by summarize left_join
@@ -26,8 +26,36 @@ plot.generatedSample <- function(data) {
 
         xlab("Groups") + ylab("Response") +
         labs(title = "Generated sample - boxplot",
-             subtitle = "Groups are sorted by means.
-             Displayed summary statistic - mean in a group.")
+             subtitle = "Groups are sorted by means. Displayed summary statistic - mean in a group.")
+}
+
+#' Plot heatmap
+#'
+#' @param x generatesSample object
+#'
+#' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_bw
+#' @importFrom magrittr %>%
+#' @importFrom reshape2 melt
+#'
+
+plotHeatmap <- function(factorMerger) {
+    factorMerger$factor <- factor(factorMerger$factor, levels = getFinalOrder(factorMerger))
+    data.frame(cbind(response = factorMerger$response), factor = factorMerger$factor) %>%
+        melt(id.vars = "factor") %>% ggplot() +
+        geom_tile(aes(x = factor, y = variable, fill = value)) +
+        theme_bw()
+}
+
+#' @importFrom ggtree read.tree ggtree gheatmap theme_tree2 geom_tiplab scale_x_ggtree
+plotTree <- function(factorMerger) {
+    tr <- getTree(factorMerger)
+    df <- data.frame(factorMerger$factor, factorMerger$response)
+    df <- aggregate(df[, -1], list(df[, 1]), mean)
+    rownames(df) <- df[, 1]
+    df <- df[, -1]
+    (ggtree(read.tree(text = tr)) + geom_tiplab(align = TRUE) + theme_tree2()) %>%
+        gheatmap(df, offset = 4, width = 0.5, colnames = FALSE) %>%
+        scale_x_ggtree()
 }
 
 plot.subsequentFactorMerger <- function(fm) {

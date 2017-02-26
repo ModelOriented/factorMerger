@@ -20,7 +20,8 @@ merger <- function(response, factor, gaussian = TRUE,
                                 factor = factor,
                                 factorStats = list(),
                                 modelStats = list(),
-                                means = NA))
+                                means = NA,
+                                merged = NA))
     )
 
     class(fm) <- "factorMerger"
@@ -98,6 +99,22 @@ means.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$means) })
     do.call(rbind, statsList) %>% unique()
+}
+
+
+#' Show merging history - ...
+#'
+#' @export
+#'
+mergingHistory <- function(object) {
+    UseMethod("mergingHistory", object)
+}
+
+#' ---
+mergingHistory.factorMerger <- function(factorMerger) {
+    statsList <- sapply(factorMerger$mergingList,
+                        function(x) { x$merged })
+    do.call(rbind, statsList)
 }
 
 #' Merge factors - ...

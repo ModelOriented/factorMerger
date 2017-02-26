@@ -63,7 +63,8 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
     maxStat <- fs$factorStats[maxInd]
     groupA <- names(maxInd)
     groupB <- names(fs$factorStats[maxInd + 1])
-    groupAB <- paste0(groupA, groupB)
+    factorMerger$mergingList[[step]]$merged <- c(groupA, groupB)
+    groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
     groups <- fs$groups[-maxInd]
     groups[maxInd] <- groupAB
     factor <- mergeLevels(fs$factor, groupA, groupB, groupAB)
@@ -125,7 +126,8 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
     maxStat <- factorStats[maxInd[1], maxInd[2]] # to można wrzucić do modelStats
     groups <- fs$groups
     groupA <- groups[maxInd[2]]; groupB <- groups[maxInd[1]]
-    groupAB <- paste0(groupA, groupB)
+    groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
+    factorMerger$mergingList[[step]]$merged <- c(groupA, groupB) # trochę tu jest copy-paste...
     factor <- mergeLevels(fs$factor, groupA, groupB, groupAB)
     groups <- levels(factor)
     colnames(factorStats)[maxInd[1]] <- groupAB; rownames(factorStats)[maxInd[1]] <- groupAB
