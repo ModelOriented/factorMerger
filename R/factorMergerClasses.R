@@ -137,3 +137,17 @@ mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) 
     }
     return(fm)
 }
+
+node <- function(left, right = NULL, pval = 1, stats = NULL) {
+    if (is.null(right)) {
+        return(list(pval = pval,
+                   text = left,
+                   stats = stats))
+        # return(me)
+    }
+    leftDiff <- left$pval - pval
+    rightDiff <- right$pval - pval
+    return(list(pval = pval,
+               text = paste0("(", left$text, ": ", leftDiff,
+                             ", ", right$text, ": ", rightDiff, ")")))
+}

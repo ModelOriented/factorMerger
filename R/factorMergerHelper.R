@@ -168,3 +168,22 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
 mergePair.multiClassFactorMerger <- function(factorMerger) {
 
 }
+
+
+getTreeWithEdgesLength <- function(factorMerger) {
+    nodes <- list()
+    initLevels <- levels(factorMerger$factor)
+    for (level in initLevels) {
+        nodes <- c(nodes, list(node(level)))
+    }
+    names(nodes) <- initLevels
+
+    ml <- factorMerger$mergingList
+    for (i in 1:(length(ml) - 1)) {
+        merged <- ml[[i]]$merged
+        nodes <- c(nodes, list(node(nodes[[merged[1]]], nodes[[merged[2]]], pval = ml[[i + 1]]$modelStats$pval)))
+        names(nodes)[length(nodes)] <- paste0("(", merged[1], ",", merged[2], ")")
+    }
+
+    return(paste0(nodes[[length(nodes)]]$text, ":", pval, ";"))
+}

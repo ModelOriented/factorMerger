@@ -60,5 +60,5 @@ generateMultivariateSample <- function(N, k, d = 2, distr = "norm") {
         }
         res[, j] <- normal
     }
-    return(data.frame(res = res, factor = tmp$factorVec))
+    return(list(factor = tmp$factorVec, res = res))
 }

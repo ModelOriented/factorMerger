@@ -47,14 +47,21 @@ plotHeatmap <- function(factorMerger) {
 }
 
 #' @importFrom ggtree read.tree ggtree gheatmap theme_tree2 geom_tiplab scale_x_ggtree
-plotTree <- function(factorMerger) {
-    tr <- getTree(factorMerger)
+plot.multivariateFactorMerger <- function(factorMerger) {
+    # TODO: Center x-axis title
+    # TODO2: Enable choosing between plot type
+    # TODO3: Add heatmap labels
+    # TODO4: Shift tree root (it shouldn't start in zero but in lowest p-value)
+        #  plot(ape::read.tree(text = tr), root.edge = T)!!
+    # TODO5: Enable plotting different statistixs on x-axis
+    tr <- getTreeWithEdgesLength(factorMerger)
     df <- data.frame(factorMerger$factor, factorMerger$response)
     df <- aggregate(df[, -1], list(df[, 1]), mean)
     rownames(df) <- df[, 1]
-    df <- df[, -1]
-    (ggtree(read.tree(text = tr)) + geom_tiplab(align = TRUE) + theme_tree2()) %>%
-        gheatmap(df, offset = 4, width = 0.5, colnames = FALSE) %>%
+    df <- data.frame(df[, -1])
+    (ggtree(read.tree(text = tr)) + geom_tiplab(align = TRUE) +
+            theme_tree2() + xlab("P-value")) %>%
+        gheatmap(df, width = 0.5, colnames = FALSE) %>%
         scale_x_ggtree()
 }
 
