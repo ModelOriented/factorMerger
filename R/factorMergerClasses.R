@@ -108,7 +108,7 @@ mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) 
     fm <- merger(response, factor, gaussian, subsequent)
     fm <- startMerging(fm)
     while (canBeMerged(fm)) {
-        fm <- mergePair(fm)
+        fm <- .mergePair(fm)
     }
     return(fm)
 }
