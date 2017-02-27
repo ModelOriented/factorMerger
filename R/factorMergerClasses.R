@@ -56,22 +56,6 @@ merger <- function(response, factor, gaussian = TRUE,
     return(fm)
 }
 
-#' Factor Merger - ...
-#'
-#' @export
-#'
-print.factorMerger <- function(factorMerger) {
-    lapply(factorMerger$mergingList, function(x) {
-        cat("Merging p-value: ")
-        cat(ifelse(is.na(x$modelStats$pval), " NULL", round(x$modelStats$pval, 3)))
-        cat(", groups: ")
-        cat(paste(x$groups, collapse = "|"))
-        cat("\n")
-        })
-}
-
-# ---
-
 #' Show models statistics - ...
 #'
 #' @export
@@ -137,6 +121,21 @@ mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) 
     }
     return(fm)
 }
+
+#' Factor Merger - ...
+#'
+#' @export
+#'
+print.factorMerger <- function(factorMerger) {
+   stats <- round(stats(factorMerger), 4)
+   mergList <- mergingHistory(factorMerger)
+   mergList <- rbind(c("", ""), mergList)
+   df <- data.frame(mergList, stats)
+   colnames(df)[1:2] <- c("groupA", "groupB")
+   print(df)
+}
+
+
 
 node <- function(left, right = NULL, pval = 1, stats = NULL) {
     if (is.null(right)) {

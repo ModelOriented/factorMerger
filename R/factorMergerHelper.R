@@ -3,6 +3,43 @@ subsequentContrasts <- function(n) {
            nrow = n,
            ncol = n - 1)
 }
+
+insertNAs <- function(vec, pos) {
+    if (pos > length(vec)) {
+        return(c(vec, NA))
+    }
+    diff <- length(vec) - pos + 2
+    return(c(vec[0:(pos - 1)], rep(NA, diff)))
+}
+
+
+updateStatistics <- function(factorMerger, groups, factor) {
+    UseMethod("updateStatistics", factorMerger)
+}
+updateStatistics.allToAllFactorMerger <- function(factorMerger, groups, factor) {
+    noGroups <- length(groups)
+    if (noGroups > 1) {
+        statsTmp <- sapply(groups, function(y) {
+            fac <- relevel(factor, ref = y)
+            model <- calculateModel(factorMerger, fac)
+            getPvals(model)
+        })
+
+        if (noGroups == 2) {
+            statsTmp <- t(statsTmp)
+        }
+        stats <- matrix(, ncol = noGroups, nrow = noGroups)
+        for (i in 1:noGroups) {
+            stats[, i] <- insertNAs(statsTmp[, i], i)
+        }
+        colnames(stats) <- groups; rownames(stats) <- groups
+
+    } else {
+        stats <- NULL
+    }
+    return(stats)
+}
+
 #' ----
 startMerging <- function(factorMerger) {
     UseMethod("startMerging", factorMerger)
@@ -30,16 +67,10 @@ startMerging.subsequentFactorMerger <- function(factorMerger) {
 #' ----
 startMerging.allToAllFactorMerger <- function(factorMerger) {
     groups <- factorMerger$mergingList[[1]]$groups
-    noGroups <- length(groups)
-    stats <- sapply(groups, function(y) {
-        sapply(groups, function(x) {
-            calculatePairStatistic(factorMerger, factorMerger$factor, x, y)
-        })
-    })
-    colnames(stats) <- groups; rownames(stats) <- groups
+    stats <- updateStatistics(factorMerger, groups, factorMerger$factor)
     factorMerger$mergingList[[1]]$factorStats <- stats
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
-        model = calculateModelStatistic(factorMerger),
+        model = calculateModelStatistic(lm(factorMerger$response ~ factorMerger$factor)),
         pval = NA)
     return(factorMerger)
 }
@@ -64,7 +95,6 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
     groupA <- names(maxInd)
     groupB <- names(fs$factorStats[maxInd + 1])
     factorMerger$mergingList[[step]]$merged <- c(groupA, groupB)
-    # groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
     groupAB <- paste0(groupA, groupB)
     groups <- fs$groups[-maxInd]
     groups[maxInd] <- groupAB
@@ -98,55 +128,26 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
 }
 
 #' ----
-getNames <- function(object) {
-    UseMethod("getNames", object)
-}
-
-#' ----
-getNames.matrix <- function(vector) {
-    return(colnames(vector))
-}
-
-#' ----
-getNames.numeric <- function(numeric) {
-    return(names(numeric))
-}
-
-#' ----
 mergePair.allToAllFactorMerger <- function(factorMerger) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
     factorStats <- fs$factorStats
-    maxInd <- which(factorStats == max(factorStats), arr.ind = TRUE)[1, ]
-    maxStat <- factorStats[maxInd[1], maxInd[2]] # to można wrzucić do modelStats
+    maxInd <- which(factorStats == max(factorStats, na.rm = TRUE), arr.ind = TRUE)[1, ]
+    maxStat <- factorStats[maxInd[1], maxInd[2]]
     groups <- fs$groups
-    groupA <- groups[maxInd[2]]; groupB <- groups[maxInd[1]]
-    # groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
+    groupA <- groups[maxInd[1]]; groupB <- groups[maxInd[2]]
     groupAB <- paste0(groupA, groupB)
-    factorMerger$mergingList[[step]]$merged <- c(groupA, groupB) # trochę tu jest copy-paste...
+    factorMerger$mergingList[[step]]$merged <- c(groupA, groupB)
     factor <- mergeLevels(fs$factor, groupA, groupB, groupAB)
     groups <- levels(factor)
-    colnames(factorStats)[maxInd[1]] <- groupAB; rownames(factorStats)[maxInd[1]] <- groupAB
-    colnames(factorStats)[maxInd[2]] <- groupAB; rownames(factorStats)[maxInd[2]] <- groupAB
-    for (i in 1:length(groups)) {
-        factorStats[maxInd[1], i] <- calculatePairStatistic(factorMerger, factor,
-                                                            groupAB, colnames(factorStats)[i])
-        factorStats[i, maxInd[1]] <- calculatePairStatistic(factorMerger, factor,
-                                                            groupAB, rownames(factorStats)[i])
-    }
-
-    if (ncol(factorStats) > 2) {
-        factorStats <- factorStats[-maxInd[2], -maxInd[2]]
-    } else {
-        factorStats <- factorStats[-maxInd[2], ][-maxInd[2]]
-    }
-
-    groups <- getNames(factorStats)
+    noGroups <- length(groups)
+    model <- calculateModel(factorMerger, factor)
+    stats <- updateStatistics(factorMerger, groups, factor)
     factorMerger$mergingList <- c(factorMerger$mergingList,
                                   tmp = "tmp")
     factorMerger$mergingList[["tmp"]] <- list(groups = groups,
                                               factor = factor,
-                                              factorStats = factorStats,
+                                              factorStats = stats,
                                               modelStats = NULL,
                                               means = calculateMeans(
                                                   factorMerger$response, factor))
@@ -154,17 +155,15 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
     names(factorMerger$mergingList)[step + 1] <- step + 1
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
-        data.frame(model = calculateModelStatistic(factorMerger),
+        data.frame(model = calculateModelStatistic(model),
                    pval = maxStat)
     return(factorMerger)
-    # TODO: replace for with apply
 }
 
 #' ----
 mergePair.multiClassFactorMerger <- function(factorMerger) {
 
 }
-
 
 getTreeWithEdgesLength <- function(factorMerger) {
     nodes <- list()
