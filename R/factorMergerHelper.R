@@ -1,3 +1,8 @@
+subsequentContrasts <- function(n) {
+    matrix(rep(c(1, -1, rep(0, n - 1)), n - 1)[1:(n * (n - 1))],
+           nrow = n,
+           ncol = n - 1)
+}
 #' ----
 startMerging <- function(factorMerger) {
     UseMethod("startMerging", factorMerger)
@@ -7,22 +12,17 @@ startMerging <- function(factorMerger) {
 startMerging.subsequentFactorMerger <- function(factorMerger) {
     factorMerger$factor <- setIncreasingOrder(factorMerger$response,
                                               factorMerger$factor)
+    contrasts(factorMerger$factor) <-
+        subsequentContrasts(length(levels(factorMerger$factor)))
     factorMerger$mergingList[[1]]$factor <- factorMerger$factor
     groups <- levels(factorMerger$mergingList[[1]]$factor)
     factorMerger$mergingList[[1]]$groups <- groups
-    noGroups <- length(groups)
-    stats <- rep(NA, noGroups)
+    model <- calculateModel(factorMerger, factorMerger$factor)
+    stats <- c(getPvals(model), NA)
     names(stats) <- groups
-
-    for (k in 1:max(1, (noGroups - 1))) {
-        stats[k] <- calculatePairStatistic(factorMerger,
-                                           factorMerger$factor,
-                                           groups[k], groups[k + 1])
-    }
-
     factorMerger$mergingList[[1]]$factorStats <- stats
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
-        model = calculateModelStatistic(factorMerger),
+        model = calculateModelStatistic(model),
         pval = NA)
     return(factorMerger)
 }
@@ -64,24 +64,19 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
     groupA <- names(maxInd)
     groupB <- names(fs$factorStats[maxInd + 1])
     factorMerger$mergingList[[step]]$merged <- c(groupA, groupB)
-    groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
+    # groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
+    groupAB <- paste0(groupA, groupB)
     groups <- fs$groups[-maxInd]
     groups[maxInd] <- groupAB
     factor <- mergeLevels(fs$factor, groupA, groupB, groupAB)
-    factorStats <- fs$factorStats[-maxInd]
+
+    if (length(unique(factor)) > 1) {
+        contrasts(factor) <- subsequentContrasts(length(unique(factor)))
+    }
+
+    model <- calculateModel(factorMerger, factor)
+    factorStats <- c(getPvals(model), NA)
     names(factorStats) <- groups
-
-    if (maxInd > 1) {
-        factorStats[maxInd - 1] <- calculatePairStatistic(factorMerger, factor,
-                                                          groups[maxInd],
-                                                          groups[maxInd - 1])
-    }
-
-    if (maxInd < length(groups)) {
-        factorStats[maxInd] <- calculatePairStatistic(factorMerger, factor,
-                                                      groups[maxInd],
-                                                      groups[maxInd + 1])
-    }
 
     factorMerger$mergingList <- c(factorMerger$mergingList,
                                   tmp = "tmp")
@@ -96,7 +91,7 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
     names(maxStat) <- NULL
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
-        data.frame(model = calculateModelStatistic(factorMerger),
+        data.frame(model = calculateModelStatistic(model),
                    pval = maxStat)
     return(factorMerger)
 
@@ -126,7 +121,8 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
     maxStat <- factorStats[maxInd[1], maxInd[2]] # to można wrzucić do modelStats
     groups <- fs$groups
     groupA <- groups[maxInd[2]]; groupB <- groups[maxInd[1]]
-    groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
+    # groupAB <- paste0("(", paste(groupA, groupB, sep = ","), ")")
+    groupAB <- paste0(groupA, groupB)
     factorMerger$mergingList[[step]]$merged <- c(groupA, groupB) # trochę tu jest copy-paste...
     factor <- mergeLevels(fs$factor, groupA, groupB, groupAB)
     groups <- levels(factor)
@@ -182,7 +178,7 @@ getTreeWithEdgesLength <- function(factorMerger) {
     for (i in 1:(length(ml) - 1)) {
         merged <- ml[[i]]$merged
         nodes <- c(nodes, list(node(nodes[[merged[1]]], nodes[[merged[2]]], pval = ml[[i + 1]]$modelStats$pval)))
-        names(nodes)[length(nodes)] <- paste0("(", merged[1], ",", merged[2], ")")
+        names(nodes)[length(nodes)] <- paste0(merged[1], merged[2])
     }
 
     return(paste0(nodes[[length(nodes)]]$text, ":", pval, ";"))

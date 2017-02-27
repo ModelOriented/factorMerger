@@ -4,3 +4,5 @@
 notes   
 *.Rproj
 /Analysis/testUpgrade.Rmd
+inst/doc
+ignore.R

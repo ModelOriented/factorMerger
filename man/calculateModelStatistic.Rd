@@ -4,7 +4,7 @@
 \alias{calculateModelStatistic}
 \title{Calculate model statistic - ...}
 \usage{
-calculateModelStatistic(factorMerger)
+calculateModelStatistic(model)
 }
 \description{
 Calculate model statistic - ...

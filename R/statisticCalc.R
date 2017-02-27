@@ -1,3 +1,23 @@
+calculateModel <- function(factorMerger, factor) {
+    UseMethod("calculateModel", factorMerger)
+}
+
+calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
+    if (length(unique(factor)) > 1) {
+        return(lm(factorMerger$response ~ factor))
+    }
+    return(lm(factorMerger$response ~ 1))
+}
+
+getPvals <- function(model) {
+    UseMethod("getPvals", model)
+}
+
+getPvals.lm <- function(model) {
+    return(summary(model)$coefficient[-1, 4])
+}
+
+
 #' Calculate pair statistic - ...
 #'
 calculatePairStatistic <- function(factorMerger, factor,
@@ -63,32 +83,12 @@ calculatePairStatistic.nonparametricFactorMerger <- function(factorMerger, facto
 
 #' Calculate model statistic - ...
 #'
-calculateModelStatistic <- function(factorMerger) {
-    UseMethod("calculateModelStatistic", factorMerger)
+calculateModelStatistic <- function(model) {
+    UseMethod("calculateModelStatistic", model)
 }
 
 #' Calculate model statistic (gaussian case) - ...
 #'
-calculateModelStatistic.gaussianFactorMerger <- function(factorMerger) {
-    y <- factorMerger$response
-    x <- factorMerger$mergingList[[length(factorMerger$mergingList)]]$factor
-    if (length(levels(x)) > 1) {
-        return(logLik(lm(y ~ x))[1])
-    } else {
-        return(logLik(lm(y ~ 1))[1])
-    }
+calculateModelStatistic.lm <- function(model) {
+    return(logLik(model))
 }
-
-#' Calculate model statistic (multivariate response case) - ...
-#'
-calculateModelStatistic.multivariateFactorMerger <- function(factorMerger) {
-    return(NA) # TODO
-}
-
-#' Calculate model statistic (nonparametric case) - ...
-#'
-calculateModelStatistic.nonparametricFactorMerger <- function(factorMerger) {
-    return(NA) # TODO
-}
-
-# ---

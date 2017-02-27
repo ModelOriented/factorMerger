@@ -52,7 +52,7 @@ plot.multivariateFactorMerger <- function(factorMerger) {
     # TODO2: Enable choosing between plot type
     # TODO3: Add heatmap labels
     # TODO4: Shift tree root (it shouldn't start in zero but in lowest p-value)
-        #  plot(ape::read.tree(text = tr), root.edge = T)!!
+        # plot(ape::read.tree(text = tr), root.edge = T)!!
     # TODO5: Enable plotting different statistixs on x-axis
     tr <- getTreeWithEdgesLength(factorMerger)
     df <- data.frame(factorMerger$factor, factorMerger$response)
