@@ -79,7 +79,18 @@ calculatePairStatistic.nonparametricFactorMerger <- function(factorMerger, facto
     return(adonis(X ~ group, data = g)$aov.tab$`Pr(>F)`[1])
 }
 
-# ---
+#' Gaussian model loglikelihood
+#'
+#' http://r.789695.n4.nabble.com/Multiple-regression-information-criterion-td4689113.html
+logLikLm <- function(obj) {
+    E <- obj$residuals
+    S <- cov(matrix(E, nrow = NROW(E)))
+    Sinv <- solve(S)
+    n <- NROW(E)
+    p <- NCOL(E)
+    return(- n * p / 2 * log(2 * pi) - n / 2 * log(det(S)) -
+               1/2 * sum(diag(E %*% Sinv %*% t(E))))
+}
 
 #' Calculate model statistic - ...
 #'
@@ -90,5 +101,5 @@ calculateModelStatistic <- function(model) {
 #' Calculate model statistic (gaussian case) - ...
 #'
 calculateModelStatistic.lm <- function(model) {
-    return(logLik(model))
+    return(logLikLm(model))
 }

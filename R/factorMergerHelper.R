@@ -16,6 +16,7 @@ insertNAs <- function(vec, pos) {
 updateStatistics <- function(factorMerger, groups, factor) {
     UseMethod("updateStatistics", factorMerger)
 }
+
 updateStatistics.allToAllFactorMerger <- function(factorMerger, groups, factor) {
     noGroups <- length(groups)
     if (noGroups > 1) {
@@ -28,7 +29,7 @@ updateStatistics.allToAllFactorMerger <- function(factorMerger, groups, factor) 
         if (noGroups == 2) {
             statsTmp <- t(statsTmp)
         }
-        stats <- matrix(, ncol = noGroups, nrow = noGroups)
+        stats <- matrix(NA, ncol = noGroups, nrow = noGroups)
         for (i in 1:noGroups) {
             stats[, i] <- insertNAs(statsTmp[, i], i)
         }
@@ -40,12 +41,10 @@ updateStatistics.allToAllFactorMerger <- function(factorMerger, groups, factor) 
     return(stats)
 }
 
-#' ----
 startMerging <- function(factorMerger) {
     UseMethod("startMerging", factorMerger)
 }
 
-#' ----
 startMerging.subsequentFactorMerger <- function(factorMerger) {
     factorMerger$factor <- setIncreasingOrder(factorMerger$response,
                                               factorMerger$factor)
@@ -64,7 +63,6 @@ startMerging.subsequentFactorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
-#' ----
 startMerging.allToAllFactorMerger <- function(factorMerger) {
     groups <- factorMerger$mergingList[[1]]$groups
     stats <- updateStatistics(factorMerger, groups, factorMerger$factor)
@@ -75,18 +73,15 @@ startMerging.allToAllFactorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
-#' ----
 canBeMerged <- function(factorMerger) {
     ml <- factorMerger$mergingList
     return(length(ml[[length(ml)]]$groups) > 1)
 }
 
-#' ----
 mergePair <- function(factorMerger) {
     UseMethod("mergePair", factorMerger)
 }
 
-#' ----
 mergePair.subsequentFactorMerger <- function(factorMerger) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
@@ -127,7 +122,6 @@ mergePair.subsequentFactorMerger <- function(factorMerger) {
 
 }
 
-#' ----
 mergePair.allToAllFactorMerger <- function(factorMerger) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
@@ -160,7 +154,6 @@ mergePair.allToAllFactorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
-#' ----
 mergePair.multiClassFactorMerger <- function(factorMerger) {
 
 }
