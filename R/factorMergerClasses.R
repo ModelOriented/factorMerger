@@ -137,16 +137,20 @@ print.factorMerger <- function(factorMerger) {
 
 
 
-node <- function(left, right = NULL, pval = 1, stats = NULL) {
+node <- function(left, right = NULL, stat = NULL) {
     if (is.null(right)) {
-        return(list(pval = pval,
-                   text = left,
-                   stats = stats))
-        # return(me)
+        if (is.na(stat)) {
+        return(list(stat = 1,
+                   text = left))
+        }
+        else {
+            return(list(stat = stat,
+                        text = left))
+        }
     }
-    leftDiff <- left$pval - pval
-    rightDiff <- right$pval - pval
-    return(list(pval = pval,
+    leftDiff <- left$stat - stat
+    rightDiff <- right$stat - stat
+    return(list(stat = stat,
                text = paste0("(", left$text, ": ", leftDiff,
                              ", ", right$text, ": ", rightDiff, ")")))
 }

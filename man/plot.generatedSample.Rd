@@ -4,7 +4,7 @@
 \alias{plot.generatedSample}
 \title{Generated sample visualization}
 \usage{
-\method{plot}{generatedSample}(data)
+plot.generatedSample(data)
 }
 \arguments{
 \item{x}{generatesSample object}

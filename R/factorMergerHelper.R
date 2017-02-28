@@ -24,7 +24,7 @@ updateStatistics.allToAllFactorMerger <- function(factorMerger, groups, factor) 
             fac <- relevel(factor, ref = y)
             model <- calculateModel(factorMerger, fac)
             getPvals(model)
-        })s
+        })
 
         if (noGroups == 2) {
             statsTmp <- t(statsTmp)
@@ -158,20 +158,22 @@ mergePair.multiClassFactorMerger <- function(factorMerger) {
 
 }
 
-getTreeWithEdgesLength <- function(factorMerger) {
+getTreeWithEdgesLength <- function(factorMerger, stat) {
     nodes <- list()
     initLevels <- levels(factorMerger$factor)
+    initStat <- factorMerger$mergingList$`1`$modelStats[stat]
     for (level in initLevels) {
-        nodes <- c(nodes, list(node(level)))
+        nodes <- c(nodes, list(node(level, stat = initStat)))
     }
     names(nodes) <- initLevels
 
     ml <- factorMerger$mergingList
     for (i in 1:(length(ml) - 1)) {
         merged <- ml[[i]]$merged
-        nodes <- c(nodes, list(node(nodes[[merged[1]]], nodes[[merged[2]]], pval = ml[[i + 1]]$modelStats$pval)))
+        nodes <- c(nodes, list(node(nodes[[merged[1]]], nodes[[merged[2]]],
+                                    stat = ml[[i + 1]]$modelStats[stat])))
         names(nodes)[length(nodes)] <- paste0(merged[1], merged[2])
     }
 
-    return(paste0(nodes[[length(nodes)]]$text, ":", pval, ";"))
+    return(paste0(nodes[[length(nodes)]]$text, ":", nodes[[length(nodes)]]$stat, ";"))
 }
