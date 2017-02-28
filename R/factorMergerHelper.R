@@ -24,7 +24,7 @@ updateStatistics.allToAllFactorMerger <- function(factorMerger, groups, factor) 
             fac <- relevel(factor, ref = y)
             model <- calculateModel(factorMerger, fac)
             getPvals(model)
-        })
+        })s
 
         if (noGroups == 2) {
             statsTmp <- t(statsTmp)
