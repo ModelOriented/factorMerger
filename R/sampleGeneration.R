@@ -50,17 +50,22 @@ generateSample <- function(N, k, distr = "norm") {
 #' @export
 #'
 generateMultivariateSample <- function(N, k, d = 2, distr = "norm") {
-    res <- matrix(, nrow = N, ncol = d)
     tmp <- generateSample(N, k, distr)
-    res[, 1] <- tmp$numericVec
-    for (j in 2:d) {
-        for (i in 1:k) {
-            randomShift <- sample(seq(0, 1, 0.1), size = 1)
-            normal <- rnorm(N)
-            normal[tmp$factorVec == LETTERS[i]] <-
-                normal[tmp$factorVec == LETTERS[i]] + randomShift
+    if (d > 1) {
+        res <- matrix(, nrow = N, ncol = d)
+        res[, 1] <- tmp$response
+        for (j in 2:d) {
+            for (i in 1:k) {
+                randomShift <- sample(seq(0, 1, 0.1), size = 1)
+                normal <- rnorm(N)
+                normal[tmp$factor == LETTERS[i]] <-
+                    normal[tmp$factor == LETTERS[i]] + randomShift
+            }
+            res[, j] <- normal
         }
-        res[, j] <- normal
+        return(list(factor = tmp$factor, response = res))
+    } else {
+        return(tmp)
     }
-    return(list(factor = tmp$factorVec, response = res))
+
 }

@@ -4,7 +4,7 @@
 #'
 #' @export
 #'
-merger <- function(response, factor, gaussian = TRUE,
+merger <- function(response, factor, family = "gaussian",
                          subsequent = FALSE) {
 
     if (NROW(response) != NROW(factor)) {
@@ -26,22 +26,31 @@ merger <- function(response, factor, gaussian = TRUE,
 
     class(fm) <- "factorMerger"
 
-    if (gaussian) { # Here t-test or Hotelling test is used
-
-        if (!is.null(dim(response))) { # MANOVA
-            class(fm) <- append(class(fm), "multivariateFactorMerger")
-            if (subsequent) {
-                warning("Subsequent merging is meaningless with multivariate response. All-to-all merging run instead.")
-                subsequent <- FALSE
-            }
-        } else {
-            fm$mergingList[[1]]$means <- calculateMeans(response, factor)
+    if (NCOL(response) > 1) {
+        class(fm) <- append(class(fm), "multivariateFactorMerger")
+        if (subsequent) {
+            warning("Subsequent merging with multivariate responseis not yet implemented. All-to-all merging run instead.")
+            subsequent <- FALSE
         }
-        class(fm) <- append(class(fm), "gaussianFactorMerger")
-
-    } else { # TODO: Here we'll use adonis{vegan}
-        class(fm) <- append(class(fm), "nonparametricFactorMerger")
+    } else {
+        fm$mergingList[[1]]$means <- calculateMeans(response, factor)
     }
+
+    switch(family,
+           "gaussian" = {
+               class(fm) <- append(class(fm), "gaussianFactorMerger")
+           },
+
+           "survival" = {
+               class(fm) <- append(class(fm), "survivalFactorMerger")
+               stop("Survival analysis is not supported yet.")
+           },
+           "nonparametric" = {
+               class(fm) <- append(class(fm), "nonparametricFactorMerger")
+               stop("Non-parametric analysis is not supported yet.")
+           },
+           stop("Unknown family"))
+
 
     if (subsequent) {
         class(fm) <- append(class(fm), "subsequentFactorMerger")
@@ -49,8 +58,9 @@ merger <- function(response, factor, gaussian = TRUE,
         class(fm) <- append(class(fm), "allToAllFactorMerger")
     }
 
-    if (!is.null(dim(class))) { # TODO: ...
+    if (NCOL(factor) > 1) { # TODO: ...
         class(fm) <- append(class(fm), "multiClassFactorMerger")
+        stop("Factor merging with multivariate factor is not supported yet.")
     }
 
     return(fm)
@@ -105,7 +115,7 @@ mergingHistory.factorMerger <- function(factorMerger) {
 #'
 #' @export
 #'
-mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) {
+mergeFactors <- function(response, factor, family = "gaussian", subsequent = FALSE) {
 
     if (is.null(response)) {
         stop('argument "response" is missing, with no default.')
@@ -114,7 +124,7 @@ mergeFactors <- function(response, factor, gaussian = TRUE, subsequent = FALSE) 
         stop('argument "factor" is missing, with no default.')
     }
 
-    fm <- merger(response, factor, gaussian, subsequent)
+    fm <- merger(response, factor, family, subsequent)
     fm <- startMerging(fm)
     while (canBeMerged(fm)) {
         fm <- mergePair(fm)

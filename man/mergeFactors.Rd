@@ -4,7 +4,7 @@
 \alias{mergeFactors}
 \title{Merge factors - ...}
 \usage{
-mergeFactors(response, factor, gaussian = TRUE, subsequent = FALSE)
+mergeFactors(response, factor, family = "gaussian", subsequent = FALSE)
 }
 \description{
 Merge factors - ...
