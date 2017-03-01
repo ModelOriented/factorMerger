@@ -13,13 +13,10 @@
 #' generateSample(100, 2, "exp")
 #'
 #' @return
-#' \code{data.table} with two columns: numeric variable
-#' and factor variable.
+#' \code{list} with two fields: numeric variable \code{response}
+#' and factor variable \code{factor}.
 #'
 #' @rdname generateSample
-#'
-#' @importFrom data.table data.table
-#'
 #' @export
 #'
 #'
@@ -40,13 +37,18 @@ generateSample <- function(N, k, distr = "norm") {
         numericVec[factorVec == let] <- numericVec[factorVec == let] + randomShift
     }
 
-    generatedSample <-
-        data.table(numericVec = numericVec,
-                   factorVec = setIncreasingOrder(numericVec, factorVec))
+    generatedSample <- list(
+        factor = setIncreasingOrder(numericVec, factorVec),
+        response = numericVec)
+
     class(generatedSample) <- append("generatedSample", class(generatedSample))
-    generatedSample
+    return(generatedSample)
 }
 
+#' Generate multivariate sample
+#'
+#' @export
+#'
 generateMultivariateSample <- function(N, k, d = 2, distr = "norm") {
     res <- matrix(, nrow = N, ncol = d)
     tmp <- generateSample(N, k, distr)
@@ -60,5 +62,5 @@ generateMultivariateSample <- function(N, k, d = 2, distr = "norm") {
         }
         res[, j] <- normal
     }
-    return(list(factor = tmp$factorVec, res = res))
+    return(list(factor = tmp$factorVec, response = res))
 }

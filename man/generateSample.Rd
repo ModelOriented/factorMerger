@@ -14,8 +14,8 @@ generateSample(N, k, distr = "norm")
 \item{distr}{type of distribution from \code{c("norm", "exp", "beta")}}
 }
 \value{
-\code{data.table} with two columns: numeric variable
-and factor variable.
+\code{list} with two fields: numeric variable \code{response}
+and factor variable \code{factor}.
 }
 \description{
 Function generateSample() produces a random sample consisting

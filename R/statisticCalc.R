@@ -13,6 +13,7 @@ HL <- function (eig, q, df.res) {
 # pvalue for Hotelling test {car}:
 # https://github.com/cran/car/blob/1425129f002cb91a38951ad8af641254368a4d96/R/Anova.R
 HLPval <- function(linHyp.mlm) {
+    SSPE.qr <- qr(linHyp.mlm$SSPE)
     eigs <- Re(eigen(qr.coef(SSPE.qr, linHyp.mlm$SSPH), symmetric = FALSE)$values)
     hotellVec <- HL(eigs, linHyp.mlm$df, linHyp.mlm$df.residual)
     return(stats::pf(hotellVec[2],

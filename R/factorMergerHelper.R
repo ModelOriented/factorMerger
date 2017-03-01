@@ -12,7 +12,6 @@ insertNAs <- function(vec, pos) {
     return(c(vec[0:(pos - 1)], rep(NA, diff)))
 }
 
-
 updateStatistics <- function(factorMerger, groups, factor) {
     UseMethod("updateStatistics", factorMerger)
 }
@@ -158,6 +157,7 @@ mergePair.multiClassFactorMerger <- function(factorMerger) {
 
 }
 
+#' @export
 getTreeWithEdgesLength <- function(factorMerger, stat) {
     nodes <- list()
     initLevels <- levels(factorMerger$factor)
