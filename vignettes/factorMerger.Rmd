@@ -1,0 +1,82 @@
+---
+title: "factorMerger: set of tools to support results from post hoc testing"
+author: "Agnieszka Sitko"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE)
+```
+
+## Introduction
+
+The aim of `factorMerger` is to provide set of tools to support results from post hoc comparisons. Post hoc testing is an analysis performed after running *ANOVA* to examine differences between group means (of some response numeric variable) for each pair of groups (groups are defined by a factor variable).
+
+This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into nonoverlapping cluster. 
+
+Current version of `factorMerger` supports models with gaussian response variable - either one-dimensional or multivariate - and one-dimensional factor variable.
+
+## Algorithm
+
+TODO.
+
+## Generating samples 
+
+To visualize functionalities of `factorMerger` we use samples for which response variable is generated from $d$-dimensional normal distribution and corresponding factor variable is sampled uniformly from a finite set of a size $k$. 
+
+To do so, we may use function `generateMultivariateSample`.
+
+```{r}
+library(factorMerger) 
+randSample <- generateMultivariateSample(N = 1000, k = 10, d = 5)
+```
+
+## Merging factors
+
+#### All-to-all testing
+
+`mergeFactors` is a function that performs hierarchical post hoc testing. As arguments it takes:
+
+ - matrix/data.frame/vector with numeric response,
+ - factor vector defining groups.
+
+```{r}
+fm <- mergeFactors(randSample$response, randSample$factor)
+```
+
+`mergeFactors` outputs with information about 'merging history'.
+
+```{r}
+print(fm)
+```
+
+Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers some statistic calculated for the model after merging (e.g. in gaussian case this is loglikelihood), column 'pval' gives significance threshold below which hypothesis about means equality holds.
+
+We may also plot results using functions `plot` or `plotTree`. `plotTree` is extended version of `plot`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or 'pval'), `plot` uses 'model' column.
+
+```{r, fig.height = 5, fig.width = 7}
+plotTree(fm, "model")
+```
+
+```{r, fig.height = 5, fig.width = 7}
+plotTree(fm, "pval")
+```
+
+Both functions use `ggtree` package.
+
+#### Subsequent merging
+
+If our response variable is one-dimensional in each step of the algorithm we may want to compare only subsequent groups (if groups are sorted by means). 
+
+To run subsequent merging set `subsequent = TRUE` in `mergeFactors`.
+
+```{r}
+oneDimRandSample <- generateMultivariateSample(1000, 10, 1)
+mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, subsequent = TRUE)
+```
+

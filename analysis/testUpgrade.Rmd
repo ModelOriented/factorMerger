@@ -1,0 +1,506 @@
+---
+title: "Hierarchiczne testy post hoc"
+output: 
+    html_document:
+        toc: true
+        toc_float: 
+            collapsed: false
+        theme: united
+        highlight: tango    
+        collapsed: false
+---
+```{r, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = 'hide')
+```
+
+```{r}
+rm(list = ls())
+library(ggplot2)
+library(dplyr)
+library(data.table)
+library(MASS)
+library(knitr)
+library(PBImisc)
+library(scales)
+library(ggrepel)
+```
+
+# Wstęp teoretyczny
+
+Załóżmy, że mamy do czynienia z dwoma zmiennymi - jedną ilościową $y$, drugą jakościową $C$. Naszym zadaniem jest zweryfikowanie, czy średnie $y$ w poszczególnych grupach wyznaczonych przez $C$ różnią się w sposób istotny statystycznie. Jeżeli okaże się, że średnie grupowe nie są równe, to będziemy chcieli zbadać istotność różnic dla każdej pary grup. 
+
+Przykład (pakiet `PBImisc`): dane są ceny mieszkań, które zostały sprzedane w latach 2007-2009 mieszczące się na wybranych ulicach Warszawy. Chcemy zbadać, pomiędzy którymi ulicami średnie ceny mieszkań istotnie się różnią.
+
+```{r}
+apartmentsSubset <- PBImisc::apartments
+apartmentsSubset <- subset(apartmentsSubset, select = c(transaction.price, street))
+apartmentsSubset <- filter(apartmentsSubset, street %in% c("Chelmska", 
+                                                           "Odkryta", 
+                                                           "Czerniakowska", 
+                                                           "Broniewskiego", 
+                                                           "Jana Pawla", 
+                                                           "KEN", 
+                                                           "Pulawska", 
+                                                           "Raclawicka"))
+
+apartmentsSubset$street <- factor(apartmentsSubset$street)
+
+apartmentsSubset <- as.data.table(apartmentsSubset)
+apartmentsSubset[, mean := mean(transaction.price), by = street]
+apartmentsSubset[, sd := sd(transaction.price), by = street]
+apartmentsSubset[, transaction.price := transaction.price / (0.00001 * sd) + mean]
+
+apartmentsSubset %>% ggplot() + geom_boxplot(aes(x = street, y = transaction.price)) + 
+    theme(axis.text.x = element_text(angle = 90)) + 
+    coord_flip()
+```
+
+Wprowadźmy potrzebne oznaczenia oraz dodatkowe założenia.
+
+Niech: $C \in \{1, 2, ..., k\}$ będzie zmienną grupującą, $y_{ij}$ będzie wartością $j$-tej obserwacji w $i$-tej grupie. Jako $n_i$ oznaczymy liczność $i$-tej grupy, zaś jako $n$ - liczność całej próby. 
+
+Dodatkowo założymy, że
+
+$$y_{ij} \sim \mathcal{N} (\mu_i, \sigma^2), \;\;\;\;\; 1 \le i \le k,  \;\;\;\;\; 1 \le j \le n_i \;\;\;\;\; \sum_{i = 1}^k n_i = n.$$
+
+**Uwaga:** Zauważmy, że zakładamy równość wariancji we wszystkich grupach. To założenie wymaga dodatkowego sprawdzenia. Możemy do tego użyć np. testu Levene'a (`levene.test{Rcmdr}`).
+
+```{r, echo = TRUE, results = 'hold'}
+library(Rcmdr)
+leveneTest(apartmentsSubset$transaction.price, apartmentsSubset$street)
+```
+
+
+
+## Analiza wariancji
+
+Analiza wariancji (ANOVA) to metoda, która służy do testowania hipotezy o równości średnich przy założeniu o równości wariancji. Formalnie -- będziemy testować hipotezę zerową
+
+$$H_0: \mu_1 = \mu_2 = \;... \;= \mu_k$$
+
+przeciwko hipotezie alternatywnej
+
+$$H_a: \exists_{i,j} \;\; \mu_i \neq \mu_j.$$
+
+Parametryzując średnie 
+
+$$\mu_1 = \mu, \\ \mu_2 = \mu + \alpha_2, \\ ... \\ \mu_k = \mu + \alpha_k,$$
+
+powyższy problem możemy przedstawić inczej
+
+$$H_0: \alpha_2 = ... = \alpha_k = 0, \;\;\;\; H_a: \exists_i \;\; \alpha_i \neq 0. $$
+
+Pierwszym krokiem będzie przekodowanie zmiennej objaśniającej $X$. Przedstawimy ją w postaci macierzy $n \times k$, w której pierwszą kolumną będzie stała, zaś następne kolumny będą reprezentować kolejne poziomy zmiennej $C$ (z pominięciem poziomu referencyjnego). Przykładowo wektor
+
+$$
+C = \begin{bmatrix}
+       Jana Pawla \\
+       Jana Pawla \\
+       Chelmska \\
+       Chelmska \\
+       KEN
+    \end{bmatrix}
+$$
+zapiszemy jako macierz
+
+$$
+X = \begin{bmatrix}
+       1 & 0 & 0 \\
+       1 & 0 & 0 \\
+       1 & 1 & 0 \\
+       1 & 1 & 0 \\
+       1 & 0 & 1 \\
+    \end{bmatrix}
+$$
+
+Wprowadźmy model 
+
+$$y = X \beta + \epsilon$$
+dla wektora $\beta = (\mu, \alpha_2, \alpha_3, ... \alpha_k).$
+
+Wówczas sprawdzenie prawdziwości $H_0$ sprowadza się do przetestowania łącznej hipotezy mówiącej o tym, że wszystkie współczynniki $\alpha_i$ wynoszą zero. Możemy to zrobić testem ilorazu wiarygodności. 
+
+### Test ilorazu wiarygodności
+
+Niech 
+
+$$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}(0, I_{n \times n})$$
+dla $X$ i $\beta$ stałych.
+
+Wówczas $y$ ma także rozkład normalny ze średnią $X\beta$ i wariancją $\sigma^2$. Zatem możemy napisać funkcję wiarygodności 
+$$L(\sigma, \beta |y) = \frac{1}{(2\pi\sigma^2)^{n/2}} \exp \left(- \frac{1}{2} \frac{RSS(\beta)}{\sigma^2}\right)$$
+oraz jej logarytm
+
+$$l(\sigma, \beta |y) = -\frac{n}{2}\log(2\pi) -\frac{n}{2}\log(\sigma^2) - \frac{RSS(\beta)}{2\sigma^2}.$$
+Maksymalizując $l(\sigma, \beta |y)$ ze względu na $\sigma^2$ daje nam estymator
+
+$$\hat{\sigma}^2 = \frac{RSS(\beta)}{n}.$$
+Po wstawieniu estymatora do funkcji wiarygodności dostajemy
+$$L(\hat{\sigma}^2, \hat{\beta} |y) \propto \left(\frac{RSS(\hat{\beta})}{n}\right)^{-n/2}.$$
+
+Załóżmy, że testujemy hipotezę $H_0: \beta_q = \beta_{q+1} = ... = \beta_{q} = 0.$ Niech $RSS_X, RSS_W$ oznaczają sumę kwadratów reszt policzoną dla modelu pełnego i modelu z ograniczeniami. Wówczas iloraz wiarygodności
+$$\frac{L(\hat{\sigma}_X, \hat{\beta}_X |y)}{L(\hat{\sigma}_W, \hat{\beta}_W |y)} = \left(\frac{RSS(\hat{\beta}_W)}{RSS(\hat{\beta}_X)}\right)^{n/2}$$
+powinien być duży dla nieprawdziwej hipotezy zerowej. 
+
+Bardziej formalnie: można pokazać, że 
+
+$$T(\beta_W, \beta_X) = \frac{\frac{RSS(\beta_W) - RSS(\beta_X)}{p - q}}{\frac{RSS(\beta_X)}{n - p}}$$
+ma rozkład $F$ (z odpowiednimi parametrami) i sprawdzenie prawdziwości $H_0$ sprowadza się do sprawdzenia wartości dystrybuanty rozkładu $F$ w punkcie $T(\hat{\beta}_W, \hat{\beta}_X)$.
+
+******
+### ANOVA na przykładzie cen mieszkań
+
+Wracając do ANOVY i naszego przykładu. Możemy przetestować równość średnich na ulicach na co najmniej trzy sposoby.
+
+**Sposób I**
+
+```{r, echo = TRUE, results = 'hold'}
+anova(lm(transaction.price ~ street, data = apartmentsSubset))
+```
+
+**Sposób II**
+```{r, echo = TRUE, results = 'hold'}
+summary(lm(transaction.price ~ street, data = apartmentsSubset))
+```
+
+
+**Sposób III**
+```{r,  echo = TRUE, results = 'hold'}
+summary(aov(transaction.price ~ street, data = apartmentsSubset))
+```
+
+Zatem nie możemy powiedzieć, że średnie na różnych ulicach są równe.
+
+## Testy post hoc 
+
+Testy *post hoc* wykonujemy, gdy ANOVA wskazuje na brak równości między średnimi. Pozwalają zidentyfikować, które średnie są różne statystycznie. Najczęściej testy *post hoc* liczą pewne statystyki dla wszystkich par grup.
+
+Testów *post hoc* jest wiele. Część z nich zakłada, że wszystkie grupy są równoliczne. Przedstawimy test LSD Fishera, który nie posiada takiego założenia.
+
+### Test LSD Fishera
+
+Dla każdej pary grup $i, j$ liczymy statystykę $t$
+
+$$t_{ij} = \frac{\mu_i - \mu_j}{s_{ij} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}}}, \;\;\;\;\;\; s_{ij} = \sqrt{\frac{(n_i - 1)s_i^2 + (n_j - 1)s_j^2}{n_1 + n_2 - 2}}.$$
+Łącznie przeprowadzonych jest ${k \choose 2}$ testów. W związku z tym stosujemy poprawkę na wielokrotne testowanie.
+
+#### Wielokrotne testowanie
+
+Załóżmy, że testujemy równocześnie $n$ hipotez, stosując ten sam poziom istotności $\alpha$. Wówczas
+
+$$
+\mathbb{P}(odrzucilismy\; prawdziwa\; H_0) = 1 - \mathbb{P}(nie\; odrzucilismy\;zadnej \; prawdziwej\;\; H_0) =1 - (1 - \alpha)^n.
+$$
+
+Dla $n = 20, \alpha = 0.05$ powyższe prawdopodobieństwo wynosi około $64\%$.
+
+Żeby je zmniejszyć stosujemy poprawkę na wielokrotne testowanie. Przykładowo -- poprawka Bonferroniego polega na podzieleniu poziomu istotności przez liczbę testowanych hipotez. 
+
+******
+
+W naszym przykładzie dostajemy.
+
+```{r, echo = TRUE, results = 'hold'}
+library(agricolae)
+lsdResult <- LSD.test(aov(transaction.price ~ street, data = apartmentsSubset),
+                      trt = "street", 
+                      p.adj = "bonferroni")
+lsdResult$groups
+```
+
+# Pytania badawcze 
+
+ - Czy możemy stworzyć algorytm, którego wyniki będą zgodne (czyli otrzymane klastry będą rozłączne)? 
+ - Czy jesteśmy w stanie w prosty sposób przedstawić zmiany w klastrach w zależności od przyjętego poziomu istotności/wiarygodności?
+
+# Algorytm iteracyjnego zlepiania - pierwsze próby 
+
+## Podejście pierwsze: każdy vs. każdy
+
+Pomysł: Załóżmy, że dla każdej pary testujemy hipotezę $H_0^{ij}: \mu_i = \mu_j$, stosując jednakowy test statystyczny. p-value dla wybranego testu to prawdopodobieństwo uzyskania wartości pewnej statystyki takiej, jak zaobserwowano w rzeczywistości przy założeniu prawdziwości hipotezy zerowej. Zatem para średnich, dla których p-value jest najwyższe powinna zostać złączona w jedną grupę. 
+
+```{r, eval = FALSE, echo = TRUE}
+
+y = someResponse 
+class = someClass 
+numberOfClasses = numberOfClasses(class)
+
+pValues = vector()
+
+while (numberOfClasses > 1) {
+    pairs = generateAllPossiblePairs(class)
+    maxPValue = 0
+    toBeMerged = vector()
+    for (pair in pairs) {
+        if (maxPValue > pValueTTest(pair)) {
+            maxPValue = pValueTTest(pair)
+            toBeMerged = pair
+        }
+    }
+    pValues = append(maxPValue, pValues)
+    class = mergeClasses(class, pair)
+    numberOfClasses = numberOfClasses - 1
+}
+```
+
+Liczba policzonych statystyk $t$/$p$-value w całym algorytmie: $\sum_{i = 1}^k {i \choose 2}$ (dużo -- sześciennie).
+
+Plusy:
+
+ - dostajemy hierarchiczną strukturę klastrów.
+ 
+Minusy:
+
+ - wiele razy liczymy to samo,
+ - porównujemy nadmiarową ilość par.
+ 
+Obserwacja: W pojedynczym kroku chcemy połączyć jedynie te średnie, które są wystarczająco blisko.
+
+## Podejście drugie: każdy vs. kolejny
+
+Pomysł: uszereguj grupy wg rosnącej średniej. W każdym kroku porównuj tylko dwie kolejne pary.
+
+```{r, eval = FALSE, echo = TRUE}
+
+y = someResponse 
+class = sort(someClass, y) 
+numberOfClasses = numberOfClasses(class)
+
+pValues = vector()
+logLiks = vector()
+
+while (numberOfClasses > 1) {
+    pairs = generateSubsequentPairs(class)
+    model = lm(y ~ class)
+    logLiks = append(logLik(model), logLiks)
+    maxPValue = 0
+    toBeMerged = vector()
+    for (pair in pairs) {
+        if (maxPValue > pValueTTest(model, pair)) {
+            maxPValue = pValueTTest(model, pair)
+            toBeMerged = pair
+        }
+    }
+    pValues = append(maxPValue, pValues)
+    class = mergeClasses(class, pair)
+    numberOfClasses = numberOfClasses - 1
+}
+```
+
+Liczba policzonych statystyk $t$/$p$-value w całym algorytmie: $\sum_{i = 1}^{k - 1} i$ (kwadratowo).
+
+Plusy:
+
+ - dostajemy hierarchiczną strukturę klastrów,
+ - w każdym testujemy mniej niż $k$ hipotez.
+ 
+Minusy:
+
+ - w każdym kroku na nowo liczymy model pomniejszony o jeden parametr.
+
+Implementacja: kontrasty!
+ 
+Obserwacja: w każdym kroku łączymy tylko jedną parę średnich $\mu_i, \mu_{i+1}$. Załóżmy, że hipotezy testowaliśmy niezależnie. Jeżeli żadna ze średnich z wybranej pary $\mu_l, \mu_{l+1}$ nie sąsiadowała z $\mu_i, \mu_{i+1}$ to $p$-value dla hipotezy o równości średnich $\mu_l, \mu_{l+1}$ nie powinno się zmienić. Zatem w każdym kroku na nowo powinniśmy liczyć jedynie dwa $p$-value. Jeżeli by nam się to udało, to liczba policzonych statystyk $t$/$p$-value w całym algorytmie będzie wynosić $k - 1 + 2(k - 2) = 3k - 3$ (liniowo).
+
+Pytania: Czy możemy policzyć nowe p-value bez ponownego wyliczania modelu? Czy możemy iteracyjnie liczyć wiarygodność, korzystając jedynie z wartości poprzedniej wiarygodności oraz informacji dotyczącej łącząnych grup?
+
+
+```{r}
+recodeLevels <- function(y, c) {
+    data <- data.table(y = y, c = c)
+    newOrder <- data[, mean(y), by = c] %>% arrange(V1)
+    c <- factor(c, levels = as.character(newOrder[, 1]))
+    c
+}
+
+mergeLevels <- function(c, whichEnds) {
+    newLetter <- paste0(levels(c)[whichEnds - 1], levels(c)[whichEnds])
+    levels(c) <- c(levels(c), newLetter)
+    c[c %in% levels(c)[(whichEnds - 1):whichEnds]] <- newLetter
+    c
+}
+
+factorMergerer <- function(means, segment, mergingList, myData) {
+    me <- list(means = means, 
+               segment = segment, 
+               mergingList = mergingList, 
+               myData = myData)
+    class(me) <- append(class(me), "factorMergerer")
+    return(me)
+}
+
+mergeFactors <- function(y, class) {
+    
+    class <- recodeLevels(y, class)
+    myData <- data.table(y = y, class = class)
+    model <- lm(y ~ class, myData, contrasts = list(class = contr.sdif))
+    means <- myData[, mean(y), by = class] %>% arrange(V1)
+    means$logLikelihood <- logLik(model)
+    means$class <- as.character(means$class)
+    means$step <- 0
+    means$pVals <- 1
+    
+    mergingList <- list()
+    
+    segment <- data.table(nodeId = means$class, 
+                          xStart = means$V1, 
+                          yStart = means$logLikelihood,
+                          xEnd = means$V1, 
+                          yEnd = 0,
+                          step = 0)
+    
+    segment$nodeId <- as.character(segment$nodeId)
+    
+    k <- length(unique(class))
+        
+    while((numberOfGroups <- length(unique(class))) >= 2) {
+        # print(paste0("Model z ", numberOfGroups, " parametrami: ", logLik(model)))
+        pVals <- summary(model)$coefficient[, 4]
+        end <- which.max(pVals)
+        mergingSet <- levels(class)[(end - 1):end]
+        # print(mergingSet)
+        step <- k - numberOfGroups + 1
+        mergingList[[step]] <- mergingSet
+        
+        newClass <- mergeLevels(class, end)
+        newClass <- recodeLevels(y, newClass)
+        myNewData <- data.table(y = y, class = newClass)
+        if (length(levels(newClass)) == 1) {
+            model <- model <- lm(y ~ 1, myNewData)
+        } else {
+            model <- lm(y ~ class, myNewData, contrasts = list(class = contr.sdif))
+        }
+        
+        segment[segment$nodeId %in% mergingSet]$yEnd <- logLik(model)
+        segment <- rbind(segment, list(paste(mergingSet, collapse = ""), 
+                                   mean(myData$y[class %in% mergingSet]), 
+                                   as.numeric(logLik(model)),
+                                   mean(myData$y[class %in% mergingSet]), 
+                                   0, step))
+        
+        segment <- rbind(segment, list(paste(mergingSet, collapse = "-"), 
+                                       mean(myData$y[class %in% mergingSet[1]]),
+                                       as.numeric(logLik(model)),
+                                       mean(myData$y[class %in% mergingSet[2]]),
+                                       as.numeric(logLik(model)), step))
+        
+        means <- rbind(means, list(paste(mergingSet, collapse = ""), 
+                                   mean(myData$y[class %in% mergingSet]), 
+                                   logLik(model), 
+                                   step,
+                                   max(pVals)))
+        
+        class <- newClass
+        myData <- myNewData
+    }
+    factorMergerer(means = means, segment = segment, mergingList = mergingList, myData = myData)
+}
+```
+
+```{r}
+plotTree <- function(list, rotate = 0) {
+    myData <- list$myData
+    segment <- list$segment
+    means <- list$means
+    
+    globalMean <- mean(myData$y)
+    globalLoglik <- min(means$logLikelihood)
+    
+    minLogLik <- min(-segment$yStart)
+    maxLogLik <- max(-segment$yEnd)
+    lowerPlotBound <- minLogLik - (maxLogLik - minLogLik) / 4
+    upperPlotBound <- maxLogLik
+    
+    segment <- filter(segment, yEnd != 0)
+    segment <- as.data.table(segment)
+    segment[, group := ifelse(step == 0, nodeId, "")]
+    
+    segmentPlot <- ggplot(segment) + 
+        geom_segment(aes(x = xStart, y = -yStart, xend = xEnd, yend = -yEnd)) +
+        geom_point(aes(x = xStart, y = -yStart)) + geom_point(aes(x = xEnd, y = -yEnd)) +
+        geom_point(x = globalMean, y = -globalLoglik) + theme_bw() + 
+        geom_text_repel(aes(x = xStart, y = -yStart, label = group), angle = rotate) +
+        xlab("Średnie w grupach") + ylab("-logLikelihood") + 
+        ylim(c(lowerPlotBound, upperPlotBound))
+        
+    segmentPlot
+}
+```
+
+
+## Testy
+
+```{r}
+generateSample <- function(N, k) {
+    y <- rnorm(N)
+    class <- as.factor(sample(LETTERS[1:k], size = N, replace = TRUE))
+    
+    for (i in 1:k) {
+        random <- sample(seq(0,1,0.1), size = 1)
+        let <- LETTERS[i]
+        y[class == let] <- y[class == let] + random
+    }
+    data.table(y = y, class = recodeLevels(y, class))
+}
+```
+
+### Losowe dane
+```{r, echo = TRUE, results = 'hold'}
+k <- 4; N <- 1000
+myData <- generateSample(N, k)
+myData %>% ggplot() + geom_boxplot(aes(y = y, x = class, group = class))
+merging <- mergeFactors(myData$y, myData$class)
+merging$mergingList
+```
+
+
+```{r, echo = TRUE, results = 'hold'}
+plotTree(merging)
+```
+
+
+```{r, results = 'hold'}
+maxNumberOfGroups <- 10
+trees <- list()
+for (i in seq(4, maxNumberOfGroups, 2)) {
+    myData <- generateSample(N, i)
+    trees[[(i - 2) / 2]] <- plotTree(mergeFactors(myData$y, myData$class))
+}
+
+library(gridExtra)
+grid.arrange(trees[[1]], trees[[2]], trees[[3]], 
+             trees[[4]], nrow = 2)
+```
+
+
+### Dane rzeczywiste
+```{r, echo = TRUE, results = 'hold'}
+apartmentsMerged <- mergeFactors(apartmentsSubset$transaction.price, apartmentsSubset$street)
+plotTree(apartmentsMerged, rotate = 90)
+```
+
+
+# Inne rozwiązania 
+
+## Delete or Merge Regressors (DMR)
+
+Autor: Agnieszka Prochenka
+
+W uproszczeniu: dla każdej pary grup $i, j$ policz statystykę $t$ dla hipotezy $H_0: \mu_i = \mu_j$. Przyjmij macierz $[t_{ij}]_{i,j}$ jako macierz odległości pomiędzy grupami. Przeprowadź klastrowanie hierarchiczne metodą *complete linkage*.
+
+Liczba policzonych statystyk $t$ w całym algorytmie: $k^2$.
+
+# Co dalej?
+
+ - zoptymalizować przejście pomiędzy kolejnymi modelami,
+ - rozszerzyć klastrowanie na modele zagnieżdżone,
+ - poprawić rysowanie drzewa (szczególnie dla dużych nazw),
+ - umożliwić edycję osi z poziomu użytkownika,
+ - przeciążyć funkcję `plot`.
+ 
+ 
+# Literatura
+
+ - 'Analiza danych z programem R: modele liniowe z efektami stałymi, losowymi i mieszanymi' Przemysław Biecek,
+ - 'Delete or Merge Regressors algorithm' Agnieszka Prochenka,
+ - 'Clustering in an Object-Oriented Environment', Anja Struyf, Mia Hubert, Peter J. Rousseeuw.

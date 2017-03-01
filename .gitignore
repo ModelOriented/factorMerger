@@ -1,4 +1,9 @@
-*.Rmd
+.Rproj.user
 .Rhistory
 .RData
-
+notes   
+*.Rproj
+/Analysis/testUpgrade.Rmd
+inst/doc
+ignore.R
+test.rda
