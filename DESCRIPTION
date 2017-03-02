@@ -13,7 +13,8 @@ Imports:
     ggplot2,
     dplyr,
     ggrepel,
-    reshape2
+    reshape2,
+    Hotelling
 Depends:
     ggtree,
     gridExtra
