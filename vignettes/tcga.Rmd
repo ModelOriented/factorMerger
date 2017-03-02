@@ -1,0 +1,58 @@
+---
+title: "factorMerger: TCGA use case"
+author: "Przemyslaw Biecek"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE, fig.height = 7, fig.width = 7)
+```
+
+## Data preparation
+
+```{r}
+library(RTCGA.PANCAN12)
+library(factorMerger) 
+randSample <- generateMultivariateSample(N = 1000, k = 10, d = 5)
+
+expression.cb <- rbind(expression.cb1, expression.cb2)
+rownames(expression.cb) <- expression.cb[,1]
+expression.cb <- data.frame(t(expression.cb[,-1]))
+expression.cb$sampleID <- gsub(rownames(expression.cb), pattern = ".", replacement = "-", fixed = TRUE)
+
+selectedCols <- c(grep(colnames(expression.cb), pattern = "HSP", value = TRUE), "sampleID")
+selected <- merge(expression.cb[,selectedCols], clinical.cb[,c("sampleID","X_cohort")], by = "sampleID")
+selected$Cancer <- substr(as.character(selected$X_cohort), 6, 100)
+
+library(ggplot2)
+ggplot(selected, aes(Cancer,HSPA12B)) + 
+  geom_violin() + coord_flip()
+
+```
+
+## Time for ANOVA
+
+```{r}
+anova(lm(HSPA12B ~ Cancer, data = selected))
+summary(lm(HSPA12B ~ Cancer, data = selected))
+
+library(agricolae)
+lsdResult <- LSD.test(aov(HSPA12B ~ Cancer, data = selected),
+                      trt = "Cancer", 
+                      p.adj = "bonferroni")
+lsdResult$groups
+```
+
+## Time for factor Merger
+
+```{r}
+merging <- mergeFactors(selected$HSPA12A, factor(selected$Cancer))
+plotTree(merging)
+```
+
+

@@ -14,7 +14,8 @@ Imports:
     dplyr,
     ggrepel,
     reshape2,
-    Hotelling
+    Hotelling,
+    vegan
 Depends:
     ggtree,
     gridExtra
