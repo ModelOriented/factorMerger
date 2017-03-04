@@ -58,7 +58,7 @@ startMerging.subsequentFactorMerger <- function(factorMerger) {
     factorMerger$mergingList[[1]]$factorStats <- stats
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = calculateModelStatistic(model),
-        pval = NA)
+        pval = 1)
     return(factorMerger)
 }
 
@@ -68,7 +68,7 @@ startMerging.allToAllFactorMerger <- function(factorMerger) {
     factorMerger$mergingList[[1]]$factorStats <- stats
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = calculateModelStatistic(lm(factorMerger$response ~ factorMerger$factor)),
-        pval = NA)
+        pval = 1)
     return(factorMerger)
 }
 
@@ -176,4 +176,21 @@ getTreeWithEdgesLength <- function(factorMerger, stat) {
     }
 
     return(paste0(nodes[[length(nodes)]]$text, ":", nodes[[length(nodes)]]$stat, ";"))
+}
+
+getFinalOrder <- function(factorMerger) {
+    groups <- levels(factorMerger$factor)
+    merging <- mergingHistory(factorMerger)
+    noSteps <- nrow(merging)
+    pos <- rep(1, length(groups))
+    names(pos) <- groups
+    for (step in 1:noSteps) {
+        pos[names(pos) == merging[step, 2]] <-
+            pos[names(pos) == merging[step, 2]] +
+            max(pos[names(pos) == merging[step, 1]])
+        names(pos)[names(pos) %in% merging[step, ]] <-
+            paste(merging[step, ], collapse = "")
+    }
+    names(pos) <- groups
+    return(pos)
 }

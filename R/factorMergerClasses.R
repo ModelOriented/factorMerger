@@ -92,7 +92,13 @@ means <- function(object) {
 means.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$means) })
-    do.call(rbind, statsList) %>% unique()
+    statsDf <- do.call(rbind, statsList) %>% unique()
+    if (sum(complete.cases(statsDf)) == 0) {
+        return(NULL)
+    }
+    rownames(statsDf) <- statsDf$level
+    statsDf <- subset(statsDf, select = -level)
+    return(statsDf)
 }
 
 
@@ -117,12 +123,7 @@ mergingHistory.factorMerger <- function(factorMerger) {
 #'
 mergeFactors <- function(response, factor, family = "gaussian", subsequent = FALSE) {
 
-    if (is.null(response)) {
-        stop('argument "response" is missing, with no default.')
-    }
-    if (is.null(factor)) {
-        stop('argument "factor" is missing, with no default.')
-    }
+    stopifnot(!is.null(response), !is.null(factor))
 
     fm <- merger(response, factor, family, subsequent)
     fm <- startMerging(fm)
@@ -164,3 +165,4 @@ node <- function(left, right = NULL, stat = NULL) {
                text = paste0("(", left$text, ": ", leftDiff,
                              ", ", right$text, ": ", rightDiff, ")")))
 }
+

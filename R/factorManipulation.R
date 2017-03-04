@@ -54,14 +54,6 @@ filterGroups <- function(response, factor, groupA, groupB) {
     return(list(xA, xB))
 }
 
-#' Get final order - ...
-#'
-getFinalOrder <- function(factorMerger) {
-    lastLevel <- factorMerger$mergingList[[length(factorMerger$mergingList)]]$groups
-    splitted <- strsplit(lastLevel, split = "\\(|\\)|\\,")[[1]]
-    splitted[nchar(splitted) > 0]
-}
-
 bindLevels <- function(groups, groupVec) {
     groupLabel <- paste(groupVec, sep = ":", collapse = ":")
     groups[groups %in% groupVec] <- groupLabel
@@ -71,4 +63,23 @@ bindLevels <- function(groups, groupVec) {
 getTree <- function(factorMerger) {
     steps <- length(factorMerger$mergingList)
     return(paste0(factorMerger$mergingList[[steps]]$groups, ";"))
+}
+
+#' @importFrom reshape2 melt
+#' @importFrom dplyr rename
+calculateMeansByFactor <- function(response, factor) {
+    means <- apply(as.data.frame(response), 2, function(x) {
+        aggregate(x ~ level, mean, data = data.frame(x = x, level = factor))
+    })
+
+    means <- lapply(means, function(x) {
+        df <- x %>% arrange(x)
+        df$rank <- ave(df$x, FUN = rank)
+        df
+    })
+
+    return(melt(means, id.vars = c("level", "rank")) %>%
+               subset(select = -variable) %>%
+               rename(mean = value,
+                      variable = L1))
 }
