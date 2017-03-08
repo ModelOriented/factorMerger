@@ -75,7 +75,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE)
     pointsDf <- df
     merging <- mergingHistory(factorMerger)
     for (step in 1:nrow(merging)) {
-        statVal <- factorMerger$mergingList[[step + 1]]$modelStats[, stat]
+        statVal <- factorMerger$mergingList[[step]]$modelStats[, stat]
         pair <- merging[step, ]
         whichDf <- which(df$label %in% pair)
         df[whichDf, "y2"] <- statVal
@@ -109,7 +109,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE)
 
 
 plotSimpleTree <- function(factorMerger, stat = "model", color = FALSE) {
-    pos <- getFinalOrder(factorMerger) %>% data.frame()
+pos <- getFinalOrder(factorMerger) %>% data.frame()
     merging <- mergingHistory(factorMerger)
     noStep <- nrow(merging)
 

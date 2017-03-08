@@ -53,71 +53,10 @@ getPvals.mlm <- function(model) {
     }))
 }
 
-#' Calculate pair statistic - ...
-#'
-calculatePairStatistic <- function(factorMerger, factor,
-                                   groupA, groupB) {
-    UseMethod("calculatePairStatistic", factorMerger)
-}
-
-#' Calculate pair statistic (gaussian case) - ...
-#'
-calculatePairStatistic.gaussianFactorMerger <- function(factorMerger, factor,
-                                                        groupA, groupB) {
-    groups <- filterGroups(factorMerger$response, factor, groupA, groupB)
-    if (groupA == groupB) {
-        return(-1)
-    }
-    return(t.test(groups[[1]], groups[[2]])$p.value)
-}
-
-#' Calculate pair statistic (multivariate response case) - ...
-#'
-#' @importFrom Hotelling hotel.test
-#'
-
-calculatePairStatistic.multivariateFactorMerger <- function(factorMerger, factor,
-                                                            groupA, groupB) {
-    groups <- filterGroups(factorMerger$response, factor, groupA, groupB)
-    if (groupA == groupB) {
-        return(-1)
-    }
-    return(hotel.test(groups[[1]], groups[[2]])$pval)
-}
-
-#' Calculate nonparametric pair statistic - ...
-#'
-#' @importFrom vegan adonis
-#'
-
-calculatePairStatistic.nonparametricFactorMerger <- function(factorMerger, factor,
-                                                             groupA, groupB) {
-    groups <- filterGroups(factorMerger$response, factor, groupA, groupB)
-    if (groupA == groupB) {
-        return(-1)
-    }
-
-    if (is.null(dim(groups[[1]]))) {
-        X <- as.data.frame(c(groups[[1]], groups[[2]]))
-    } else {
-        X <- as.data.frame(rbind(groups[[1]], groups[[2]]))
-    }
-
-    g <- data.frame(group =
-                        c(rep(groupA, NROW(groups[[1]])),
-                          rep(groupB, NROW(groups[[2]])))
-    )
-    if (min(X) < 0) {
-        X <- X - min(X)
-    }
-
-    return(adonis(X ~ group, data = g)$aov.tab$`Pr(>F)`[1])
-}
-
 #' Gaussian model loglikelihood
 #'
 #' http://r.789695.n4.nabble.com/Multiple-regression-information-criterion-td4689113.html
-logLikLm <- function(obj) {
+logLik.mlm <- function(obj) {
     E <- obj$residuals
     S <- cov(matrix(E, nrow = NROW(E)))
     Sinv <- solve(S)
@@ -136,5 +75,13 @@ calculateModelStatistic <- function(model) {
 #' Calculate model statistic (gaussian case) - ...
 #'
 calculateModelStatistic.lm <- function(model) {
-    return(logLikLm(model))
+    return(logLik(model))
+}
+
+compareModels <- function(model1, model2) {
+    UseMethod("compareModels", model1)
+}
+
+compareModels.default <- function(model1, model2) {
+    return(anova(model1, model2)$`Pr(>F)`[2])
 }

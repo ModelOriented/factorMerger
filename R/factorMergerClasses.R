@@ -26,13 +26,7 @@ merger <- function(response, factor, family = "gaussian",
 
     class(fm) <- "factorMerger"
 
-    if (NCOL(response) > 1) {
-        class(fm) <- append(class(fm), "multivariateFactorMerger")
-        if (subsequent) {
-            warning("Subsequent merging with multivariate responseis not yet implemented. All-to-all merging run instead.")
-            subsequent <- FALSE
-        }
-    } else {
+    if (NCOL(response) == 1) {
         fm$mergingList[[1]]$means <- calculateMeans(response, factor)
     }
 
@@ -50,13 +44,6 @@ merger <- function(response, factor, family = "gaussian",
                stop("Non-parametric analysis is not supported yet.")
            },
            stop("Unknown family"))
-
-
-    if (subsequent) {
-        class(fm) <- append(class(fm), "subsequentFactorMerger")
-    } else {
-        class(fm) <- append(class(fm), "allToAllFactorMerger")
-    }
 
     if (NCOL(factor) > 1) { # TODO: ...
         class(fm) <- append(class(fm), "multiClassFactorMerger")
@@ -117,22 +104,6 @@ mergingHistory.factorMerger <- function(factorMerger) {
     do.call(rbind, statsList)
 }
 
-#' Merge factors - ...
-#'
-#' @export
-#'
-mergeFactors <- function(response, factor, family = "gaussian", subsequent = FALSE) {
-
-    stopifnot(!is.null(response), !is.null(factor))
-
-    fm <- merger(response, factor, family, subsequent)
-    fm <- startMerging(fm)
-    while (canBeMerged(fm)) {
-        fm <- mergePair(fm)
-    }
-    return(fm)
-}
-
 #' Factor Merger - ...
 #'
 #' @export
@@ -140,7 +111,9 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
 print.factorMerger <- function(factorMerger) {
    stats <- round(stats(factorMerger), 4)
    mergList <- mergingHistory(factorMerger)
+   mergList <- mergList[complete.cases(mergList),]
    mergList <- rbind(c("", ""), mergList)
+   rownames(mergList) <- NULL
    df <- data.frame(mergList, stats)
    colnames(df)[1:2] <- c("groupA", "groupB")
    print(df)
@@ -164,5 +137,25 @@ node <- function(left, right = NULL, stat = NULL) {
     return(list(stat = stat,
                text = paste0("(", left$text, ": ", leftDiff,
                              ", ", right$text, ": ", rightDiff, ")")))
+}
+
+
+#' Merge factors - ...
+#'
+#' @export
+#'
+mergeFactors <- function(response, factor, family = "gaussian", subsequent = FALSE) {
+
+    stopifnot(!is.null(response), !is.null(factor))
+    if (NCOL(response) > 1 && subsequent) {
+        warning("Subsequent merging with multivariate responseis not yet implemented. All-to-all merging run instead.")
+        subsequent <- FALSE
+    }
+    fm <- merger(response, factor, family)
+    fm <- startMerging(fm, subsequent)
+    while (canBeMerged(fm)) {
+        fm <- mergePair(fm, subsequent)
+    }
+    return(fm)
 }
 
