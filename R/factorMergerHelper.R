@@ -194,3 +194,12 @@ getFinalOrder <- function(factorMerger) {
     names(pos) <- groups
     return(pos)
 }
+
+#' @importFrom dplyr arrange
+getFinalOrderVec <- function(factorMerger) {
+    finalOrder <- data.frame(order = getFinalOrder(factorMerger))
+    finalOrder$label <- rownames(finalOrder)
+    finalOrder <- finalOrder %>% arrange(order)
+    return(finalOrder$label %>% factor(levels = finalOrder$label))
+
+}
