@@ -43,8 +43,9 @@ calculateMeans <- function(numericVec, factorVec) {
     if (!is.null(dim(numericVec))) {
         return(NA)
     }
-    data.frame(num = numericVec, level = factorVec) %>%
-        group_by(level) %>% summarize(mean = mean(num)) %>%
+    df <- data.frame(num = numericVec, level = factorVec)
+    aggregate(num ~ level, mean, data = df) %>%
+        rename(mean = num) %>%
         arrange(mean)
 }
 

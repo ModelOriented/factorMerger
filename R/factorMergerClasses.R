@@ -76,6 +76,7 @@ means <- function(object) {
 }
 
 #' ---
+#' @export
 means.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$means) })
@@ -97,7 +98,7 @@ mergingHistory <- function(object) {
     UseMethod("mergingHistory", object)
 }
 
-#' ---
+#' @export
 mergingHistory.factorMerger <- function(factorMerger) {
     statsList <- sapply(factorMerger$mergingList,
                         function(x) { x$merged })
@@ -151,6 +152,11 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
         warning("Subsequent merging with multivariate responseis not yet implemented. All-to-all merging run instead.")
         subsequent <- FALSE
     }
+
+    if (is.data.frame(response)) {
+        response <- as.matrix(response)
+    }
+
     fm <- merger(response, factor, family)
     fm <- startMerging(fm, subsequent)
     while (canBeMerged(fm)) {

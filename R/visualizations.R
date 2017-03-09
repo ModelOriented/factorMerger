@@ -50,6 +50,7 @@ plotTree <- function(factorMerger, stat, color = FALSE) {
 
 #' @export
 #' @importFrom magrittr %>%
+#' @importFrom factorMerger means
 plotTree.factorMerger <- function(factorMerger, stat = "model", color = FALSE) {
     means <- means(factorMerger)
     if (is.null(means)) {
@@ -63,7 +64,7 @@ plotTree.factorMerger <- function(factorMerger, stat = "model", color = FALSE) {
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label
-plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE) {
+plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE, showX = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
     df <- pos[1:noGroups, ] %>%  data.frame
@@ -91,13 +92,18 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE)
         as.data.frame() %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         theme_bw() + coord_flip() + ylab(stat) + xlab("") +
-        theme(axis.text.y = element_blank()) +
         theme(legend.position = "none") +
         geom_point(data = pointsDf, aes(x = x1, y = y1))
+
+    if (showX) {
+        g <- g + scale_x_continuous(position = "top")
+    }
+
     if (color) {
          return(g + geom_label(data = pointsDf,
                                 aes(x = x1, y = y1, label = pointsDf$label,
-                                    fill = factor(pointsDf$label, levels = getFinalOrderVec(factorMerger)))))
+                                    fill = factor(pointsDf$label,
+                                                  levels = getFinalOrderVec(factorMerger)))))
     } else {
         return(g + geom_label(data = pointsDf,
                               aes(x = x1, y = y1, label = pointsDf$label)))
@@ -117,7 +123,7 @@ pos <- getFinalOrder(factorMerger) %>% data.frame()
         pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
         rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
     }
-    return(plotCustomizedTree(factorMerger, stat, pos, color))
+    return(plotCustomizedTree(factorMerger, stat, pos, color, showX = FALSE))
 }
 
 
