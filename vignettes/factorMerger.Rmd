@@ -38,7 +38,7 @@ randSample <- generateMultivariateSample(N = 1000, k = 10, d = 5)
 
 ## Merging factors
 
-#### All-to-all testing
+### Multi-dimensional response
 
 `mergeFactors` is a function that performs hierarchical post hoc testing. As arguments it takes:
 
@@ -55,7 +55,7 @@ fm <- mergeFactors(randSample$response, randSample$factor)
 print(fm)
 ```
 
-Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers some statistic calculated for the model after merging (e.g. in gaussian case this is loglikelihood), column 'pval' gives significance threshold below which hypothesis about means equality holds.
+Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers some statistic calculated for the model after merging (e.g. in gaussian case loglikelihood is calculated), column 'pval' gives significance threshold below which hypothesis about means equality holds.
 
 We may also plot results using functions `plot` or `plotTree`. `plotTree` is extended version of `plot`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or 'pval'), `plot` uses 'model' column.
 
@@ -69,6 +69,30 @@ plotTree(fm, "pval")
 
 Both functions use `ggtree` package.
 
+
+We may also want to visualize dependent variables. `factorMergers` introduces two functions for this purpose:
+
+ - `plotProfile` (resulting in rank plot),
+ - `plotHeatmap`.
+ 
+```{r}
+bindPlots(
+    plotTree(fm, color = TRUE),
+    plotProfile(fm)
+)
+```
+
+```{r}
+bindPlots(
+    plotTree(fm),
+    plotHeatmap(fm)
+)
+```
+
+### One-dimensional response 
+
+If the response variable has only one dimension, we may use different approach and merging results may be presented in different way.
+
 #### Subsequent merging
 
 If our response variable is one-dimensional in each step of the algorithm we may want to compare only subsequent groups (if groups are sorted by means). 
@@ -78,5 +102,14 @@ To run subsequent merging set `subsequent = TRUE` in `mergeFactors`.
 ```{r}
 oneDimRandSample <- generateMultivariateSample(1000, 10, 1)
 mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, subsequent = TRUE)
+```
+
+#### Visual respresentation
+
+If our response variable is one-dimensional, we may easily connect each node with a mean of variables respresented by the node. The result is shown below.
+
+```{r}
+oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
+plotTree(oneDimFm)
 ```
 

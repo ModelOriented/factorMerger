@@ -25,7 +25,10 @@ setIncreasingOrder <- function(numericVec, factorVec) {
 
 #' Merge factor
 #'
-mergeLevels <- function(factor, groupA, groupB, groupAB) {
+mergeLevels <- function(factor, groupA, groupB, groupAB = NULL) {
+    if (is.null(groupAB)) {
+        groupAB <- paste0(groupA, groupB)
+    }
     whichLevels <- which(levels(factor) %in% c(groupA, groupB))
     levels(factor)[whichLevels] <- groupAB
     factor
@@ -40,8 +43,9 @@ calculateMeans <- function(numericVec, factorVec) {
     if (!is.null(dim(numericVec))) {
         return(NA)
     }
-    data.frame(num = numericVec, level = factorVec) %>%
-        group_by(level) %>% summarize(mean = mean(num)) %>%
+    df <- data.frame(num = numericVec, level = factorVec)
+    aggregate(num ~ level, mean, data = df) %>%
+        rename(mean = num) %>%
         arrange(mean)
 }
 
@@ -54,14 +58,6 @@ filterGroups <- function(response, factor, groupA, groupB) {
     return(list(xA, xB))
 }
 
-#' Get final order - ...
-#'
-getFinalOrder <- function(factorMerger) {
-    lastLevel <- factorMerger$mergingList[[length(factorMerger$mergingList)]]$groups
-    splitted <- strsplit(lastLevel, split = "\\(|\\)|\\,")[[1]]
-    splitted[nchar(splitted) > 0]
-}
-
 bindLevels <- function(groups, groupVec) {
     groupLabel <- paste(groupVec, sep = ":", collapse = ":")
     groups[groups %in% groupVec] <- groupLabel
@@ -71,4 +67,23 @@ bindLevels <- function(groups, groupVec) {
 getTree <- function(factorMerger) {
     steps <- length(factorMerger$mergingList)
     return(paste0(factorMerger$mergingList[[steps]]$groups, ";"))
+}
+
+#' @importFrom reshape2 melt
+#' @importFrom dplyr rename
+calculateMeansByFactor <- function(response, factor) {
+    means <- apply(as.data.frame(response), 2, function(x) {
+        aggregate(x ~ level, mean, data = data.frame(x = x, level = factor))
+    })
+
+    means <- lapply(means, function(x) {
+        df <- x %>% arrange(x)
+        df$rank <- ave(df$x, FUN = rank)
+        df
+    })
+
+    return(melt(means, id.vars = c("level", "rank")) %>%
+               subset(select = -variable) %>%
+               rename(mean = value,
+                      variable = L1))
 }

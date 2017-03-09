@@ -18,8 +18,10 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 ```{r}
 library(RTCGA.PANCAN12)
 library(factorMerger) 
-randSample <- generateMultivariateSample(N = 1000, k = 10, d = 5)
 
+data("expression.cb1")
+data("expression.cb2")
+data("clinical.cb")
 expression.cb <- rbind(expression.cb1, expression.cb2)
 rownames(expression.cb) <- expression.cb[,1]
 expression.cb <- data.frame(t(expression.cb[,-1]))
@@ -50,9 +52,35 @@ lsdResult$groups
 
 ## Time for factor Merger
 
+### Single dimensional response
+
 ```{r}
 merging <- mergeFactors(selected$HSPA12A, factor(selected$Cancer))
+merging
 plotTree(merging)
 ```
 
+```{r}
+plotTree(merging, "pval")
+```
+
+
+### Multidimensional response
+
+```{r}
+df <- subset(selected, select = -c(sampleID, X_cohort, Cancer))
+
+cancer <- as.factor(selected$Cancer)
+map <- data.frame(orig = levels(cancer))
+map$changed <- letters[1:13]
+cancer <- factor(cancer, labels = map$changed)
+merging <- mergeFactors(df, cancer)
+bindPlots(plotTree(merging, color = TRUE), plotProfile(merging) + 
+               theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+
+```{r}
+bindPlots(plotTree(merging), plotHeatmap(merging))
+```
 

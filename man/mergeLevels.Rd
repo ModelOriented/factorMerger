@@ -4,7 +4,7 @@
 \alias{mergeLevels}
 \title{Merge factor}
 \usage{
-mergeLevels(factor, groupA, groupB, groupAB)
+mergeLevels(factor, groupA, groupB, groupAB = NULL)
 }
 \description{
 Merge factor
