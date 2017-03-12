@@ -33,6 +33,16 @@ calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
     return(lm(factorMerger$response ~ 1))
 }
 
+#' @importFrom survival survreg
+calculateModel.survivalFactorMerger <- function(factorMerger, factor) {
+    df <- data.frame(response = factorMerger$response,
+                     factor = factor)
+    if (length(unique(factor)) > 1) {
+        return(survreg(Surv(response) ~ factor, data = df))
+    }
+    return(survreg(Surv(response) ~ 1, data = df))
+}
+
 getPvals <- function(model) {
     UseMethod("getPvals", model)
 }
@@ -74,7 +84,7 @@ calculateModelStatistic <- function(model) {
 
 #' Calculate model statistic (gaussian case) - ...
 #'
-calculateModelStatistic.lm <- function(model) {
+calculateModelStatistic.default <- function(model) {
     return(logLik(model))
 }
 
@@ -84,4 +94,8 @@ compareModels <- function(model1, model2) {
 
 compareModels.default <- function(model1, model2) {
     return(anova(model1, model2)$`Pr(>F)`[2])
+}
+
+compareModels.survreg <- function(model1, model2) {
+    return(anova(model1, model2)$`Pr(>Chi)`[2])
 }

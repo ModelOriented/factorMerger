@@ -109,7 +109,6 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
                               aes(x = x1, y = y1, label = pointsDf$label)))
     }
 
-
     # Jeżeli będziemy korzystać z ggrepel, to można zamienić na geom_label
 }
 

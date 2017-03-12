@@ -37,7 +37,7 @@ merger <- function(response, factor, family = "gaussian",
 
            "survival" = {
                class(fm) <- append(class(fm), "survivalFactorMerger")
-               stop("Survival analysis is not supported yet.")
+               # stop("Survival analysis is not supported yet.")
            },
            "nonparametric" = {
                class(fm) <- append(class(fm), "nonparametricFactorMerger")
