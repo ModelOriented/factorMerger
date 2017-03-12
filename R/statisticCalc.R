@@ -43,6 +43,20 @@ calculateModel.survivalFactorMerger <- function(factorMerger, factor) {
     return(survreg(Surv(response) ~ 1, data = df))
 }
 
+calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
+    df <- data.frame(response = factorMerger$response,
+                     factor = factor)
+    if (length(unique(factor)) > 1) {
+        mod <- glm(response ~ factor, data = df)
+
+    } else {
+        mod <- glm(response ~ 1, data = df)
+    }
+
+    class(mod) <- "glm"
+    return(mod)
+}
+
 getPvals <- function(model) {
     UseMethod("getPvals", model)
 }
@@ -92,10 +106,14 @@ compareModels <- function(model1, model2) {
     UseMethod("compareModels", model1)
 }
 
-compareModels.default <- function(model1, model2) {
+compareModels.lm <- function(model1, model2) {
     return(anova(model1, model2)$`Pr(>F)`[2])
 }
 
 compareModels.survreg <- function(model1, model2) {
     return(anova(model1, model2)$`Pr(>Chi)`[2])
+}
+
+compareModels.glm <- function(model1, model2) {
+    return(anova(model1, model2, test = "Chisq")$`Pr(>Chi)`[2])
 }
