@@ -47,13 +47,13 @@ calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
     df <- data.frame(response = factorMerger$response,
                      factor = factor)
     if (length(unique(factor)) > 1) {
-        mod <- glm(response ~ factor, data = df)
+        mod <- glm(response ~ factor, family = "binomial", data = df)
 
     } else {
-        mod <- glm(response ~ 1, data = df)
+        mod <- glm(response ~ 1, family = "binomial", data = df)
     }
 
-    class(mod) <- "glm"
+    class(mod) <- c("binomglm", class(mod))
     return(mod)
 }
 
@@ -114,6 +114,6 @@ compareModels.survreg <- function(model1, model2) {
     return(anova(model1, model2)$`Pr(>Chi)`[2])
 }
 
-compareModels.glm <- function(model1, model2) {
+compareModels.binomglm <- function(model1, model2) {
     return(anova(model1, model2, test = "Chisq")$`Pr(>Chi)`[2])
 }
