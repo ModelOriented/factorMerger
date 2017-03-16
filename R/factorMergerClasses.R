@@ -12,7 +12,7 @@ merger <- function(response, factor, family = "gaussian",
     }
 
     factor <- as.factor(factor)
-    map <- data.frame(`abbreviated` = abbreviate(levels(factor)),
+    map <- data.frame(`abbreviated` = paste0("(", abbreviate(levels(factor)), ")"),
                       `original` = levels(factor))
     rownames(map) <- NULL
     factor <- factor(factor, labels = map$abbreviated)
@@ -130,12 +130,11 @@ print.factorMerger <- function(factorMerger) {
    rownames(mergList) <- NULL
    df <- data.frame(mergList, stats)
    colnames(df)[1:2] <- c("groupA", "groupB")
+   cat("Factor levels were recoded as below:")
    print(kable(factorMerger$map))
    cat("\n")
    print(kable(df))
 }
-
-
 
 node <- function(left, right = NULL, stat = NULL) {
     if (is.null(right)) {
