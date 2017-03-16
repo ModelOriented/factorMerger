@@ -69,20 +69,20 @@ treeTheme <- function(showY) {
 
 #' @export
 #'
-plotTree <- function(factorMerger, stat, color = FALSE) {
+plotTree <- function(factorMerger, stat, levels) {
     UseMethod("plotTree", factorMerger)
 }
 
 #' @export
 #' @importFrom magrittr %>%
-plotTree.factorMerger <- function(factorMerger, stat = "model", color = FALSE) {
+plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL) {
     stopifnot(stat %in% c("model", "pval"))
     means <- means(factorMerger)
     if (is.null(means)) {
-        plotSimpleTree(factorMerger, stat, color)
+        plotSimpleTree(factorMerger, stat, levels)
     }
     else {
-        plotCustomizedTree(factorMerger, stat, means, color)
+        plotCustomizedTree(factorMerger, stat, means, levels)
     }
 }
 
@@ -110,7 +110,7 @@ getLimits <- function(df, showY) {
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_y_continuous
-plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE, showY = TRUE) {
+plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
     df <- pos[1:noGroups, ] %>%  data.frame
@@ -152,11 +152,13 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
     stat <- renameStat(stat)
     g <- g + xlab(stat) + treeTheme(showY)
 
-    if (color) {
+    if (!is.null(levels)) {
          return(g + geom_label(data = pointsDf,
                                 aes(x = x1, y = y1, label = pointsDf$label,
                                     fill = factor(pointsDf$label,
-                                                  levels = getFinalOrderVec(factorMerger)))))
+                                                  levels = levels))) +
+                    scale_fill_manual(values = colorRamps::magenta2green(nrow(pointsDf)))
+                    )
     } else {
         return(g + geom_label(data = pointsDf,
                               aes(x = x1, y = y1, label = pointsDf$label)))
@@ -166,7 +168,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
 }
 
 
-plotSimpleTree <- function(factorMerger, stat = "model", color = FALSE) {
+plotSimpleTree <- function(factorMerger, stat = "model", levels = NULL) {
     pos <- getFinalOrder(factorMerger) %>% data.frame()
     merging <- mergingHistory(factorMerger)
     noStep <- nrow(merging)
@@ -175,7 +177,7 @@ plotSimpleTree <- function(factorMerger, stat = "model", color = FALSE) {
         pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
         rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
     }
-    return(plotCustomizedTree(factorMerger, stat, pos, color, showY = FALSE))
+    return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE))
 }
 
 findSimilarities <- function(factorMerger) {
@@ -198,26 +200,47 @@ bindPlots <- function(p1, p2) {
     grid.arrange(p1, p2, ncol = 2)
 }
 
+#' @export
+appendToTree <- function(factorMerger, plot) {
+    UseMethod("appendToTree", plot)
+}
+
+#' @export
+appendToTree.default <- function(factorMerger, plot) {
+    grid.arrange(plotTree(factorMerger), plot, ncol = 2)
+}
+
+#' @export
+appendToTree.profilePlot <- function(factorMerger, plot) {
+    lev <- levels(plot$data$level)
+    grid.arrange(plotTree(factorMerger, levels = lev), plot, ncol = 2)
+}
+
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_bw theme
 #' @export
 # TODO: dodać wybór między rank a średnią
 plotProfile <- function(factorMerger) {
     stat <- findSimilarities(factorMerger)
 
-    stat$level <- factor(stat$level, levels = getFinalOrderVec(factorMerger))
+    stat$level <- factor(stat$level,
+                             levels = (stat %>%
+                                           filter(variable == levels(stat$variable) %>%
+                                                      head(1)) %>% arrange(rank))$level
+        )
 
     noLevels <- length(levels(stat$level))
     stat$rank <- factor(stat$rank, levels = 1:noLevels)
-    stat %>% ggplot(aes(x = variable, y = rank, col = level, group = level, label = level)) +
+    g <- stat %>% ggplot(aes(x = variable, y = rank, col = level, group = level, label = level)) +
         geom_line() +
         geom_text(data = subset(stat,
                                 variable == levels(stat$variable) %>% tail(1)),
                   aes(x = variable),
                   size = 3.5, hjust = 0.8,  nudge_x = 0.1) +
-        theme_minimal() + theme(legend.position = "none")
+        theme_minimal() + theme(legend.position = "none") +
+        scale_color_manual(values = colorRamps::magenta2green(noLevels))
+    class(g) <- append(class(g), "profilePlot")
+    return(g)
 }
-
-# TODO: Zrobić dendrogram na zmiennych, żeby zmienne podobn
 
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
