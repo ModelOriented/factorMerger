@@ -98,6 +98,15 @@ renameStat <- function(stat) {
     return(stat)
 }
 
+getLimits <- function(df, showY) {
+    if (showY) {
+        return(c(min(df$y1), max(df$y1)))
+    } else {
+        shift <- 0.6 / (nrow(df) - 1)
+        return(c(min(df$y1) - shift, max(df$y1) + shift))
+    }
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_y_continuous
@@ -124,7 +133,8 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
     }
-    df <- df %>% subset(select = -label) %>% filter(!is.na(x2)) %>% apply(2, as.numeric) %>%
+    df <- df %>% subset(select = -label) %>% filter(!is.na(x2)) %>%
+        apply(2, as.numeric) %>%
         as.data.frame()
 
     if (stat == "pval") {
@@ -136,7 +146,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
     g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1)) +
-        scale_y_continuous(position = "right") +
+        scale_y_continuous(limits = getLimits(pointsDf, showY), position = "right") +
         ylab("Group mean")
 
     stat <- renameStat(stat)
@@ -184,11 +194,6 @@ plotProfile <- function(factorMerger) {
     stat$variable <- factor(stat$variable, levels = unique(stat$variable))
     stat$level <- factor(stat$level, levels = getFinalOrderVec(factorMerger))
 
-    #     factor(stat$level,
-    #                      levels = (stat %>%
-    #                                    filter(variable == levels(stat$variable) %>%
-    #                                               tail(1)) %>% arrange(rank))$level
-    # )
     noLevels <- length(levels(stat$level))
     stat$rank <- factor(stat$rank, levels = 1:noLevels)
     stat %>% ggplot(aes(x = variable, y = rank, col = level, group = level, label = level)) +
@@ -197,13 +202,13 @@ plotProfile <- function(factorMerger) {
                                 variable == levels(stat$variable) %>% tail(1)),
                   aes(x = variable),
                   size = 3.5, hjust = 0.8,  nudge_x = 0.1) +
-        theme_bw() + theme(legend.position = "none")
+        theme_minimal() + theme(legend.position = "none")
 }
 
 # TODO: Zrobić dendrogram na zmiennych, żeby zmienne podobn
 
 #' @export
-#' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_bw scale_x_continuous theme
+#' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
 #' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller
 #' @importFrom magrittr %>%
 #' @importFrom reshape2 melt
@@ -214,14 +219,14 @@ plotHeatmap <- function(factorMerger) {
     data.frame(cbind(response = factorMerger$response), factor = factorMerger$factor) %>%
         melt(id.vars = "factor") %>% ggplot() +
         geom_tile(aes(x = factor, y = variable, fill = value)) +
-        coord_flip() + theme_bw() +
-        theme(axis.line = element_line(colour = "black"),
-              panel.grid.major = element_blank(),
+        coord_flip() + theme_minimal() +
+        theme(panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
               panel.border = element_blank(),
               panel.background = element_blank(),
-              axis.title.x = element_blank(),
-              axis.ticks.x = element_blank()) +
+              axis.title.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.text.y = element_blank()) +
         scale_fill_distiller(palette = "PRGn")
 }
 
