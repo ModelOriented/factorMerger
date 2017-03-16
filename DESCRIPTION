@@ -16,7 +16,8 @@ Imports:
     reshape2,
     colorRamps,
     Hotelling,
-    vegan
+    vegan,
+    proxy
 Depends:
     gridExtra
 RoxygenNote: 6.0.1
