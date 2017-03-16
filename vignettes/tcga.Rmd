@@ -81,6 +81,7 @@ appendToTree(merging, plotProfile(merging) +
 
 
 ```{r}
-appendToTree(merging, plotHeatmap(merging))
+appendToTree(merging, plotHeatmap(merging) + 
+               theme(axis.text.x = element_text(angle = 90, hjust = 1)))
 ```
 
