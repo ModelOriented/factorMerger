@@ -67,31 +67,32 @@ plotTree(fm, "model")
 plotTree(fm, "pval")
 ```
 
-Both functions use `ggtree` package.
-
-
-We may also want to visualize dependent variables. `factorMergers` introduces two functions for this purpose:
+We may also want to visualize dependent variables together with created tree. `factorMergers` introduces two functions for this purpose:
 
  - `plotProfile` (resulting in rank plot),
  - `plotHeatmap`.
  
-```{r}
+```{r, fig.height = 5, fig.width = 7}
 bindPlots(
     plotTree(fm, color = TRUE),
     plotProfile(fm)
 )
 ```
 
-```{r}
+In the above plots colours are consistent with the group. The plot on the right shows means ranking for all variables included in the algorithm. 
+
+```{r, fig.height = 5, fig.width = 7}
 bindPlots(
     plotTree(fm),
     plotHeatmap(fm)
 )
 ```
 
+The heatmap on the right shows means of all variables taken into analysis by groups.
+
 ### One-dimensional response 
 
-If the response variable has only one dimension, we may use different approach and merging results may be presented in different way.
+If the response variable has only one dimension, we may use different approach (subsequent merging). What is more, merging results may be presented in a different way.
 
 #### Subsequent merging
 
@@ -106,9 +107,9 @@ mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, subsequent = TR
 
 #### Visual respresentation
 
-If our response variable is one-dimensional, we may easily connect each node with a mean of variables respresented by the node. The result is shown below.
+If our response variable is one-dimensional, we may easily connect each node with the mean of observations respresented by the node. The result is shown below.
 
-```{r}
+```{r, fig.height = 5, fig.width = 7}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
 plotTree(oneDimFm)
 ```
