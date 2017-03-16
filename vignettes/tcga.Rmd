@@ -61,7 +61,7 @@ plotTree(merging)
 ```
 
 ```{r}
-plotTree(merging, "pval") + theme_classic() + theme(panel.grid.major.x = element_line(color="lightgrey", linetype = 2))
+plotTree(merging, "pval")
 ```
 
 
@@ -75,12 +75,12 @@ map <- data.frame(orig = levels(cancer))
 map$changed <- letters[1:13]
 cancer <- factor(cancer, labels = map$changed)
 merging <- mergeFactors(df, cancer)
-bindPlots(plotTree(merging, color = TRUE), plotProfile(merging) + 
+appendToTree(merging, plotProfile(merging) + 
                theme(axis.text.x = element_text(angle = 90, hjust = 1)))
 ```
 
 
 ```{r}
-bindPlots(plotTree(merging), plotHeatmap(merging))
+appendToTree(merging, plotHeatmap(merging))
 ```
 

@@ -252,7 +252,8 @@ plotHeatmap <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     data.frame(cbind(response = factorMerger$response), factor = factorMerger$factor) %>%
-        melt(id.vars = "factor") %>% ggplot() +
+        melt(id.vars = "factor") %>% filter(!is.na(value)) %>%
+        group_by(variable, factor) %>% summarise(value = mean(value)) %>% ggplot() +
         geom_tile(aes(x = factor, y = variable, fill = value)) +
         coord_flip() + theme_minimal() +
         theme(panel.grid.major = element_blank(),
