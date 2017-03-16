@@ -178,6 +178,20 @@ plotSimpleTree <- function(factorMerger, stat = "model", color = FALSE) {
     return(plotCustomizedTree(factorMerger, stat, pos, color, showY = FALSE))
 }
 
+findSimilarities <- function(factorMerger) {
+    stats <- calculateMeansByFactor(factorMerger$response,
+                                    factorMerger$factor)
+    varsToBePloted <- reshape(stats %>% subset(select = -mean),
+                              idvar = "level",
+                              timevar = "variable",
+                              direction = "wide")
+    distances <- as.dist(cor(varsToBePloted[, -1]))
+    hClustOrder <- hclust(dist(distances), method = "complete")$order
+    stats$variable <- factor(stats$variable,
+                             levels = levels(as.factor(stats$variable))[hClustOrder])
+    return(stats)
+
+}
 
 #' @export
 bindPlots <- function(p1, p2) {
@@ -188,10 +202,8 @@ bindPlots <- function(p1, p2) {
 #' @export
 # TODO: dodać wybór między rank a średnią
 plotProfile <- function(factorMerger) {
-    stat <- calculateMeansByFactor(factorMerger$response,
-                                   factorMerger$factor)
+    stat <- findSimilarities(factorMerger)
 
-    stat$variable <- factor(stat$variable, levels = unique(stat$variable))
     stat$level <- factor(stat$level, levels = getFinalOrderVec(factorMerger))
 
     noLevels <- length(levels(stat$level))
