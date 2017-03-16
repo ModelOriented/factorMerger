@@ -12,10 +12,16 @@ merger <- function(response, factor, family = "gaussian",
     }
 
     factor <- as.factor(factor)
+    map <- data.frame(`abbreviated` = abbreviate(levels(factor)),
+                      `original` = levels(factor))
+    rownames(map) <- NULL
+    factor <- factor(factor, labels = map$abbreviated)
+
     # TODO: Make it insensitive to input types changes
     fm <- list(
         response = response,
         factor = factor,
+        map = map,
         mergingList = list(`1` = list(groups = levels(factor),
                                 factor = factor,
                                 factorStats = list(),
@@ -37,8 +43,13 @@ merger <- function(response, factor, family = "gaussian",
 
            "survival" = {
                class(fm) <- append(class(fm), "survivalFactorMerger")
-               stop("Survival analysis is not supported yet.")
+               # stop("Survival analysis is not supported yet.")
            },
+
+           "binomial" = {
+               class(fm) <- append(class(fm), "binomialFactorMerger")
+           },
+
            "nonparametric" = {
                class(fm) <- append(class(fm), "nonparametricFactorMerger")
                stop("Non-parametric analysis is not supported yet.")
@@ -109,6 +120,8 @@ mergingHistory.factorMerger <- function(factorMerger) {
 #'
 #' @export
 #'
+#' @importFrom knitr kable
+#'
 print.factorMerger <- function(factorMerger) {
    stats <- round(stats(factorMerger), 4)
    mergList <- mergingHistory(factorMerger)
@@ -117,7 +130,9 @@ print.factorMerger <- function(factorMerger) {
    rownames(mergList) <- NULL
    df <- data.frame(mergList, stats)
    colnames(df)[1:2] <- c("groupA", "groupB")
-   print(df)
+   print(kable(factorMerger$map))
+   cat("\n")
+   print(kable(df))
 }
 
 
