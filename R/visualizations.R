@@ -157,6 +157,8 @@ plotProfile <- function(factorMerger) {
         theme_bw() + theme(legend.position = "none")
 }
 
+# TODO: Zrobić dendrogram na zmiennych, żeby zmienne podobn
+
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_bw scale_x_continuous theme
 #' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller
