@@ -42,6 +42,31 @@ breaksAndLabelsCalc <- function(tr, shift, gridLength) {
     )
 }
 
+#' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal
+treeTheme <- function(showY) {
+
+    if (showY) {
+        return(theme_minimal() +
+                   theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
+                         panel.grid.major.y = element_blank(),
+                         panel.grid.minor.y = element_blank(),
+                         panel.grid.minor.x = element_blank(),
+                         legend.position = "none"))
+    }
+    else {
+         return(theme_minimal() +
+                     theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
+                           panel.grid.major.y = element_blank(),
+                           panel.grid.minor.y = element_blank(),
+                           panel.grid.minor.x = element_blank(),
+                           legend.position = "none",
+                           axis.text.y = element_blank(),
+                           axis.ticks.y = element_blank(),
+                           axis.title.y = element_blank()))
+    }
+}
+
+
 #' @export
 #'
 plotTree <- function(factorMerger, stat, color = FALSE) {
@@ -76,7 +101,7 @@ renameStat <- function(stat) {
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_y_continuous
-plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE, showX = TRUE) {
+plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE, showY = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
     df <- pos[1:noGroups, ] %>%  data.frame
@@ -110,17 +135,12 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
 
     g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
-        geom_point(data = pointsDf, aes(x = x1, y = y1))
+        geom_point(data = pointsDf, aes(x = x1, y = y1)) +
+        scale_y_continuous(position = "right") +
+        ylab("Group mean")
 
     stat <- renameStat(stat)
-    g <- g + theme_bw() + theme(legend.position = "none") + xlab(stat) + ylab("")
-
-    if (showX) {
-        g <- g + scale_y_continuous(position = "right")
-    } else {
-        g <- g + theme(axis.text.y = element_blank(),
-                  axis.ticks.y = element_blank())
-    }
+    g <- g + xlab(stat) + treeTheme(showY)
 
     if (color) {
          return(g + geom_label(data = pointsDf,
@@ -145,7 +165,7 @@ plotSimpleTree <- function(factorMerger, stat = "model", color = FALSE) {
         pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
         rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
     }
-    return(plotCustomizedTree(factorMerger, stat, pos, color, showX = FALSE))
+    return(plotCustomizedTree(factorMerger, stat, pos, color, showY = FALSE))
 }
 
 
