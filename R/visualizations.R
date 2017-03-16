@@ -50,8 +50,8 @@ plotTree <- function(factorMerger, stat, color = FALSE) {
 
 #' @export
 #' @importFrom magrittr %>%
-#' @importFrom factorMerger means
 plotTree.factorMerger <- function(factorMerger, stat = "model", color = FALSE) {
+    stopifnot(stat %in% c("model", "pval"))
     means <- means(factorMerger)
     if (is.null(means)) {
         plotSimpleTree(factorMerger, stat, color)
@@ -61,42 +61,65 @@ plotTree.factorMerger <- function(factorMerger, stat = "model", color = FALSE) {
     }
 }
 
+renameStat <- function(stat) {
+    switch(stat,
+           "pval" = {
+               stat <- "log10(p-value)"
+           },
+           "model" = {
+               stat <- "loglikelihood"
+           },
+           stat)
+    return(stat)
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 ggplot geom_segment theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label
+#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_y_continuous
 plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE, showX = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
     df <- pos[1:noGroups, ] %>%  data.frame
-    colnames(df) <- "x1"
-    df$x2 <- df$x1
+    colnames(df) <- "y1"
+    df$y2 <- df$y1
     df$label <- rownames(pos)[1:noGroups]
-    df$y1 <- factorMerger$mergingList$`1`$modelStats[, stat]
-    df$y2 <- NA
+    df$x1 <- factorMerger$mergingList$`1`$modelStats[, stat]
+    df$x2 <- NA
     pointsDf <- df
     merging <- mergingHistory(factorMerger)
     for (step in 1:nrow(merging)) {
-        statVal <- factorMerger$mergingList[[step]]$modelStats[, stat]
+        statVal <- factorMerger$mergingList[[step + 1]]$modelStats[, stat]
         pair <- merging[step, ]
         whichDf <- which(df$label %in% pair)
-        df[whichDf, "y2"] <- statVal
+        df[whichDf, "x2"] <- statVal
         pairLabel <- paste(pair, collapse = "")
         pairMean <- pos[rownames(pos) == pairLabel,]
-        crosswise <- c(df$x1[whichDf], "", statVal, statVal)
+        crosswise <- c(df$y1[whichDf], "", statVal, statVal)
         newVertex <- c(pairMean, pairMean, pairLabel, statVal, NA)
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
     }
-    g <- df %>% subset(select = -label) %>%
-        filter(!is.na(y2)) %>% apply(2, as.numeric) %>% round(2) %>%
-        as.data.frame() %>% ggplot() +
+    df <- df %>% subset(select = -label) %>% filter(!is.na(x2)) %>% apply(2, as.numeric) %>%
+        as.data.frame()
+
+    if (stat == "pval") {
+        df$x1 <- log10(df$x1)
+        df$x2 <- log10(df$x2)
+        pointsDf$x1 <- log10(pointsDf$x1)
+    }
+
+    g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
-        theme_bw() + coord_flip() + ylab(stat) + xlab("") +
-        theme(legend.position = "none") +
         geom_point(data = pointsDf, aes(x = x1, y = y1))
 
+    stat <- renameStat(stat)
+    g <- g + theme_bw() + theme(legend.position = "none") + xlab(stat) + ylab("")
+
     if (showX) {
-        g <- g + scale_x_continuous(position = "top")
+        g <- g + scale_y_continuous(position = "right")
+    } else {
+        g <- g + theme(axis.text.y = element_blank(),
+                  axis.ticks.y = element_blank())
     }
 
     if (color) {
@@ -114,7 +137,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, color = FALSE,
 
 
 plotSimpleTree <- function(factorMerger, stat = "model", color = FALSE) {
-pos <- getFinalOrder(factorMerger) %>% data.frame()
+    pos <- getFinalOrder(factorMerger) %>% data.frame()
     merging <- mergingHistory(factorMerger)
     noStep <- nrow(merging)
 
