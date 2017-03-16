@@ -180,6 +180,23 @@ plotSimpleTree <- function(factorMerger, stat = "model", levels = NULL) {
     return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE))
 }
 
+customDistance <- function(vec1, vec2) {
+    stopifnot(length(vec1) == length(vec2))
+    stopifnot(setdiff(vec1, vec2) == 0)
+    tmp1 <- 1:length(vec1)
+    tmp2 <- factor(vec2, levels = vec1, labels = tmp1)
+    pList <- getPairList(tmp1, FALSE)
+    inversions <- sapply(pList, function(x) {
+        if(x[1] < x[2]) {
+            return(which(vec2 == x[1]) > which(vec2 == x[2]))
+        } else {
+            return(FALSE)
+        }
+    })
+    return(sum(inversions))
+}
+
+#' @importFrom proxy dist
 findSimilarities <- function(factorMerger) {
     stats <- calculateMeansByFactor(factorMerger$response,
                                     factorMerger$factor)
@@ -187,8 +204,9 @@ findSimilarities <- function(factorMerger) {
                               idvar = "level",
                               timevar = "variable",
                               direction = "wide")
-    distances <- as.dist(cor(varsToBePloted[, -1]))
-    hClustOrder <- hclust(dist(distances), method = "complete")$order
+    distances <- proxy::dist(t(varsToBePloted[, -1]), method = customDistance)
+    distances <- cor(varsToBePloted[, -1])
+    hClustOrder <- hclust(dist(distances), method = "single")$order
     stats$variable <- factor(stats$variable,
                              levels = levels(as.factor(stats$variable))[hClustOrder])
     return(stats)
