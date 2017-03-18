@@ -43,10 +43,14 @@ calculateMeans <- function(numericVec, factorVec) {
     if (!is.null(dim(numericVec))) {
         return(NA)
     }
-    df <- data.frame(num = numericVec, level = factorVec)
-    aggregate(num ~ level, mean, data = df) %>%
-        rename(mean = num) %>%
-        arrange(mean)
+    df <- data.frame(num = numericVec, level = factorVec) %>%
+    df <- aggregate(. ~ level, mean, data = df)
+
+    if (NCOL(numericVec) == 1) {
+        df <- df %>% rename(mean = num) %>%
+            arrange(mean)
+    }
+    return(df)
 }
 
 #' Filter groups - ...

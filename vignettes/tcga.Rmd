@@ -71,9 +71,6 @@ plotTree(merging, "pval")
 df <- subset(selected, select = -c(sampleID, X_cohort, Cancer))
 
 cancer <- as.factor(selected$Cancer)
-map <- data.frame(orig = levels(cancer))
-map$changed <- letters[1:13]
-cancer <- factor(cancer, labels = map$changed)
 merging <- mergeFactors(df, cancer)
 appendToTree(merging, plotProfile(merging) + 
                theme(axis.text.x = element_text(angle = 90, hjust = 1)))

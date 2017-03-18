@@ -69,19 +69,20 @@ treeTheme <- function(showY) {
 
 #' @export
 #'
-plotTree <- function(factorMerger, stat, levels) {
+plotTree <- function(factorMerger, stat, levels, simplify = TRUE) {
     UseMethod("plotTree", factorMerger)
 }
 
 #' @export
 #' @importFrom magrittr %>%
-plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL) {
+plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, simplify = TRUE) {
     stopifnot(stat %in% c("model", "pval"))
-    means <- means(factorMerger)
-    if (is.null(means)) {
+
+    if (simplify) {
         plotSimpleTree(factorMerger, stat, levels)
     }
     else {
+        means <- means(factorMerger)
         plotCustomizedTree(factorMerger, stat, means, levels)
     }
 }
@@ -198,7 +199,7 @@ customDistance <- function(vec1, vec2) {
 
 #' @importFrom proxy dist
 findSimilarities <- function(factorMerger) {
-    stats <- calculateMeansByFactor(factorMerger$response,
+    stats <- calculateMeansAndRanks(factorMerger$response,
                                     factorMerger$factor)
     varsToBePloted <- reshape(stats %>% subset(select = -mean),
                               idvar = "level",
@@ -234,7 +235,7 @@ appendToTree.profilePlot <- function(factorMerger, plot) {
     grid.arrange(plotTree(factorMerger, levels = lev), plot, ncol = 2)
 }
 
-#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_bw theme
+#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual
 #' @export
 # TODO: dodać wybór między rank a średnią
 plotProfile <- function(factorMerger) {
@@ -269,10 +270,9 @@ plotProfile <- function(factorMerger) {
 plotHeatmap <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
-    data.frame(cbind(response = factorMerger$response), factor = factorMerger$factor) %>%
-        melt(id.vars = "factor") %>% filter(!is.na(value)) %>%
-        group_by(variable, factor) %>% summarise(value = mean(value)) %>% ggplot() +
-        geom_tile(aes(x = factor, y = variable, fill = value)) +
+    findSimilarities(factorMerger) %>%
+            ggplot() +
+        geom_tile(aes(x = level, y = variable, fill = mean)) +
         coord_flip() + theme_minimal() +
         theme(panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),

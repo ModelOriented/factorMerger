@@ -7,17 +7,14 @@
 merger <- function(response, factor, family = "gaussian",
                          subsequent = FALSE) {
 
-    if (NROW(response) != NROW(factor)) {
-        stop("Response and factor sizes do not match.")
-    }
+    stopifnot(NROW(response) == NROW(factor))
 
     factor <- as.factor(factor)
-    map <- data.frame(`abbreviated` = paste0("(", abbreviate(levels(factor)), ")"),
+    map <- data.frame(`recoded` = paste0("(", abbreviate(levels(factor)), ")"),
                       `original` = levels(factor))
     rownames(map) <- NULL
-    factor <- factor(factor, labels = map$abbreviated)
+    factor <- factor(factor, labels = map$recoded)
 
-    # TODO: Make it insensitive to input types changes
     fm <- list(
         response = response,
         factor = factor,

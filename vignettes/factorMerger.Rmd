@@ -74,7 +74,7 @@ We may also want to visualize dependent variables together with created tree. `f
  
 ```{r, fig.height = 5, fig.width = 7}
 bindPlots(
-    plotTree(fm, color = TRUE),
+    plotTree(fm),
     plotProfile(fm)
 )
 ```
