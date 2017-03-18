@@ -46,7 +46,7 @@ randSample <- generateMultivariateSample(N = 1000, k = 10, d = 5)
  - factor vector defining groups.
 
 ```{r}
-fm <- mergeFactors(randSample$response, randSample$factor)
+fm <- mergeFactors(randSample$response, randSample$factor, subsequent = TRUE)
 ```
 
 `mergeFactors` outputs with information about 'merging history'.
@@ -60,11 +60,12 @@ Each row of the above frame describes one step of the merging algorithm. First t
 We may also plot results using functions `plot` or `plotTree`. `plotTree` is extended version of `plot`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or 'pval'), `plot` uses 'model' column.
 
 ```{r, fig.height = 5, fig.width = 7}
-plotTree(fm, "model")
+plotTree(fm, "model", simplify = FALSE)
+# TODO: dodac liczenie rzutu isoMDS, jeżeli nie został wcześniej policzony
 ```
 
 ```{r, fig.height = 5, fig.width = 7}
-plotTree(fm, "pval")
+plotTree(fm, "pval", simplify = FALSE)
 ```
 
 We may also want to visualize dependent variables together with created tree. `factorMergers` introduces two functions for this purpose:
@@ -111,6 +112,6 @@ If our response variable is one-dimensional, we may easily connect each node wit
 
 ```{r, fig.height = 5, fig.width = 7}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
-plotTree(oneDimFm)
+plotTree(oneDimFm, simplify = FALSE)
 ```
 

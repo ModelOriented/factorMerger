@@ -7,3 +7,4 @@ notes
 inst/doc
 ignore.R
 test.rda
+*.RDataTmp

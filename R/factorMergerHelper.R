@@ -36,11 +36,19 @@ updateStatistics <- function(factorMerger, groups, factor) {
     return(stats)
 }
 
+#' @importFrom MASS isoMDS
 startMerging <- function(factorMerger, subsequent) {
     if (subsequent) {
-        setIncreasingOrder(factorMerger$response,
-                           factorMerger$factor)
+        if (NCOL(factorMerger$response) > 1) {
+            tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
+            factorMerger$projectedResponse <- tmpResponse
+        } else {
+            tmpResponse <- factorMerger$response
+        }
+            factorMerger$factor <- setIncreasingOrder(tmpResponse, factorMerger$factor)
     }
+
+    factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
     factorMerger$mergingList[[1]]$factor <- factorMerger$factor
     factorMerger$mergingList[[1]]$groups <- levels(factorMerger$mergingList[[1]]$factor)
     model <- calculateModel(factorMerger, factorMerger$factor)
@@ -98,8 +106,8 @@ mergePair <- function(factorMerger, subsequent) {
     factorMerger$mergingList[["tmp"]] <- list(groups = levels(factor),
                                               factor = factor,
                                               modelStats = NULL,
-                                              means = calculateMeans(
-                                                  factorMerger$response, factor),
+                                              groupStats = calculateGroupStatistic(
+                                                  factorMerger, factor),
                                               model = model)
 
     names(factorMerger$mergingList)[step + 1] <- step + 1
@@ -107,6 +115,7 @@ mergePair <- function(factorMerger, subsequent) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    pval = modelsPvals[whichMax])
+
     return(factorMerger)
 
 }
@@ -134,7 +143,7 @@ getTreeWithEdgesLength <- function(factorMerger, stat) {
 
 getFinalOrder <- function(factorMerger) {
     groups <- levels(factorMerger$factor)
-    merging <- mergingHistory(factorMerger)
+    merging <- data.frame(mergingHistory(factorMerger), stringsAsFactors = FALSE)
     noSteps <- nrow(merging)
     pos <- rep(1, length(groups))
     names(pos) <- groups
@@ -142,8 +151,10 @@ getFinalOrder <- function(factorMerger) {
         pos[names(pos) == merging[step, 2]] <-
             pos[names(pos) == merging[step, 2]] +
             max(pos[names(pos) == merging[step, 1]])
-        names(pos)[names(pos) %in% merging[step, ]] <-
-            paste(merging[step, ], collapse = "")
+        names(pos)[names(pos) == merging[step, 1]] <-
+            paste0(merging[step, 1], merging[step, 2])
+        names(pos)[names(pos) == merging[step, 2]] <-
+            paste0(merging[step, 1], merging[step, 2])
     }
     names(pos) <- groups
     return(pos)

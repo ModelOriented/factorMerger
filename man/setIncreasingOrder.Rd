@@ -4,7 +4,7 @@
 \alias{setIncreasingOrder}
 \title{Set increasing order}
 \usage{
-setIncreasingOrder(numericVec, factorVec)
+setIncreasingOrder(response, factor)
 }
 \arguments{
 \item{numericVec}{numeric vector}

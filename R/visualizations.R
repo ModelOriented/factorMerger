@@ -82,8 +82,8 @@ plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, s
         plotSimpleTree(factorMerger, stat, levels)
     }
     else {
-        means <- means(factorMerger)
-        plotCustomizedTree(factorMerger, stat, means, levels)
+        groupStat <- groupsStats(factorMerger)
+        plotCustomizedTree(factorMerger, stat, groupStat, levels)
     }
 }
 
@@ -114,7 +114,7 @@ getLimits <- function(df, showY) {
 plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
-    df <- pos[1:noGroups, ] %>%  data.frame
+    df <- pos[1:noGroups, ] %>% data.frame
     colnames(df) <- "y1"
     df$y2 <- df$y1
     df$label <- rownames(pos)[1:noGroups]
@@ -148,7 +148,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1)) +
         scale_y_continuous(limits = getLimits(pointsDf, showY), position = "right") +
-        ylab("Group mean")
+        ylab("Group statistic")
 
     stat <- renameStat(stat)
     g <- g + xlab(stat) + treeTheme(showY)
@@ -175,8 +175,10 @@ plotSimpleTree <- function(factorMerger, stat = "model", levels = NULL) {
     noStep <- nrow(merging)
 
     for (step in 1:noStep) {
-        pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
-        rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
+        firstPos <- pos[rownames(pos) == merging[step, 1], ]
+        secondPos <- pos[rownames(pos) == merging[step, 2], ]
+        pos <- rbind(pos, mean(c(firstPos, secondPos)))
+        rownames(pos)[nrow(pos)] <- paste0(merging[step, 1], merging[step, 2])
     }
     return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE))
 }
@@ -215,11 +217,13 @@ findSimilarities <- function(factorMerger) {
 }
 
 #' @export
+#' @importFrom gridExtra grid.arrange
 bindPlots <- function(p1, p2) {
     grid.arrange(p1, p2, ncol = 2)
 }
 
 #' @export
+#' @importFrom gridExtra grid.arrange
 appendToTree <- function(factorMerger, plot) {
     UseMethod("appendToTree", plot)
 }
