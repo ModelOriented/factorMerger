@@ -51,6 +51,7 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
 }
 
 calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
+    model <- NULL
     return(NULL)
 }
 

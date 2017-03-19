@@ -311,4 +311,6 @@ plotHeatmap <- function(factorMerger) {
         scale_fill_distiller(palette = "PRGn")
 }
 
-
+plotSurvPlot <- function(factorMerger) {
+    return(NULL)
+}
