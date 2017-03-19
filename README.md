@@ -8,6 +8,7 @@ https://github.com/geneticsMiNIng/FactorMerger/blob/master/vignettes/factorMerge
 
 * `calculateModel [gaussianFactorMerger, survivalFactorMerge, binomialFactorMerger]`
 * `appendProjection [factorMerger, gaussianFactorMerger]`
+* `getStatisticName [gaussianFactorMerger, binomialFactorMerger, survivalFactorMerger]`
 * `compareModels [lm, coxph, binomglm]`
 * `getPvals [lm, mlm]`
 * `calculateModelStatistic [coxph]` # logLik
