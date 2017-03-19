@@ -44,26 +44,19 @@ breaksAndLabelsCalc <- function(tr, shift, gridLength) {
 
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal
 treeTheme <- function(showY) {
-
-    if (showY) {
-        return(theme_minimal() +
-                   theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
-                         panel.grid.major.y = element_blank(),
-                         panel.grid.minor.y = element_blank(),
-                         panel.grid.minor.x = element_blank(),
-                         legend.position = "none"))
-    }
-    else {
-         return(theme_minimal() +
-                     theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
-                           panel.grid.major.y = element_blank(),
-                           panel.grid.minor.y = element_blank(),
-                           panel.grid.minor.x = element_blank(),
-                           legend.position = "none",
-                           axis.text.y = element_blank(),
+  mytheme <- theme_minimal() +
+   theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
+         panel.grid.major.y = element_blank(),
+         panel.grid.minor.y = element_blank(),
+         panel.grid.minor.x = element_blank(),
+         legend.position = "none")
+  
+    if (!showY) {
+      mytheme <- mytheme + theme(axis.text.y = element_blank(),
                            axis.ticks.y = element_blank(),
-                           axis.title.y = element_blank()))
+                           axis.title.y = element_blank())
     }
+ return(mytheme)
 }
 
 
