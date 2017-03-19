@@ -90,6 +90,9 @@ mergePair <- function(factorMerger, subsequent) {
     pairs <- getPairList(fs$groups, subsequent)
     model <- fs$model
     modelsPvals <- sapply(pairs, function(x) {
+        if (x[1] == x[2]) {
+            return(-1)
+        }
         factor <- mergeLevels(fs$factor, x[1], x[2])
         tmpModel <- calculateModel(factorMerger, factor)
         return(compareModels(model, tmpModel))

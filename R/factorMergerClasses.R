@@ -35,8 +35,9 @@ merger <- function(response, factor, family = "gaussian",
            },
 
            "survival" = {
+               stopifnot(!sum(response[, 1] < 0))
+               stopifnot(length(unique(response[, 2])) == 2)
                class(fm) <- append(class(fm), "survivalFactorMerger")
-               # stop("Survival analysis is not supported yet.")
            },
 
            "binomial" = {

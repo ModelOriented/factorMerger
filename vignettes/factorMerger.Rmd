@@ -150,3 +150,12 @@ plotTree(binomFm)
 plotTree(binomFm, simplify = FALSE)
 ```
 
+### Survival model
+ 
+ 
+```{r}
+fm <- mergeFactors(response = cbind(runif(100), rep(c(T, F), 50)),
+             factor = rep(letters[1:4], 25), family = "survival")
+
+plotTree(fm)
+```

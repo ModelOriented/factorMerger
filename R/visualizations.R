@@ -129,7 +129,7 @@ getStatisticName.binomialFactorMerger <- function(factorMerger) {
     return("Group proportion of success")
 }
 
-getStatisticName.survialFactorMerger <- function(factorMerger) {
+getStatisticName.survivalFactorMerger <- function(factorMerger) {
     return("Some statistic")
 }
 
