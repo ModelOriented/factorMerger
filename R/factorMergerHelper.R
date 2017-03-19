@@ -36,11 +36,30 @@ updateStatistics <- function(factorMerger, groups, factor) {
     return(stats)
 }
 
-startMerging <- function(factorMerger, subsequent) {
-    if (subsequent) {
-        setIncreasingOrder(factorMerger$response,
-                           factorMerger$factor)
+appendProjection <- function(factorMerger) {
+    UseMethod("appendProjection", factorMerger)
+}
+
+appendProjection.factorMerger <- function(factorMerger) {
+    return(factorMerger)
+}
+
+appendProjection.gaussianFactorMerger <- function(factorMerger) {
+    if (NCOL(factorMerger$response) > 1) {
+        tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
+        factorMerger$projectedResponse <- tmpResponse
     }
+    return(factorMerger)
+}
+
+#' @importFrom MASS isoMDS
+startMerging <- function(factorMerger, subsequent) {
+
+    if (subsequent) {
+        factorMerger$factor <- getIncreasingFactor(factorMerger)
+    }
+
+    factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
     factorMerger$mergingList[[1]]$factor <- factorMerger$factor
     factorMerger$mergingList[[1]]$groups <- levels(factorMerger$mergingList[[1]]$factor)
     model <- calculateModel(factorMerger, factorMerger$factor)
@@ -81,6 +100,9 @@ mergePair <- function(factorMerger, subsequent) {
     pairs <- getPairList(fs$groups, subsequent)
     model <- fs$model
     modelsPvals <- sapply(pairs, function(x) {
+        if (x[1] == x[2]) {
+            return(-1)
+        }
         factor <- mergeLevels(fs$factor, x[1], x[2])
         tmpModel <- calculateModel(factorMerger, factor)
         return(compareModels(model, tmpModel))
@@ -98,8 +120,8 @@ mergePair <- function(factorMerger, subsequent) {
     factorMerger$mergingList[["tmp"]] <- list(groups = levels(factor),
                                               factor = factor,
                                               modelStats = NULL,
-                                              means = calculateMeans(
-                                                  factorMerger$response, factor),
+                                              groupStats = calculateGroupStatistic(
+                                                  factorMerger, factor),
                                               model = model)
 
     names(factorMerger$mergingList)[step + 1] <- step + 1
@@ -107,6 +129,7 @@ mergePair <- function(factorMerger, subsequent) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    pval = modelsPvals[whichMax])
+
     return(factorMerger)
 
 }

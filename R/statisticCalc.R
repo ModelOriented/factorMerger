@@ -33,14 +33,16 @@ calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
     return(lm(factorMerger$response ~ 1))
 }
 
-#' @importFrom survival survreg
+#' @importFrom survival Surv coxph coxph.control
 calculateModel.survivalFactorMerger <- function(factorMerger, factor) {
-    df <- data.frame(response = factorMerger$response,
-                     factor = factor)
+    survObject <- Surv(time = factorMerger$response[, 1],
+                       event = factorMerger$response[, 2])
     if (length(unique(factor)) > 1) {
-        return(survreg(Surv(response) ~ factor, data = df))
+        return(coxph(survObject ~ factor,
+                     control = coxph.control(iter.max = 50)))
     }
-    return(survreg(Surv(response) ~ 1, data = df))
+    return(coxph(survObject ~ 1,
+                 control = coxph.control(iter.max = 50)))
 }
 
 calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
@@ -102,6 +104,13 @@ calculateModelStatistic.default <- function(model) {
     return(logLik(model))
 }
 
+calculateModelStatistic.coxph <- function(model) {
+    if (length(model$loglik) > 1) {
+        return(model$loglik[2])
+    }
+    return(model$loglik)
+}
+
 compareModels <- function(model1, model2) {
     UseMethod("compareModels", model1)
 }
@@ -110,8 +119,8 @@ compareModels.lm <- function(model1, model2) {
     return(anova(model1, model2)$`Pr(>F)`[2])
 }
 
-compareModels.survreg <- function(model1, model2) {
-    return(anova(model1, model2)$`Pr(>Chi)`[2])
+compareModels.coxph <- function(model1, model2) {
+    return(anova(model1, model2)$`P(>|Chi|)`[2])
 }
 
 compareModels.binomglm <- function(model1, model2) {

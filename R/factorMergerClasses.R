@@ -7,17 +7,14 @@
 merger <- function(response, factor, family = "gaussian",
                          subsequent = FALSE) {
 
-    if (NROW(response) != NROW(factor)) {
-        stop("Response and factor sizes do not match.")
-    }
+    stopifnot(NROW(response) == NROW(factor))
 
     factor <- as.factor(factor)
-    map <- data.frame(`abbreviated` = paste0("(", abbreviate(levels(factor)), ")"),
+    map <- data.frame(`recoded` = paste0("(", abbreviate(levels(factor)), ")"),
                       `original` = levels(factor))
     rownames(map) <- NULL
-    factor <- factor(factor, labels = map$abbreviated)
+    factor <- factor(factor, labels = map$recoded)
 
-    # TODO: Make it insensitive to input types changes
     fm <- list(
         response = response,
         factor = factor,
@@ -26,15 +23,11 @@ merger <- function(response, factor, family = "gaussian",
                                 factor = factor,
                                 factorStats = list(),
                                 modelStats = list(),
-                                means = NA,
+                                groupStats = NA,
                                 merged = NA))
     )
 
     class(fm) <- "factorMerger"
-
-    if (NCOL(response) == 1) {
-        fm$mergingList[[1]]$means <- calculateMeans(response, factor)
-    }
 
     switch(family,
            "gaussian" = {
@@ -42,11 +35,13 @@ merger <- function(response, factor, family = "gaussian",
            },
 
            "survival" = {
+               stopifnot(!sum(response[, 1] < 0))
+               stopifnot(length(unique(response[, 2])) == 2)
                class(fm) <- append(class(fm), "survivalFactorMerger")
-               # stop("Survival analysis is not supported yet.")
            },
 
            "binomial" = {
+               stopifnot(!sum(!response %in% c(0, 1)))
                class(fm) <- append(class(fm), "binomialFactorMerger")
            },
 
@@ -78,19 +73,19 @@ stats.factorMerger <- function(factorMerger) {
     do.call(rbind, statsList)
 }
 
-#' Show levels means - ...
+#' Show levels statistic - ...
 #'
 #' @export
 #'
-means <- function(object) {
-    UseMethod("means", object)
+groupsStats <- function(object) {
+    UseMethod("groupsStats", object)
 }
 
 #' ---
 #' @export
-means.factorMerger <- function(factorMerger) {
+groupsStats.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
-                        function(x) { as.data.frame(x$means) })
+                        function(x) { as.data.frame(x$groupStats) })
     statsDf <- do.call(rbind, statsList) %>% unique()
     if (sum(complete.cases(statsDf)) == 0) {
         return(NULL)
@@ -109,11 +104,14 @@ mergingHistory <- function(object) {
     UseMethod("mergingHistory", object)
 }
 
+
 #' @export
+#' @importFrom dplyr rename
 mergingHistory.factorMerger <- function(factorMerger) {
     statsList <- sapply(factorMerger$mergingList,
                         function(x) { x$merged })
-    do.call(rbind, statsList)
+    do.call(rbind, statsList) %>% as.data.frame(stringsAsFactors = FALSE) %>%
+        rename(groupA = V1, groupB = V2)
 }
 
 #' Factor Merger - ...
@@ -162,10 +160,7 @@ node <- function(left, right = NULL, stat = NULL) {
 mergeFactors <- function(response, factor, family = "gaussian", subsequent = FALSE) {
 
     stopifnot(!is.null(response), !is.null(factor))
-    if (NCOL(response) > 1 && subsequent) {
-        warning("Subsequent merging with multivariate responseis not yet implemented. All-to-all merging run instead.")
-        subsequent <- FALSE
-    }
+
 
     if (is.data.frame(response)) {
         response <- as.matrix(response)

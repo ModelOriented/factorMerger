@@ -4,7 +4,7 @@
 \alias{calculateMeans}
 \title{Calculate means by factor}
 \usage{
-calculateMeans(numericVec, factorVec)
+calculateMeans(response, factor)
 }
 \description{
 Calculate means by factor

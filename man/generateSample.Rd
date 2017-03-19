@@ -4,7 +4,7 @@
 \alias{generateSample}
 \title{Generate sample}
 \usage{
-generateSample(N, k, distr = "norm")
+generateSample(N, k, distr = "gaussian")
 }
 \arguments{
 \item{N}{sample size}

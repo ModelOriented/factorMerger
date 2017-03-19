@@ -69,22 +69,29 @@ treeTheme <- function(showY) {
 
 #' @export
 #'
-plotTree <- function(factorMerger, stat, levels) {
-    UseMethod("plotTree", factorMerger)
+plotTree <- function(factorMerger, stat = "model", simplify = TRUE) {
+    .plotTree(factorMerger, stat, NULL, simplify)
+}
+
+.plotTree <- function(factorMerger, stat, levels, simplify = TRUE) {
+    UseMethod(".plotTree", factorMerger)
 }
 
 #' @export
 #' @importFrom magrittr %>%
-plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL) {
+.plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, simplify = TRUE) {
     stopifnot(stat %in% c("model", "pval"))
-    means <- means(factorMerger)
-    if (is.null(means)) {
+
+    if (simplify) {
         plotSimpleTree(factorMerger, stat, levels)
     }
     else {
-        plotCustomizedTree(factorMerger, stat, means, levels)
+        groupStat <- groupsStats(factorMerger)
+        plotCustomizedTree(factorMerger, stat, groupStat, levels)
     }
 }
+
+# TODO: dodac liczenie rzutu isoMDS, jeżeli nie został wcześniej policzony
 
 renameStat <- function(stat) {
     switch(stat,
@@ -100,20 +107,39 @@ renameStat <- function(stat) {
 
 getLimits <- function(df, showY) {
     if (showY) {
-        return(c(min(df$y1), max(df$y1)))
+        return(c(min(df$y1) - 0.00001, max(df$y1) + 0.00001))
     } else {
         shift <- 0.6 / (nrow(df) - 1)
         return(c(min(df$y1) - shift, max(df$y1) + shift))
     }
 }
 
+getStatisticName <- function(factorMerger) {
+    UseMethod("getStatisticName", factorMerger)
+}
+
+getStatisticName.gaussianFactorMerger <- function(factorMerger) {
+    if (NCOL(factorMerger$response) > 1) {
+        return ("isoMDS projection group means")
+    }
+    return("Group means")
+}
+
+getStatisticName.binomialFactorMerger <- function(factorMerger) {
+    return("Group proportion of success")
+}
+
+getStatisticName.survivalFactorMerger <- function(factorMerger) {
+    return("Some statistic")
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_y_continuous
+#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_fill_manual scale_y_continuous
 plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
-    df <- pos[1:noGroups, ] %>%  data.frame
+    df <- pos[1:noGroups, ] %>% data.frame
     colnames(df) <- "y1"
     df$y2 <- df$y1
     df$label <- rownames(pos)[1:noGroups]
@@ -147,7 +173,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1)) +
         scale_y_continuous(limits = getLimits(pointsDf, showY), position = "right") +
-        ylab("Group mean")
+        ylab(getStatisticName(factorMerger))
 
     stat <- renameStat(stat)
     g <- g + xlab(stat) + treeTheme(showY)
@@ -198,7 +224,7 @@ customDistance <- function(vec1, vec2) {
 
 #' @importFrom proxy dist
 findSimilarities <- function(factorMerger) {
-    stats <- calculateMeansByFactor(factorMerger$response,
+    stats <- calculateMeansAndRanks(factorMerger$response,
                                     factorMerger$factor)
     varsToBePloted <- reshape(stats %>% subset(select = -mean),
                               idvar = "level",
@@ -214,27 +240,29 @@ findSimilarities <- function(factorMerger) {
 }
 
 #' @export
+#' @importFrom gridExtra grid.arrange
 bindPlots <- function(p1, p2) {
     grid.arrange(p1, p2, ncol = 2)
 }
 
 #' @export
+#' @importFrom gridExtra grid.arrange
 appendToTree <- function(factorMerger, plot) {
     UseMethod("appendToTree", plot)
 }
 
 #' @export
 appendToTree.default <- function(factorMerger, plot) {
-    grid.arrange(plotTree(factorMerger), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger), plot, ncol = 2)
 }
 
 #' @export
 appendToTree.profilePlot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
-    grid.arrange(plotTree(factorMerger, levels = lev), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger, levels = lev), plot, ncol = 2)
 }
 
-#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_bw theme
+#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual
 #' @export
 # TODO: dodać wybór między rank a średnią
 plotProfile <- function(factorMerger) {
@@ -269,10 +297,9 @@ plotProfile <- function(factorMerger) {
 plotHeatmap <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
-    data.frame(cbind(response = factorMerger$response), factor = factorMerger$factor) %>%
-        melt(id.vars = "factor") %>% filter(!is.na(value)) %>%
-        group_by(variable, factor) %>% summarise(value = mean(value)) %>% ggplot() +
-        geom_tile(aes(x = factor, y = variable, fill = value)) +
+    findSimilarities(factorMerger) %>%
+            ggplot() +
+        geom_tile(aes(x = level, y = variable, fill = mean)) +
         coord_flip() + theme_minimal() +
         theme(panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
@@ -284,4 +311,6 @@ plotHeatmap <- function(factorMerger) {
         scale_fill_distiller(palette = "PRGn")
 }
 
-
+plotSurvPlot <- function(factorMerger) {
+    return(NULL)
+}
