@@ -36,14 +36,24 @@ updateStatistics <- function(factorMerger, groups, factor) {
     return(stats)
 }
 
-#' @importFrom MASS isoMDS
-startMerging <- function(factorMerger, subsequent) {
+appendProjection <- function(factorMerger) {
+    UseMethod("appendProjection", factorMerger)
+}
+
+appendProjection.factorMerger <- function(factorMerger) {
+    return(factorMerger)
+}
+
+appendProjection.gaussianFactorMerger <- function(factorMerger) {
     if (NCOL(factorMerger$response) > 1) {
         tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
         factorMerger$projectedResponse <- tmpResponse
-    } else {
-        tmpResponse <- factorMerger$response
     }
+    return(factorMerger)
+}
+
+#' @importFrom MASS isoMDS
+startMerging <- function(factorMerger, subsequent) {
 
     if (subsequent) {
         factorMerger$factor <- getIncreasingFactor(factorMerger)

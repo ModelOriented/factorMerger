@@ -154,8 +154,10 @@ plotTree(binomFm, simplify = FALSE)
  
  
 ```{r}
-fm <- mergeFactors(response = cbind(runif(100), rep(c(T, F), 50)),
-             factor = rep(letters[1:4], 25), family = "survival")
-
+library(survival)
+data(veteran)
+fm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
+                   factor = veteran$celltype, 
+                   family = "survival")
 plotTree(fm)
 ```

@@ -38,7 +38,7 @@ calculateGroupStatistic <- function(factorMerger, factor) {
     UseMethod("calculateGroupStatistic", factorMerger)
 }
 
-calculateGroupStatistic.factorMerger <- function(factorMerger, factor) {
+calculateGroupStatistic.default <- function(factorMerger, factor) {
     if (NCOL(factorMerger$response) == 1) {
         return(calculateMeans(factorMerger$response, factor))
     }
@@ -50,8 +50,8 @@ calculateGroupStatistic.factorMerger <- function(factorMerger, factor) {
     }
 }
 
-calculateGroupStatistic.survival <- function(factorMerger, factor) {
-
+calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
+    return(NULL)
 }
 
 #' Calculate means by factor
