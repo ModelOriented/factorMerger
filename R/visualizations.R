@@ -114,6 +114,25 @@ getLimits <- function(df, showY) {
     }
 }
 
+getStatisticName <- function(factorMerger) {
+    UseMethod("getStatisticName", factorMerger)
+}
+
+getStatisticName.gaussianFactorMerger <- function(factorMerger) {
+    if (NCOL(factorMerger$response) > 1) {
+        return ("isoMDS projection group means")
+    }
+    return("Group means")
+}
+
+getStatisticName.binomialFactorMerger <- function(factorMerger) {
+    return("Group proportion of success")
+}
+
+getStatisticName.survialFactorMerger <- function(factorMerger) {
+    return("Some statistic")
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_fill_manual scale_y_continuous
@@ -154,7 +173,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1)) +
         scale_y_continuous(limits = getLimits(pointsDf, showY), position = "right") +
-        ylab("Group statistic")
+        ylab(getStatisticName(factorMerger))
 
     stat <- renameStat(stat)
     g <- g + xlab(stat) + treeTheme(showY)
