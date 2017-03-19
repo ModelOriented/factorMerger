@@ -6,11 +6,9 @@ https://github.com/geneticsMiNIng/FactorMerger/blob/master/vignettes/factorMerge
 
 ## Generic functions
 
-```
-calculateModel [gaussianFactorMerger, survivalFactorMerge, binomialFactorMerger] 
-appendProjection [factorMerger, gaussianFactorMerger, ]
-compareModels [lm, coxph, binomglm]
-getPvals [lm, mlm]
-calculateModelStatistic [coxph] # logLik
-logLik [mlm]
-```
+* `calculateModel [gaussianFactorMerger, survivalFactorMerge, binomialFactorMerger]`
+* `appendProjection [factorMerger, gaussianFactorMerger]`
+* `compareModels [lm, coxph, binomglm]`
+* `getPvals [lm, mlm]`
+* `calculateModelStatistic [coxph]` # logLik
+* `logLik [mlm]`
