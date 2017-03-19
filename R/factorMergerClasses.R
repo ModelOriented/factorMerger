@@ -29,10 +29,6 @@ merger <- function(response, factor, family = "gaussian",
 
     class(fm) <- "factorMerger"
 
-    # if (NCOL(response) == 1) {
-    #     fm$mergingList[[1]]$groupStatistic <- calculateGroupStatistic(factorMerger, factor)
-    # }
-
     switch(family,
            "gaussian" = {
                class(fm) <- append(class(fm), "gaussianFactorMerger")
@@ -44,6 +40,7 @@ merger <- function(response, factor, family = "gaussian",
            },
 
            "binomial" = {
+               stopifnot(!sum(!response %in% c(0, 1)))
                class(fm) <- append(class(fm), "binomialFactorMerger")
            },
 

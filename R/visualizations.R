@@ -69,13 +69,17 @@ treeTheme <- function(showY) {
 
 #' @export
 #'
-plotTree <- function(factorMerger, stat, levels, simplify = TRUE) {
-    UseMethod("plotTree", factorMerger)
+plotTree <- function(factorMerger, stat = "model", simplify = TRUE) {
+    .plotTree(factorMerger, stat, NULL, simplify)
+}
+
+.plotTree <- function(factorMerger, stat, levels, simplify = TRUE) {
+    UseMethod(".plotTree", factorMerger)
 }
 
 #' @export
 #' @importFrom magrittr %>%
-plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, simplify = TRUE) {
+.plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, simplify = TRUE) {
     stopifnot(stat %in% c("model", "pval"))
 
     if (simplify) {
@@ -86,6 +90,8 @@ plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, s
         plotCustomizedTree(factorMerger, stat, groupStat, levels)
     }
 }
+
+# TODO: dodac liczenie rzutu isoMDS, jeżeli nie został wcześniej policzony
 
 renameStat <- function(stat) {
     switch(stat,
@@ -101,7 +107,7 @@ renameStat <- function(stat) {
 
 getLimits <- function(df, showY) {
     if (showY) {
-        return(c(min(df$y1), max(df$y1)))
+        return(c(min(df$y1) - 0.00001, max(df$y1) + 0.00001))
     } else {
         shift <- 0.6 / (nrow(df) - 1)
         return(c(min(df$y1) - shift, max(df$y1) + shift))
@@ -110,7 +116,7 @@ getLimits <- function(df, showY) {
 
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_y_continuous
+#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_fill_manual scale_y_continuous
 plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
@@ -175,10 +181,8 @@ plotSimpleTree <- function(factorMerger, stat = "model", levels = NULL) {
     noStep <- nrow(merging)
 
     for (step in 1:noStep) {
-        firstPos <- pos[rownames(pos) == merging[step, 1], ]
-        secondPos <- pos[rownames(pos) == merging[step, 2], ]
-        pos <- rbind(pos, mean(c(firstPos, secondPos)))
-        rownames(pos)[nrow(pos)] <- paste0(merging[step, 1], merging[step, 2])
+        pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
+        rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
     }
     return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE))
 }
@@ -230,13 +234,13 @@ appendToTree <- function(factorMerger, plot) {
 
 #' @export
 appendToTree.default <- function(factorMerger, plot) {
-    grid.arrange(plotTree(factorMerger), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger), plot, ncol = 2)
 }
 
 #' @export
 appendToTree.profilePlot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
-    grid.arrange(plotTree(factorMerger, levels = lev), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger, levels = lev), plot, ncol = 2)
 }
 
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual

@@ -1,19 +1,12 @@
-#' Set increasing order
 #'
-#' Given a numeric vector and a factor vector changes levels order
-#' in the factor. Means of the numeric variable in groups
-#' appointed by the new order of the factor are increasing.
-#'
-#' @param numericVec numeric vector
-#' @param factorVec factor vector (same length as numbericVec).
-#'
-#' @importFrom MASS isoMDS
-#'
-#' @rdname setIncreasingOrder
-#'
-#'
+getIncreasingFactor <- function(factorMerger) {
+    stats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
+    colnames(stats)[2] <- "stat"
+    stats <- stats %>% arrange(stat)
+    return(factor(factorMerger$factor, levels = as.character(stats[, 1])))
+}
 
-setIncreasingOrder <- function(response, factor) {
+setIncreasingOrder <- function(response, factor, family = "gaussian") {
     if (NROW(response) != NROW(factor)) {
         stop("Input data sizes do not match.")
     }
@@ -24,7 +17,7 @@ setIncreasingOrder <- function(response, factor) {
     }
 
     factor <- as.factor(as.character(factor))
-    data <- data.frame(y = response, c = factor)
+    data <- data.frame(y = as.numeric(response), c = factor)
     newOrder <- aggregate(y ~ c, mean, data = data) %>%
         dplyr::arrange(y)
     factor(factor, levels = as.character(newOrder[, 1]))
@@ -45,13 +38,20 @@ calculateGroupStatistic <- function(factorMerger, factor) {
     UseMethod("calculateGroupStatistic", factorMerger)
 }
 
-calculateGroupStatistic.gaussianFactorMerger <- function(factorMerger, factor) {
+calculateGroupStatistic.factorMerger <- function(factorMerger, factor) {
     if (NCOL(factorMerger$response) == 1) {
         return(calculateMeans(factorMerger$response, factor))
     }
     else {
+        if (!"projectedResponse" %in% names(factorMerger)) {
+            factorMerger$projectedResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
+        }
         return(calculateMeans(factorMerger$projectedResponse, factor))
     }
+}
+
+calculateGroupStatistic.survival <- function(factorMerger, factor) {
+
 }
 
 #' Calculate means by factor

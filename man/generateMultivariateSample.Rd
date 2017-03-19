@@ -4,7 +4,7 @@
 \alias{generateMultivariateSample}
 \title{Generate multivariate sample}
 \usage{
-generateMultivariateSample(N, k, d = 2, distr = "norm")
+generateMultivariateSample(N, k, d = 2, distr = "gaussian")
 }
 \description{
 Generate multivariate sample

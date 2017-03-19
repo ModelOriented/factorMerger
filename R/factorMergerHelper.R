@@ -38,14 +38,15 @@ updateStatistics <- function(factorMerger, groups, factor) {
 
 #' @importFrom MASS isoMDS
 startMerging <- function(factorMerger, subsequent) {
+    if (NCOL(factorMerger$response) > 1) {
+        tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
+        factorMerger$projectedResponse <- tmpResponse
+    } else {
+        tmpResponse <- factorMerger$response
+    }
+
     if (subsequent) {
-        if (NCOL(factorMerger$response) > 1) {
-            tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
-            factorMerger$projectedResponse <- tmpResponse
-        } else {
-            tmpResponse <- factorMerger$response
-        }
-            factorMerger$factor <- setIncreasingOrder(tmpResponse, factorMerger$factor)
+        factorMerger$factor <- getIncreasingFactor(factorMerger)
     }
 
     factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
@@ -143,7 +144,7 @@ getTreeWithEdgesLength <- function(factorMerger, stat) {
 
 getFinalOrder <- function(factorMerger) {
     groups <- levels(factorMerger$factor)
-    merging <- data.frame(mergingHistory(factorMerger), stringsAsFactors = FALSE)
+    merging <- mergingHistory(factorMerger)
     noSteps <- nrow(merging)
     pos <- rep(1, length(groups))
     names(pos) <- groups
@@ -151,10 +152,8 @@ getFinalOrder <- function(factorMerger) {
         pos[names(pos) == merging[step, 2]] <-
             pos[names(pos) == merging[step, 2]] +
             max(pos[names(pos) == merging[step, 1]])
-        names(pos)[names(pos) == merging[step, 1]] <-
-            paste0(merging[step, 1], merging[step, 2])
-        names(pos)[names(pos) == merging[step, 2]] <-
-            paste0(merging[step, 1], merging[step, 2])
+        names(pos)[names(pos) %in% merging[step, ]] <-
+            paste(merging[step, ], collapse = "")
     }
     names(pos) <- groups
     return(pos)

@@ -20,11 +20,12 @@
 #' @export
 #'
 #'
-generateSample <- function(N, k, distr = "norm") {
+generateSample <- function(N, k, distr = "gaussian") {
     numericVec <- switch(distr,
-        "norm" = rnorm(N),
+        "gaussian" = rnorm(N),
         "exp" = rexp(N, 1),
         "beta" = rbeta(N, 1, 1),
+        "binomial" = rep(0, N),
         stop("Unknown distribution."))
 
     factorVec <- as.factor(sample(LETTERS[1:k],
@@ -32,9 +33,13 @@ generateSample <- function(N, k, distr = "norm") {
                               replace = TRUE))
 
     for (i in 1:k) {
-        randomShift <- sample(seq(0, 1, 0.1), size = 1)
         let <- LETTERS[i]
-        numericVec[factorVec == let] <- numericVec[factorVec == let] + randomShift
+        if (distr == "binomial") {
+            numericVec[factorVec == let] <- rbinom(length(numericVec[factorVec == let]), 1, runif(1))
+        } else {
+            randomShift <- sample(seq(0, 1, 0.1), size = 1)
+            numericVec[factorVec == let] <- numericVec[factorVec == let] + randomShift
+        }
     }
 
     generatedSample <- list(
@@ -49,7 +54,7 @@ generateSample <- function(N, k, distr = "norm") {
 #'
 #' @export
 #'
-generateMultivariateSample <- function(N, k, d = 2, distr = "norm") {
+generateMultivariateSample <- function(N, k, d = 2, distr = "gaussian") {
     tmp <- generateSample(N, k, distr)
     if (d > 1) {
         res <- matrix(, nrow = N, ncol = d)
