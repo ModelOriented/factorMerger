@@ -42,7 +42,7 @@ breaksAndLabelsCalc <- function(tr, shift, gridLength) {
     )
 }
 
-#' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal
+#' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
 treeTheme <- function(ticksColors) {
     myTheme <- theme_minimal() +
         theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
@@ -85,8 +85,7 @@ plotTree <- function(factorMerger, stat = "model",
         plotSimpleTree(factorMerger, stat, levels, alpha, showDiagnostics = showDiagnostics)
     }
     else {
-        groupStat <- groupsStats(factorMerger)
-        plotCustomizedTree(factorMerger, stat, groupStat,
+        plotCustomizedTree(factorMerger, stat, groupsStats(factorMerger),
                            levels, alpha = alpha,
                            showDiagnostics = showDiagnostics)
     }
@@ -182,9 +181,11 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         df <- rbind(df, newVertex)
     }
 
-    df <- df %>% subset(select = -label) %>% filter(!is.na(x2)) %>%
+    df <- df %>% subset(select = -label) %>%
         apply(2, as.numeric) %>%
         as.data.frame()
+
+    df$x2[is.na(df$x2)] <- min(df$x2, na.rm = TRUE) - ((max(df$x2, na.rm = TRUE) - min(df$x1)) / 20)
 
     if (stat == "pval") {
         df$x1 <- log10(df$x1)

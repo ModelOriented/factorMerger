@@ -86,10 +86,13 @@ groupsStats <- function(object) {
 groupsStats.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$groupStats) })
-    statsDf <- do.call(rbind, statsList) %>% unique()
+    statsDf <- do.call(rbind, statsList)
+    statsDf <- subset(statsDf, !duplicated(level))
+
     if (sum(complete.cases(statsDf)) == 0) {
         return(NULL)
     }
+
     rownames(statsDf) <- statsDf$level
     statsDf <- subset(statsDf, select = -level)
     return(statsDf)

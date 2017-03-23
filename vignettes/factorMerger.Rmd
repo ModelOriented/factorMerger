@@ -160,6 +160,21 @@ data(veteran)
 survivalFm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
                    factor = veteran$celltype, 
                    family = "survival")
-library(ggplot2)
-plotTree(survivalFm, "pval")
+```
+
+```{r}
+survivalFm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
+                   factor = veteran$celltype, 
+                   subsequent = TRUE,
+                   family = "survival")
+
+```
+
+
+```{r}
+plotTree(survivalFm, "model")
+```
+
+```{r}
+plotTree(survivalFm, "pval", simplify = FALSE)
 ```

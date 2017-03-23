@@ -4,7 +4,7 @@
 \alias{mergingHistory}
 \title{Show merging history - ...}
 \usage{
-mergingHistory(object)
+mergingHistory(object, showStats = FALSE)
 }
 \description{
 Show merging history - ...

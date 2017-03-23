@@ -50,9 +50,18 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
     }
 }
 
+#' @importFrom dplyr arrange
 calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
-    model <- NULL
-    return(NULL)
+    groups <- levels(factor)
+    if (length(groups) == 1) {
+        return(data.frame(level = groups, coef = 0))
+    }
+    model <- calculateModel(factorMerger, factor)
+    coefs <- data.frame(level = groups, coef = rep(0, length(groups)),
+                        stringsAsFactors = FALSE)
+    coefs[2:nrow(coefs), 2] <- model$coefficients
+    coefs <- coefs %>% arrange(coef)
+    return(coefs)
 }
 
 #' Calculate means by factor
