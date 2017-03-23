@@ -160,5 +160,6 @@ data(veteran)
 fm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
                    factor = veteran$celltype, 
                    family = "survival")
-plotTree(fm)
+library(ggplot2)
+plotTree(fm, "pval") + geom_vline(xintercept = log10(0.05), color = "red")
 ```

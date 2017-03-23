@@ -129,9 +129,10 @@ print.factorMerger <- function(factorMerger) {
    df <- data.frame(mergList, stats)
    colnames(df)[1:2] <- c("groupA", "groupB")
    cat("Factor levels were recoded as below:")
-   print(kable(factorMerger$map))
-   cat("\n")
-   print(kable(df))
+   cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
+   cat("\n\nFactor levels were merged in the following order:")
+   cat(paste(c("", "", kable(df, output = FALSE)), collapse = "\n"))
+   invisible(NULL)
 }
 
 node <- function(left, right = NULL, stat = NULL) {
