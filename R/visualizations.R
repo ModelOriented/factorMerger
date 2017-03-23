@@ -63,8 +63,6 @@ plotTree <- function(factorMerger, stat = "model",
     }
 }
 
-# TODO: dodac liczenie rzutu isoMDS, jeżeli nie został wcześniej policzony
-
 renameStat <- function(stat) {
     switch(stat,
            "pval" = {
@@ -217,9 +215,8 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
         }
         y <- getLimits(pointsDf, showY)
 
-        diff <- max(df$x1) - min(df$x2)
         g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = intercept - diff / 10, y = getLimits(pointsDf, showY)[1],
+            geom_label(x = intercept, y = getLimits(pointsDf, showY)[1],
                       label = label, alpha = 0.5, col = "mediumorchid3",
                       angle = 90,
                       size = 3, fontface = "italic")
@@ -354,7 +351,7 @@ plotSurvPlot <- function(factorMerger) {
 
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip
-#' @importFrom dplyr group_by summarize left_join theme element_blank
+#' @importFrom dplyr group_by summarize left_join
 plotBoxplot <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
@@ -376,7 +373,7 @@ plotBoxplot <- function(factorMerger) {
 }
 
 #' @export
-#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous
+#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous
 #' @importFrom dplyr group_by summarize left_join
 plotProportion <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
@@ -387,4 +384,13 @@ plotProportion <- function(factorMerger) {
         coord_flip() + treeTheme(NULL) +
         scale_fill_manual(values = customPaletteValues[c(2, length(customPaletteValues) - 1)]) +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank())
+}
+
+#' @export
+#' @importFrom survminer ggcoxadjustedcurves
+plotSurvival <- function(factorMerger) {
+    model <- calculateModel(factorMerger, factorMerger$factor)
+    survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
+                        individual.curves = TRUE,
+                        palette = "magenta2green", curve.size = 1)
 }

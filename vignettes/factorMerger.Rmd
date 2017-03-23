@@ -186,3 +186,8 @@ plotTree(survivalFm, "model")
 ```{r}
 plotTree(survivalFm, "pval", simplify = FALSE)
 ```
+
+```{r}
+appendToTree(survivalFm, plotSurvival(survivalFm))
+```
+
