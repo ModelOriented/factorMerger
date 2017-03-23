@@ -20,8 +20,6 @@ merger <- function(response, factor, family = "gaussian",
         factor = factor,
         map = map,
         mergingList = list(`1` = list(groups = levels(factor),
-                                factor = factor,
-                                factorStats = list(),
                                 modelStats = list(),
                                 groupStats = NA,
                                 merged = NA))
@@ -59,16 +57,7 @@ merger <- function(response, factor, family = "gaussian",
     return(fm)
 }
 
-#' Show models statistics - ...
-#'
-#' @export
-#'
-stats <- function(object) {
-    UseMethod("stats", object)
-}
-
-#' ---
-stats.factorMerger <- function(factorMerger) {
+stats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList, function(x) { x$modelStats })
     do.call(rbind, statsList)
 }
@@ -98,7 +87,6 @@ groupsStats.factorMerger <- function(factorMerger) {
     return(statsDf)
 }
 
-
 #' Show merging history - ...
 #'
 #' @export
@@ -106,7 +94,6 @@ groupsStats.factorMerger <- function(factorMerger) {
 mergingHistory <- function(object, showStats = FALSE) {
     UseMethod("mergingHistory", object)
 }
-
 
 #' @export
 #' @importFrom dplyr rename
@@ -158,10 +145,13 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
     }
 
     fm <- merger(response, factor, family)
-    fm <- startMerging(fm, subsequent)
+    fmList <- startMerging(fm, subsequent)
+    fm <- fmList$factorMerger
     while (canBeMerged(fm)) {
-        fm <- mergePair(fm, subsequent)
+
+        fmList <- mergePair(fm, subsequent, fmList$factor, fmList$model)
+        fm <- fmList$factorMerger
     }
-    return(fm)
+    return(fmList$factorMerger)
 }
 
