@@ -1,3 +1,7 @@
+customPalette <- "PRGn"
+customPaletteValues <- c("#762A83", "#9970AB", "#C2A5CF", "#E7D4E8",
+                         "#D9F0D3", '#A6DBA0', "#5AAE61", "#1B7837")
+
 #' @importFrom ape node.depth.edgelength
 breaksAndLabelsCalc <- function(tr, shift, gridLength) {
     trHeight <- max(node.depth.edgelength(tr))
@@ -341,7 +345,7 @@ plotHeatmap <- function(factorMerger) {
               axis.title.y = element_blank(),
               axis.ticks.y = element_blank(),
               axis.text.y = element_blank()) +
-        scale_fill_distiller(palette = "PRGn")
+        scale_fill_distiller(palette = customPalette)
 }
 
 plotSurvPlot <- function(factorMerger) {
@@ -369,4 +373,18 @@ plotBoxplot <- function(factorMerger) {
                          ymax = y100), stat = "identity") +
         coord_flip() + treeTheme(NULL) +
         theme(axis.title = element_blank(), axis.text.y = element_blank())
+}
+
+#' @export
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous
+#' @importFrom dplyr group_by summarize left_join
+plotProportion <- function(factorMerger) {
+    levels <- getFinalOrderVec(factorMerger)
+    factorMerger$factor <- factor(factorMerger$factor, levels = levels)
+    data <- data.frame(x = factorMerger$factor, y = factorMerger$response)
+    data %>% ggplot() + geom_bar(aes(x = x, fill = as.factor(y)), position = "fill") +
+        scale_y_continuous(label = scales::percent, name = "Success proportion") +
+        coord_flip() + treeTheme(NULL) +
+        scale_fill_manual(values = customPaletteValues[c(2, length(customPaletteValues) - 1)]) +
+        theme(axis.title.y = element_blank(), axis.text.y = element_blank())
 }

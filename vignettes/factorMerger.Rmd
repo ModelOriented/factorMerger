@@ -154,6 +154,11 @@ plotTree(binomFm)
 plotTree(binomFm, simplify = FALSE)
 ```
 
+```{r}
+appendToTree(binomFm, plotProportion(binomFm))
+```
+
+
 ### Survival model
  
  
