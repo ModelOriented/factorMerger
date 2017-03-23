@@ -138,7 +138,7 @@ appendToTree(oneDimFm, plotBoxplot(oneDimFm))
 
 ```{r}
 binomRandSample <- generateSample(1000, 10, distr = "binomial")
-aggregate(binomRandSample$response ~ binomRandSample$factor, FUN = mean)
+table(binomRandSample$response, binomRandSample$factor)
 ```
 
 ```{r}

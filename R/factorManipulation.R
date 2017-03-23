@@ -101,24 +101,3 @@ calculateMeansAndRanks <- function(response, factor) {
                rename(mean = value,
                       variable = L1))
 }
-
-
-#' Filter groups - ...
-#'
-filterGroups <- function(response, factor, groupA, groupB) {
-    response <- as.matrix(response)
-    xA <- response[factor == groupA, ]
-    xB <- response[factor == groupB, ]
-    return(list(xA, xB))
-}
-
-bindLevels <- function(groups, groupVec) {
-    groupLabel <- paste(groupVec, sep = ":", collapse = ":")
-    groups[groups %in% groupVec] <- groupLabel
-    groups
-}
-
-getTree <- function(factorMerger) {
-    steps <- length(factorMerger$mergingList)
-    return(paste0(factorMerger$mergingList[[steps]]$groups, ";"))
-}

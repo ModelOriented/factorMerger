@@ -2,18 +2,6 @@ customPalette <- "PRGn"
 customPaletteValues <- c("#762A83", "#9970AB", "#C2A5CF", "#E7D4E8",
                          "#D9F0D3", '#A6DBA0', "#5AAE61", "#1B7837")
 
-#' @importFrom ape node.depth.edgelength
-breaksAndLabelsCalc <- function(tr, shift, gridLength) {
-    trHeight <- max(node.depth.edgelength(tr))
-    br <- seq(0, trHeight, trHeight / gridLength)
-    return(
-        list(
-            breaks = br,
-            labels = as.character(round(br + as.numeric(shift), 2))
-        )
-    )
-}
-
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
 treeTheme <- function(ticksColors) {
     myTheme <- theme_minimal() +
@@ -225,7 +213,6 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     return(g)
 }
 
-
 plotSimpleTree <- function(factorMerger, stat = "model",
                            levels = NULL, alpha = 0.05,
                            showDiagnostics = TRUE) {
@@ -271,12 +258,6 @@ findSimilarities <- function(factorMerger) {
                              levels = levels(as.factor(stats$variable))[hClustOrder])
     return(stats)
 
-}
-
-#' @export
-#' @importFrom gridExtra grid.arrange
-bindPlots <- function(p1, p2) {
-    grid.arrange(p1, p2, ncol = 2)
 }
 
 #' @export

@@ -114,6 +114,13 @@ mergingHistory.factorMerger <- function(factorMerger, showStats = FALSE) {
     return(mergingDf)
 }
 
+call <- function(factorMerger) {
+    return(
+        paste0("Family: ", gsub('([[:upper:]])', ' \\1',
+                                class(factorMerger)[length(class(factorMerger))]), ".")
+        )
+}
+
 #' Factor Merger - ...
 #'
 #' @export
@@ -123,7 +130,8 @@ mergingHistory.factorMerger <- function(factorMerger, showStats = FALSE) {
 print.factorMerger <- function(factorMerger) {
    df <- mergingHistory(factorMerger, TRUE)
    colnames(df)[1:2] <- c("groupA", "groupB")
-   cat("Factor levels were recoded as below:")
+   cat(call(factorMerger))
+   cat("\nFactor levels were recoded as below:")
    cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
    cat("\n\nFactor levels were merged in the following order:")
    cat(paste(c("", "", kable(df, output = FALSE)), collapse = "\n"))
