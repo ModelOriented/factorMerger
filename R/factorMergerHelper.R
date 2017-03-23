@@ -66,7 +66,8 @@ startMerging <- function(factorMerger, subsequent) {
     factorMerger$mergingList[[1]]$model <- model
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = calculateModelStatistic(model),
-        pval = 1)
+        pval = 1,
+        AIC = calculateAIC(model, length(levels(factorMerger$factor))))
     return(factorMerger)
 }
 
@@ -128,7 +129,8 @@ mergePair <- function(factorMerger, subsequent) {
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   pval = modelsPvals[whichMax])
+                   pval = modelsPvals[whichMax],
+                   AIC = calculateAIC(model, length(levels(factor))))
 
     return(factorMerger)
 

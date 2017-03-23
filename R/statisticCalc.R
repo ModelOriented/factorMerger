@@ -1,25 +1,5 @@
-# Hotelling test {car}: https://github.com/cran/car/blob/1425129f002cb91a38951ad8af641254368a4d96/R/Anova.R
-HL <- function (eig, q, df.res) {
-    test <- sum(eig)
-    p <- length(eig)
-    m <- 0.5 * (abs(p - q) - 1)
-    n <- 0.5 * (df.res - p - 1)
-    s <- min(p, q)
-    tmp1 <- 2 * m + s + 1
-    tmp2 <- 2 * (s * n + 1)
-    return(c(test, (tmp2 * test)/s/s/tmp1, s * tmp1, tmp2))
-}
-
-# pvalue for Hotelling test {car}:
-# https://github.com/cran/car/blob/1425129f002cb91a38951ad8af641254368a4d96/R/Anova.R
-HLPval <- function(linHyp.mlm) {
-    SSPE.qr <- qr(linHyp.mlm$SSPE)
-    eigs <- Re(eigen(qr.coef(SSPE.qr, linHyp.mlm$SSPH), symmetric = FALSE)$values)
-    hotellVec <- HL(eigs, linHyp.mlm$df, linHyp.mlm$df.residual)
-    return(stats::pf(hotellVec[2],
-                     hotellVec[3],
-                     hotellVec[4],
-                     lower.tail = FALSE))
+calculateAIC <- function(model, k) {
+    return(-2 * calculateModelStatistic(model) + 2 * k)
 }
 
 calculateModel <- function(factorMerger, factor) {
@@ -57,26 +37,6 @@ calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
 
     class(mod) <- c("binomglm", class(mod))
     return(mod)
-}
-
-getPvals <- function(model) {
-    UseMethod("getPvals", model)
-}
-
-getPvals.lm <- function(model) {
-    return(summary(model)$coefficient[-1, 4])
-}
-
-#' Get hypothesis p-values
-#'
-#' @importFrom car linearHypothesis
-#'
-getPvals.mlm <- function(model) {
-    contr <- contr.treatment(NROW(model$coefficients))
-    return(apply(contr, 2, function(x) { # czy to na pewno jest dobrze?
-        hyp <- linearHypothesis(model, x)
-        HLPval(hyp)
-    }))
 }
 
 #' Gaussian model loglikelihood

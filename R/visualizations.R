@@ -49,7 +49,6 @@ treeTheme <- function(ticksColors) {
               panel.grid.major.y = element_blank(),
               panel.grid.minor.y = element_blank(),
               panel.grid.minor.x = element_blank(),
-              axis.title.y = element_text(angle = 0),
               legend.position = "none")
     if(!is.null(ticksColors)) {
         myTheme <- myTheme + theme(axis.text.y = element_text(color = ticksColors))
@@ -62,24 +61,34 @@ treeTheme <- function(ticksColors) {
 
 #' @export
 #'
-plotTree <- function(factorMerger, stat = "model", simplify = TRUE) {
-    .plotTree(factorMerger, stat, NULL, simplify)
+plotTree <- function(factorMerger, stat = "model",
+                     simplify = TRUE, alpha = 0.05,
+                     showDiagnostics = TRUE) {
+    stopifnot(alpha > 0 && alpha < 1)
+    .plotTree(factorMerger, stat, NULL, simplify, alpha = alpha,
+              showDiagnostics = showDiagnostics)
 }
 
-.plotTree <- function(factorMerger, stat, levels, simplify = TRUE) {
+.plotTree <- function(factorMerger, stat,
+                      levels, simplify = TRUE,
+                      alpha = 0.05, showDiagnostics = TRUE) {
     UseMethod(".plotTree", factorMerger)
 }
 
 #' @export
-.plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, simplify = TRUE) {
+.plotTree.factorMerger <- function(factorMerger, stat = "model",
+                                   levels = NULL, simplify = TRUE,
+                                   alpha = 0.05, showDiagnostics = TRUE) {
     stopifnot(stat %in% c("model", "pval"))
 
     if (simplify) {
-        plotSimpleTree(factorMerger, stat, levels)
+        plotSimpleTree(factorMerger, stat, levels, alpha, showDiagnostics = showDiagnostics)
     }
     else {
         groupStat <- groupsStats(factorMerger)
-        plotCustomizedTree(factorMerger, stat, groupStat, levels)
+        plotCustomizedTree(factorMerger, stat, groupStat,
+                           levels, alpha = alpha,
+                           showDiagnostics = showDiagnostics)
     }
 }
 
@@ -128,6 +137,7 @@ getStatisticName.survivalFactorMerger <- function(factorMerger) {
 #' @importFrom dplyr left_join
 getLabels <- function(pointsDf, factorMerger) {
     stats <- groupsStats(factorMerger)
+    if (is.null(stats)) return(NULL)
     stats$label <- rownames(stats)
     pointsDf <- pointsDf %>% left_join(stats, by = "label")
     return(paste0(pointsDf$label, ": ", round(pointsDf[, ncol(pointsDf)], 2)))
@@ -186,10 +196,24 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
                 pointsDf = pointsDf))
 }
 
+#' @importFrom ggplot2 theme theme_minimal element_blank
+theme_blank <- function() {
+    return(theme_minimal() +
+               theme(axis.title = element_blank(),
+                     axis.text = element_blank(),
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank()))
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_fill_manual scale_y_continuous
-plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
+#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw
+#' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_text
+#' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous
+plotCustomizedTree <- function(factorMerger, stat = "model",
+                               pos, levels = NULL,
+                               showY = TRUE, alpha = 0.05,
+                               showDiagnostics = TRUE) {
 
     segment <- getTreeSegmentDf(factorMerger, stat, pos)
     df <- segment$df
@@ -204,13 +228,33 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
                            labels = getLabels(pointsDf, factorMerger)) +
         ylab(getStatisticName(factorMerger))
 
+    upperBreaks <- df$x1 %>% unique() %>% sort
     g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(pointsDf, levels))
+
+    if (showDiagnostics) {
+        if (stat == "pval") {
+            intercept <- log10(alpha)
+            label <- paste0("       alpha = ", alpha, "\n")
+        }
+        if (stat == "model") {
+            aicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "AIC")] %>%
+                filter(AIC == min(AIC))
+            intercept <- aicMin$model
+            label <- paste0("           AIC = ", round(aicMin$AIC), "\n")
+        }
+        g <- g + geom_vline(xintercept = intercept, col = "red3", linetype = "dotted") +
+            geom_text(x = intercept, y = getLimits(pointsDf, showY)[1],
+                      label = label,
+                      angle = 90, color = "red3", size = 3, fontface = "italic")
+    }
 
     return(g)
 }
 
 
-plotSimpleTree <- function(factorMerger, stat = "model", levels = NULL) {
+plotSimpleTree <- function(factorMerger, stat = "model",
+                           levels = NULL, alpha = 0.05,
+                           showDiagnostics = TRUE) {
     pos <- getFinalOrder(factorMerger) %>% data.frame()
     merging <- mergingHistory(factorMerger)
     noStep <- nrow(merging)
@@ -219,7 +263,7 @@ plotSimpleTree <- function(factorMerger, stat = "model", levels = NULL) {
         pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
         rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
     }
-    return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE))
+    return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE, alpha))
 }
 
 customDistance <- function(vec1, vec2) {

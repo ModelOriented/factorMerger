@@ -100,18 +100,27 @@ groupsStats.factorMerger <- function(factorMerger) {
 #'
 #' @export
 #'
-mergingHistory <- function(object) {
+mergingHistory <- function(object, showStats = FALSE) {
     UseMethod("mergingHistory", object)
 }
 
 
 #' @export
 #' @importFrom dplyr rename
-mergingHistory.factorMerger <- function(factorMerger) {
-    statsList <- sapply(factorMerger$mergingList,
+mergingHistory.factorMerger <- function(factorMerger, showStats = FALSE) {
+    mergingList <- sapply(factorMerger$mergingList,
                         function(x) { x$merged })
-    do.call(rbind, statsList) %>% as.data.frame(stringsAsFactors = FALSE) %>%
+    mergingDf <- do.call(rbind, mergingList) %>%
+        as.data.frame(stringsAsFactors = FALSE) %>%
         rename(groupA = V1, groupB = V2)
+rownames(mergingDf) <- NULL
+    if (showStats) {
+        st <- round(stats(factorMerger), 4)
+        mergingDf <- mergingDf[complete.cases(mergingDf), ]
+        mergingDf <- rbind(c("", ""), mergingDf)
+        mergingDf <- data.frame(mergingDf, st)
+    }
+    return(mergingDf)
 }
 
 #' Factor Merger - ...
@@ -121,36 +130,13 @@ mergingHistory.factorMerger <- function(factorMerger) {
 #' @importFrom knitr kable
 #'
 print.factorMerger <- function(factorMerger) {
-   stats <- round(stats(factorMerger), 4)
-   mergList <- mergingHistory(factorMerger)
-   mergList <- mergList[complete.cases(mergList),]
-   mergList <- rbind(c("", ""), mergList)
-   rownames(mergList) <- NULL
-   df <- data.frame(mergList, stats)
+   df <- mergingHistory(factorMerger, TRUE)
    colnames(df)[1:2] <- c("groupA", "groupB")
    cat("Factor levels were recoded as below:")
    cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
    cat("\n\nFactor levels were merged in the following order:")
    cat(paste(c("", "", kable(df, output = FALSE)), collapse = "\n"))
    invisible(NULL)
-}
-
-node <- function(left, right = NULL, stat = NULL) {
-    if (is.null(right)) {
-        if (is.na(stat)) {
-        return(list(stat = 1,
-                   text = left))
-        }
-        else {
-            return(list(stat = stat,
-                        text = left))
-        }
-    }
-    leftDiff <- left$stat - stat
-    rightDiff <- right$stat - stat
-    return(list(stat = stat,
-               text = paste0("(", left$text, ": ", leftDiff,
-                             ", ", right$text, ": ", rightDiff, ")")))
 }
 
 

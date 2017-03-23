@@ -127,7 +127,7 @@ plot(oneDimRandSample)
 ```
 ```{r}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
-plotTree(oneDimFm, simplify = FALSE)
+plotTree(oneDimFm, simplify = FALSE, "pval")
 ```
 
 
@@ -157,9 +157,9 @@ plotTree(binomFm, simplify = FALSE)
 ```{r}
 library(survival)
 data(veteran)
-fm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
+survivalFm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
                    factor = veteran$celltype, 
                    family = "survival")
 library(ggplot2)
-plotTree(fm, "pval") + geom_vline(xintercept = log10(0.05), color = "red")
+plotTree(survivalFm, "pval")
 ```
