@@ -45,7 +45,7 @@ To do so, we may use function `generateSample` or `generateMultivariateSample`.
 
 ```{r}
 library(factorMerger) 
-randSample <- generateMultivariateSample(N = 1000, k = 10, d = 5)
+randSample <- generateMultivariateSample(N = 1000, k = 10, d = 3)
 ```
 
 ## Merging factors
@@ -123,11 +123,14 @@ The heatmap on the right shows means of all variables taken into analysis by gro
 
 ```{r}
 oneDimRandSample <- generateSample(1000, 5)
-plot(oneDimRandSample)
 ```
 ```{r}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
 plotTree(oneDimFm, simplify = FALSE, "pval")
+```
+
+```{r}
+appendToTree(oneDimFm, plotBoxplot(oneDimFm))
 ```
 
 

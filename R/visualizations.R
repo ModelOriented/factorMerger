@@ -1,35 +1,3 @@
-#' Generated sample visualization
-#'
-#' @param x generatesSample object
-#'
-#' @rdname plot.generatedSample
-#' @importFrom ggplot2 ggplot geom_boxplot aes ylab xlab stat_summary labs
-#' @importFrom magrittr %>%
-#' @importFrom dplyr group_by summarize left_join
-#' @importFrom data.table data.table
-#' @export
-
-plot.generatedSample <- function(data) {
-    data <- data.frame(data)
-    colnames(data) <- c("x", "y")
-    data %>% left_join(
-        data %>% group_by(x) %>% summarize(y0 = min(y),
-                                           y25 = quantile(y, 0.25),
-                                           y50 = mean(y),
-                                           y75 = quantile(y, 0.75),
-                                           y100 = max(y)), by = "x") %>%
-        ggplot(aes(y = y, x = x, group = x)) +
-        geom_boxplot(aes(ymin = y0,
-                         lower = y25,
-                         middle = y50,
-                         upper = y75,
-                         ymax = y100), stat = "identity") +
-
-        xlab("Groups") + ylab("Response") +
-        labs(title = "Generated sample - boxplot",
-             subtitle = "Groups are sorted by means. Displayed summary statistic - mean in a group.")
-}
-
 #' @importFrom ape node.depth.edgelength
 breaksAndLabelsCalc <- function(tr, shift, gridLength) {
     trHeight <- max(node.depth.edgelength(tr))
@@ -130,7 +98,7 @@ getStatisticName.binomialFactorMerger <- function(factorMerger) {
 }
 
 getStatisticName.survivalFactorMerger <- function(factorMerger) {
-    return("Some statistic")
+    return("Initial survival model coefficient")
 }
 
 #' @importFrom dplyr left_join
@@ -185,13 +153,13 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         apply(2, as.numeric) %>%
         as.data.frame()
 
-    df$x2[is.na(df$x2)] <- min(df$x2, na.rm = TRUE) - ((max(df$x2, na.rm = TRUE) - min(df$x1)) / 20)
-
     if (stat == "pval") {
         df$x1 <- log10(df$x1)
         df$x2 <- log10(df$x2)
         pointsDf$x1 <- log10(pointsDf$x1)
     }
+
+    df$x2[is.na(df$x2)] <- min(df$x2, na.rm = TRUE) - ((max(df$x2, na.rm = TRUE) - min(df$x1)) / 20)
 
     return(list(df = df,
                 pointsDf = pointsDf))
@@ -201,7 +169,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
 theme_blank <- function() {
     return(theme_minimal() +
                theme(axis.title = element_blank(),
-                     axis.text = element_blank(),
+                     axis.text.y = element_blank(),
                      panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank()))
 }
@@ -209,7 +177,7 @@ theme_blank <- function() {
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw
-#' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_text
+#' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_label
 #' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous
 plotCustomizedTree <- function(factorMerger, stat = "model",
                                pos, levels = NULL,
@@ -235,18 +203,22 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     if (showDiagnostics) {
         if (stat == "pval") {
             intercept <- log10(alpha)
-            label <- paste0("       alpha = ", alpha, "\n")
+            label <- paste0("alpha = ", alpha)
         }
         if (stat == "model") {
             aicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "AIC")] %>%
                 filter(AIC == min(AIC))
             intercept <- aicMin$model
-            label <- paste0("           AIC = ", round(aicMin$AIC), "\n")
+            label <- paste0("AIC = ", round(aicMin$AIC))
         }
-        g <- g + geom_vline(xintercept = intercept, col = "red3", linetype = "dotted") +
-            geom_text(x = intercept, y = getLimits(pointsDf, showY)[1],
-                      label = label,
-                      angle = 90, color = "red3", size = 3, fontface = "italic")
+        y <- getLimits(pointsDf, showY)
+
+        diff <- max(df$x1) - min(df$x2)
+        g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
+            geom_label(x = intercept - diff / 10, y = getLimits(pointsDf, showY)[1],
+                      label = label, alpha = 0.5, col = "mediumorchid3",
+                      angle = 90,
+                      size = 3, fontface = "italic")
     }
 
     return(g)
@@ -374,4 +346,27 @@ plotHeatmap <- function(factorMerger) {
 
 plotSurvPlot <- function(factorMerger) {
     return(NULL)
+}
+
+#' @export
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip
+#' @importFrom dplyr group_by summarize left_join theme element_blank
+plotBoxplot <- function(factorMerger) {
+    levels <- getFinalOrderVec(factorMerger)
+    factorMerger$factor <- factor(factorMerger$factor, levels = levels)
+    data <- data.frame(x = factorMerger$factor, y = factorMerger$response)
+    data %>% left_join(
+        data %>% group_by(x) %>% summarize(y0 = min(y),
+                                           y25 = quantile(y, 0.25),
+                                           y50 = mean(y),
+                                           y75 = quantile(y, 0.75),
+                                           y100 = max(y)), by = "x") %>%
+        ggplot(aes(y = y, x = x, group = x)) +
+        geom_boxplot(aes(ymin = y0,
+                         lower = y25,
+                         middle = y50,
+                         upper = y75,
+                         ymax = y100), stat = "identity") +
+        coord_flip() + treeTheme(NULL) +
+        theme(axis.title = element_blank(), axis.text.y = element_blank())
 }

@@ -116,7 +116,8 @@ mergingHistory.factorMerger <- function(factorMerger, showStats = FALSE) {
     mergingDf <- do.call(rbind, mergingList) %>%
         as.data.frame(stringsAsFactors = FALSE) %>%
         rename(groupA = V1, groupB = V2)
-rownames(mergingDf) <- NULL
+
+    rownames(mergingDf) <- NULL
     if (showStats) {
         st <- round(stats(factorMerger), 4)
         mergingDf <- mergingDf[complete.cases(mergingDf), ]
