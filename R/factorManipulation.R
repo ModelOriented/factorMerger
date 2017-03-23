@@ -50,9 +50,18 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
     }
 }
 
+#' @importFrom dplyr arrange
 calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
-    model <- NULL
-    return(NULL)
+    groups <- levels(factor)
+    if (length(groups) == 1) {
+        return(data.frame(level = groups, coef = 0))
+    }
+    model <- calculateModel(factorMerger, factor)
+    coefs <- data.frame(level = groups, coef = rep(0, length(groups)),
+                        stringsAsFactors = FALSE)
+    coefs[2:nrow(coefs), 2] <- model$coefficients
+    coefs <- coefs %>% arrange(coef)
+    return(coefs)
 }
 
 #' Calculate means by factor
@@ -91,25 +100,4 @@ calculateMeansAndRanks <- function(response, factor) {
                subset(select = -variable) %>%
                rename(mean = value,
                       variable = L1))
-}
-
-
-#' Filter groups - ...
-#'
-filterGroups <- function(response, factor, groupA, groupB) {
-    response <- as.matrix(response)
-    xA <- response[factor == groupA, ]
-    xB <- response[factor == groupB, ]
-    return(list(xA, xB))
-}
-
-bindLevels <- function(groups, groupVec) {
-    groupLabel <- paste(groupVec, sep = ":", collapse = ":")
-    groups[groups %in% groupVec] <- groupLabel
-    groups
-}
-
-getTree <- function(factorMerger) {
-    steps <- length(factorMerger$mergingList)
-    return(paste0(factorMerger$mergingList[[steps]]$groups, ";"))
 }

@@ -60,14 +60,17 @@ startMerging <- function(factorMerger, subsequent) {
     }
 
     factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
-    factorMerger$mergingList[[1]]$factor <- factorMerger$factor
-    factorMerger$mergingList[[1]]$groups <- levels(factorMerger$mergingList[[1]]$factor)
+    factorMerger$mergingList[[1]]$groups <- levels(factorMerger$factor)
     model <- calculateModel(factorMerger, factorMerger$factor)
-    factorMerger$mergingList[[1]]$model <- model
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = calculateModelStatistic(model),
-        pval = 1)
-    return(factorMerger)
+        pval = 1,
+        AIC = calculateAIC(model, length(levels(factorMerger$factor))))
+    return(
+        list(factorMerger = factorMerger,
+             factor = factorMerger$factor,
+             model = model)
+        )
 }
 
 canBeMerged <- function(factorMerger) {
@@ -94,17 +97,17 @@ getAllPairList <- function(groups) {
     return(unlist(twoLevelList, recursive = FALSE))
 }
 
-mergePair <- function(factorMerger, subsequent) {
+mergePair <- function(factorMerger, subsequent, factor, model) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
     pairs <- getPairList(fs$groups, subsequent)
-    model <- fs$model
+    # model <- fs$model
     modelsPvals <- sapply(pairs, function(x) {
         if (x[1] == x[2]) {
             return(-1)
         }
-        factor <- mergeLevels(fs$factor, x[1], x[2])
-        tmpModel <- calculateModel(factorMerger, factor)
+        tmpFactor <- mergeLevels(factor, x[1], x[2])
+        tmpModel <- calculateModel(factorMerger, tmpFactor)
         return(compareModels(model, tmpModel))
     })
 
@@ -114,45 +117,27 @@ mergePair <- function(factorMerger, subsequent) {
     whichMax <- which.max(modelsPvals)
     merged <- pairs[[whichMax]]
     factorMerger$mergingList[[step]]$merged <- merged
-    factor <- mergeLevels(fs$factor, merged[1], merged[2])
+    factor <- mergeLevels(factor, merged[1], merged[2])
     model <- calculateModel(factorMerger, factor)
 
     factorMerger$mergingList[["tmp"]] <- list(groups = levels(factor),
-                                              factor = factor,
+                                              # factor = factor,
                                               modelStats = NULL,
                                               groupStats = calculateGroupStatistic(
-                                                  factorMerger, factor),
-                                              model = model)
+                                                  factorMerger, factor))
 
     names(factorMerger$mergingList)[step + 1] <- step + 1
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   pval = modelsPvals[whichMax])
+                   pval = modelsPvals[whichMax],
+                   AIC = calculateAIC(model, length(levels(factor))))
 
-    return(factorMerger)
-
-}
-
-#' @export
-getTreeWithEdgesLength <- function(factorMerger, stat) {
-    nodes <- list()
-    initLevels <- levels(factorMerger$factor)
-    initStat <- factorMerger$mergingList$`1`$modelStats[stat]
-    for (level in initLevels) {
-        nodes <- c(nodes, list(node(level, stat = initStat)))
-    }
-    names(nodes) <- initLevels
-
-    ml <- factorMerger$mergingList
-    for (i in 1:(length(ml) - 1)) {
-        merged <- ml[[i]]$merged
-        nodes <- c(nodes, list(node(nodes[[merged[1]]], nodes[[merged[2]]],
-                                    stat = ml[[i + 1]]$modelStats[stat])))
-        names(nodes)[length(nodes)] <- paste0(merged[1], merged[2])
-    }
-
-    return(paste0(nodes[[length(nodes)]]$text, ":", nodes[[length(nodes)]]$stat, ";"))
+    return(
+        list(factorMerger = factorMerger,
+             factor = factor,
+             model = model)
+    )
 }
 
 getFinalOrder <- function(factorMerger) {
@@ -178,5 +163,4 @@ getFinalOrderVec <- function(factorMerger) {
     finalOrder$label <- rownames(finalOrder)
     finalOrder <- finalOrder %>% arrange(order)
     return(finalOrder$label %>% factor(levels = finalOrder$label))
-
 }

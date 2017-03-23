@@ -20,7 +20,8 @@ Imports:
     proxy,
     MASS,
     survminer,
-    gridExtra
+    gridExtra,
+    scales
 RoxygenNote: 6.0.1
 URL: https://github.com/Durszlaczek/FactorMerger
 Suggests: knitr,

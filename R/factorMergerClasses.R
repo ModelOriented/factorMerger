@@ -20,8 +20,6 @@ merger <- function(response, factor, family = "gaussian",
         factor = factor,
         map = map,
         mergingList = list(`1` = list(groups = levels(factor),
-                                factor = factor,
-                                factorStats = list(),
                                 modelStats = list(),
                                 groupStats = NA,
                                 merged = NA))
@@ -59,16 +57,7 @@ merger <- function(response, factor, family = "gaussian",
     return(fm)
 }
 
-#' Show models statistics - ...
-#'
-#' @export
-#'
-stats <- function(object) {
-    UseMethod("stats", object)
-}
-
-#' ---
-stats.factorMerger <- function(factorMerger) {
+stats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList, function(x) { x$modelStats })
     do.call(rbind, statsList)
 }
@@ -86,32 +75,50 @@ groupsStats <- function(object) {
 groupsStats.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$groupStats) })
-    statsDf <- do.call(rbind, statsList) %>% unique()
+    statsDf <- do.call(rbind, statsList)
+    statsDf <- subset(statsDf, !duplicated(level))
+
     if (sum(complete.cases(statsDf)) == 0) {
         return(NULL)
     }
+
     rownames(statsDf) <- statsDf$level
     statsDf <- subset(statsDf, select = -level)
     return(statsDf)
 }
 
-
 #' Show merging history - ...
 #'
 #' @export
 #'
-mergingHistory <- function(object) {
+mergingHistory <- function(object, showStats = FALSE) {
     UseMethod("mergingHistory", object)
 }
 
-
 #' @export
 #' @importFrom dplyr rename
-mergingHistory.factorMerger <- function(factorMerger) {
-    statsList <- sapply(factorMerger$mergingList,
+mergingHistory.factorMerger <- function(factorMerger, showStats = FALSE) {
+    mergingList <- sapply(factorMerger$mergingList,
                         function(x) { x$merged })
-    do.call(rbind, statsList) %>% as.data.frame(stringsAsFactors = FALSE) %>%
+    mergingDf <- do.call(rbind, mergingList) %>%
+        as.data.frame(stringsAsFactors = FALSE) %>%
         rename(groupA = V1, groupB = V2)
+
+    rownames(mergingDf) <- NULL
+    if (showStats) {
+        st <- round(stats(factorMerger), 4)
+        mergingDf <- mergingDf[complete.cases(mergingDf), ]
+        mergingDf <- rbind(c("", ""), mergingDf)
+        mergingDf <- data.frame(mergingDf, st)
+    }
+    return(mergingDf)
+}
+
+call <- function(factorMerger) {
+    return(
+        paste0("Family: ", gsub('([[:upper:]])', ' \\1',
+                                class(factorMerger)[length(class(factorMerger))]), ".")
+        )
 }
 
 #' Factor Merger - ...
@@ -121,35 +128,14 @@ mergingHistory.factorMerger <- function(factorMerger) {
 #' @importFrom knitr kable
 #'
 print.factorMerger <- function(factorMerger) {
-   stats <- round(stats(factorMerger), 4)
-   mergList <- mergingHistory(factorMerger)
-   mergList <- mergList[complete.cases(mergList),]
-   mergList <- rbind(c("", ""), mergList)
-   rownames(mergList) <- NULL
-   df <- data.frame(mergList, stats)
+   df <- mergingHistory(factorMerger, TRUE)
    colnames(df)[1:2] <- c("groupA", "groupB")
-   cat("Factor levels were recoded as below:")
-   print(kable(factorMerger$map))
-   cat("\n")
-   print(kable(df))
-}
-
-node <- function(left, right = NULL, stat = NULL) {
-    if (is.null(right)) {
-        if (is.na(stat)) {
-        return(list(stat = 1,
-                   text = left))
-        }
-        else {
-            return(list(stat = stat,
-                        text = left))
-        }
-    }
-    leftDiff <- left$stat - stat
-    rightDiff <- right$stat - stat
-    return(list(stat = stat,
-               text = paste0("(", left$text, ": ", leftDiff,
-                             ", ", right$text, ": ", rightDiff, ")")))
+   cat(call(factorMerger))
+   cat("\nFactor levels were recoded as below:")
+   cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
+   cat("\n\nFactor levels were merged in the following order:")
+   cat(paste(c("", "", kable(df, output = FALSE)), collapse = "\n"))
+   invisible(NULL)
 }
 
 
@@ -167,10 +153,13 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
     }
 
     fm <- merger(response, factor, family)
-    fm <- startMerging(fm, subsequent)
+    fmList <- startMerging(fm, subsequent)
+    fm <- fmList$factorMerger
     while (canBeMerged(fm)) {
-        fm <- mergePair(fm, subsequent)
+
+        fmList <- mergePair(fm, subsequent, fmList$factor, fmList$model)
+        fm <- fmList$factorMerger
     }
-    return(fm)
+    return(fmList$factorMerger)
 }
 
