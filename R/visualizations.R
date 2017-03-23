@@ -43,20 +43,20 @@ breaksAndLabelsCalc <- function(tr, shift, gridLength) {
 }
 
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal
-treeTheme <- function(showY) {
-  mytheme <- theme_minimal() +
-   theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
-         panel.grid.major.y = element_blank(),
-         panel.grid.minor.y = element_blank(),
-         panel.grid.minor.x = element_blank(),
-         legend.position = "none")
-  
-    if (!showY) {
-      mytheme <- mytheme + theme(axis.text.y = element_blank(),
-                           axis.ticks.y = element_blank(),
-                           axis.title.y = element_blank())
+treeTheme <- function(ticksColors) {
+    myTheme <- theme_minimal() +
+        theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
+              panel.grid.major.y = element_blank(),
+              panel.grid.minor.y = element_blank(),
+              panel.grid.minor.x = element_blank(),
+              axis.title.y = element_text(angle = 0),
+              legend.position = "none")
+    if(!is.null(ticksColors)) {
+        myTheme <- myTheme + theme(axis.text.y = element_text(color = ticksColors))
+    } else {
+
     }
- return(mytheme)
+  return(myTheme)
 }
 
 
@@ -71,7 +71,6 @@ plotTree <- function(factorMerger, stat = "model", simplify = TRUE) {
 }
 
 #' @export
-#' @importFrom magrittr %>%
 .plotTree.factorMerger <- function(factorMerger, stat = "model", levels = NULL, simplify = TRUE) {
     stopifnot(stat %in% c("model", "pval"))
 
@@ -126,10 +125,29 @@ getStatisticName.survivalFactorMerger <- function(factorMerger) {
     return("Some statistic")
 }
 
-#' @importFrom dplyr mutate filter
-#' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_fill_manual scale_y_continuous
-plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
+#' @importFrom dplyr left_join
+getLabels <- function(pointsDf, factorMerger) {
+    stats <- groupsStats(factorMerger)
+    stats$label <- rownames(stats)
+    pointsDf <- pointsDf %>% left_join(stats, by = "label")
+    return(paste0(pointsDf$label, ": ", round(pointsDf[, ncol(pointsDf)], 2)))
+}
+
+#' @importFrom dplyr left_join
+getLabelsColors <- function(pointsDf, levels) {
+    if (is.null(levels)) {
+        return(NULL)
+    }
+    colors <- data.frame(
+        label = levels,
+        color = colorRamps::magenta2green(nrow(pointsDf)),
+        stringsAsFactors = FALSE)
+    return((pointsDf %>%
+                left_join(colors, by = "label"))$color %>%
+                       as.character())
+}
+
+getTreeSegmentDf <- function(factorMerger, stat, pos) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
     df <- pos[1:noGroups, ] %>% data.frame
@@ -140,6 +158,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
     df$x2 <- NA
     pointsDf <- df
     merging <- mergingHistory(factorMerger)
+
     for (step in 1:nrow(merging)) {
         statVal <- factorMerger$mergingList[[step + 1]]$modelStats[, stat]
         pair <- merging[step, ]
@@ -152,6 +171,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
     }
+
     df <- df %>% subset(select = -label) %>% filter(!is.na(x2)) %>%
         apply(2, as.numeric) %>%
         as.data.frame()
@@ -162,28 +182,31 @@ plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL,
         pointsDf$x1 <- log10(pointsDf$x1)
     }
 
+    return(list(df = df,
+                pointsDf = pointsDf))
+}
+
+#' @importFrom dplyr mutate filter
+#' @importFrom ggrepel geom_label_repel
+#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw coord_flip xlab ylab theme element_blank geom_point aes geom_label scale_fill_manual scale_y_continuous
+plotCustomizedTree <- function(factorMerger, stat = "model", pos, levels = NULL, showY = TRUE) {
+
+    segment <- getTreeSegmentDf(factorMerger, stat, pos)
+    df <- segment$df
+    pointsDf <- segment$pointsDf
+
     g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1)) +
-        scale_y_continuous(limits = getLimits(pointsDf, showY), position = "right") +
+        scale_y_continuous(limits = getLimits(pointsDf, showY),
+                           position = "right",
+                           breaks = pointsDf$y1,
+                           labels = getLabels(pointsDf, factorMerger)) +
         ylab(getStatisticName(factorMerger))
 
-    stat <- renameStat(stat)
-    g <- g + xlab(stat) + treeTheme(showY)
+    g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(pointsDf, levels))
 
-    if (!is.null(levels)) {
-         return(g + geom_label(data = pointsDf,
-                                aes(x = x1, y = y1, label = pointsDf$label,
-                                    fill = factor(pointsDf$label,
-                                                  levels = levels))) +
-                    scale_fill_manual(values = colorRamps::magenta2green(nrow(pointsDf)))
-                    )
-    } else {
-        return(g + geom_label(data = pointsDf,
-                              aes(x = x1, y = y1, label = pointsDf$label)))
-    }
-
-    # Jeżeli będziemy korzystać z ggrepel, to można zamienić na geom_label
+    return(g)
 }
 
 
