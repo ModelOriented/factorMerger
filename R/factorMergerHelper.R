@@ -100,18 +100,29 @@ getLabel <- function(currentLabels, levels, num) {
     return(paste(currentLabels[num, ], collapse = ""))
 }
 
-recodeClustering <- function(merge, levels) {
+recodeClustering <- function(merge, levels, factor) {
     res <- matrix(NA, ncol = ncol(merge), nrow = nrow(merge))
+    tmpLevels <- levels
     for (row in 1:nrow(merge)) {
-        res[row, 1] <- getLabel(res, levels, merge[row, 1])
-        res[row, 2] <- getLabel(res, levels, merge[row, 2])
+        tmp1 <- getLabel(res, levels, merge[row, 1])
+        tmp2 <- getLabel(res, levels, merge[row, 2])
+        if (which(tmpLevels == tmp1) > which(tmpLevels == tmp2)) {
+            t <- tmp1
+            tmp1 <- tmp2
+            tmp2 <- t
+        }
+        factor <- mergeLevels(factor, tmp1, tmp2)
+        tmpLevels <- levels(factor)
+        res[row, 1] <- tmp1
+        res[row, 2] <- tmp2
     }
     return(res)
 }
 
 merge <- function(factorMerger) {
     factorMerger$mergingHistory <- recodeClustering(clusterFactors(factorMerger$dist)$merge,
-                                                    levels(factorMerger$factor))
+                                                    levels(getIncreasingFactor(factorMerger)),
+                                                    getIncreasingFactor(factorMerger))
 
     factor <- factorMerger$factor
     for (i in 1:nrow(factorMerger$mergingHistory)) {
