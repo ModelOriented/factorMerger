@@ -312,10 +312,6 @@ plotHeatmap <- function(factorMerger) {
         scale_fill_distiller(palette = customPalette)
 }
 
-plotSurvPlot <- function(factorMerger) {
-    return(NULL)
-}
-
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip
 #' @importFrom dplyr group_by summarize left_join
@@ -354,10 +350,11 @@ plotProportion <- function(factorMerger) {
 }
 
 #' @export
-#' @importFrom survminer ggcoxadjustedcurves
 plotSurvival <- function(factorMerger) {
     model <- calculateModel(factorMerger, factorMerger$factor)
     survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
                         individual.curves = TRUE,
-                        palette = "magenta2green", curve.size = 1)
+                        theme = treeTheme(NULL),
+                        palette = "RdBu", curve.size = 1) +
+        treeTheme(NULL)
 }
