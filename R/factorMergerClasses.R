@@ -153,13 +153,7 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
     }
 
     fm <- merger(response, factor, family)
-    fmList <- startMerging(fm, subsequent)
-    fm <- fmList$factorMerger
-    while (canBeMerged(fm)) {
-
-        fmList <- mergePair(fm, subsequent, fmList$factor, fmList$model)
-        fm <- fmList$factorMerger
-    }
-    return(fmList$factorMerger)
+    fm <- startMerging(fm, subsequent)
+    return(merge(fm))
 }
 

@@ -1,41 +1,3 @@
-subsequentContrasts <- function(n) {
-    matrix(rep(c(1, -1, rep(0, n - 1)), n - 1)[1:(n * (n - 1))],
-           nrow = n,
-           ncol = n - 1)
-}
-
-insertNAs <- function(vec, pos) {
-    if (pos > length(vec)) {
-        return(c(vec, NA))
-    }
-    diff <- length(vec) - pos + 2
-    return(c(vec[0:(pos - 1)], rep(NA, diff)))
-}
-
-updateStatistics <- function(factorMerger, groups, factor) {
-    noGroups <- length(groups)
-    if (noGroups > 1) {
-        statsTmp <- sapply(groups, function(y) {
-            fac <- relevel(factor, ref = y)
-            model <- calculateModel(factorMerger, fac)
-            getPvals(model)
-        })
-
-        if (noGroups == 2) {
-            statsTmp <- t(statsTmp)
-        }
-        stats <- matrix(NA, ncol = noGroups, nrow = noGroups)
-        for (i in 1:noGroups) {
-            stats[, i] <- insertNAs(statsTmp[, i], i)
-        }
-        colnames(stats) <- groups; rownames(stats) <- groups
-
-    } else {
-        stats <- NULL
-    }
-    return(stats)
-}
-
 appendProjection <- function(factorMerger) {
     UseMethod("appendProjection", factorMerger)
 }
@@ -52,6 +14,25 @@ appendProjection.gaussianFactorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
+convertToDistanceMatrix <- function(modelsPvals, subsequent, labels) {
+    if (subsequent) {
+        m <- matrix(0, ncol = length(labels),
+                    nrow = length(labels))
+        tmp <- cbind(1:(nrow(m) - 1), 2:nrow(m))
+        m[tmp] <- modelsPvals
+        tmp <- cbind(2:nrow(m), 1:(nrow(m) - 1))
+        m[tmp] <- modelsPvals
+        modelsPvals <- m
+    }
+
+    modelsPvals <- modelsPvals %>% matrix(ncol = length(labels))
+    colnames(modelsPvals) <- labels
+    rownames(modelsPvals) <- labels
+    distances <- as.dist(1 / modelsPvals)
+    distances[distances == Inf] <- max(distances[distances < Inf]) + 1
+    return(distances)
+}
+
 #' @importFrom MASS isoMDS
 startMerging <- function(factorMerger, subsequent) {
 
@@ -59,6 +40,7 @@ startMerging <- function(factorMerger, subsequent) {
         factorMerger$factor <- getIncreasingFactor(factorMerger)
     }
 
+    factor <- factorMerger$factor
     factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
     factorMerger$mergingList[[1]]$groups <- levels(factorMerger$factor)
     model <- calculateModel(factorMerger, factorMerger$factor)
@@ -66,11 +48,21 @@ startMerging <- function(factorMerger, subsequent) {
         model = calculateModelStatistic(model),
         pval = 1,
         AIC = calculateAIC(model, length(levels(factorMerger$factor))))
-    return(
-        list(factorMerger = factorMerger,
-             factor = factorMerger$factor,
-             model = model)
-        )
+
+    pairs <- getPairList(levels(factorMerger$factor), subsequent)
+    modelsPvals <- sapply(pairs, function(x) {
+        if (x[1] == x[2]) {
+            return(1)
+        }
+        tmpFactor <- mergeLevels(factor, x[1], x[2])
+        tmpModel <- calculateModel(factorMerger, tmpFactor)
+        return(compareModels(model, tmpModel))
+    })
+
+
+    factorMerger$dist <- convertToDistanceMatrix(modelsPvals, subsequent, levels(factorMerger$factor))
+
+    return(factorMerger)
 }
 
 canBeMerged <- function(factorMerger) {
@@ -97,31 +89,51 @@ getAllPairList <- function(groups) {
     return(unlist(twoLevelList, recursive = FALSE))
 }
 
-mergePair <- function(factorMerger, subsequent, factor, model) {
-    step <- length(factorMerger$mergingList)
-    fs <- factorMerger$mergingList[[step]]
-    pairs <- getPairList(fs$groups, subsequent)
-    # model <- fs$model
-    modelsPvals <- sapply(pairs, function(x) {
-        if (x[1] == x[2]) {
-            return(-1)
-        }
-        tmpFactor <- mergeLevels(factor, x[1], x[2])
-        tmpModel <- calculateModel(factorMerger, tmpFactor)
-        return(compareModels(model, tmpModel))
-    })
+clusterFactors <- function(dist) {
+    return(hclust(d = dist, method = "complete"))
+}
 
+getLabel <- function(currentLabels, levels, num) {
+    if (num < 1) {
+        return(levels[-num])
+    }
+    return(paste(currentLabels[num, ], collapse = ""))
+}
+
+recodeClustering <- function(merge, levels) {
+    res <- matrix(NA, ncol = ncol(merge), nrow = nrow(merge))
+    for (row in 1:nrow(merge)) {
+        res[row, 1] <- getLabel(res, levels, merge[row, 1])
+        res[row, 2] <- getLabel(res, levels, merge[row, 2])
+    }
+    return(res)
+}
+
+merge <- function(factorMerger) {
+    factorMerger$mergingHistory <- recodeClustering(clusterFactors(factorMerger$dist)$merge,
+                                                    levels(factorMerger$factor))
+
+    factor <- factorMerger$factor
+    for (i in 1:nrow(factorMerger$mergingHistory)) {
+        fm <- mergePair(factorMerger, factor)
+        factorMerger <- fm$factorMerger
+        factor <- fm$factor
+    }
+    return(factorMerger)
+}
+
+mergePair <- function(factorMerger, factor) {
+    step <- length(factorMerger$mergingList)
+    merged <-  factorMerger$mergingHistory[step, ]
     factorMerger$mergingList <- c(factorMerger$mergingList,
                                   tmp = "tmp")
 
-    whichMax <- which.max(modelsPvals)
-    merged <- pairs[[whichMax]]
     factorMerger$mergingList[[step]]$merged <- merged
+    prevModel <- calculateModel(factorMerger, factor)
     factor <- mergeLevels(factor, merged[1], merged[2])
     model <- calculateModel(factorMerger, factor)
 
     factorMerger$mergingList[["tmp"]] <- list(groups = levels(factor),
-                                              # factor = factor,
                                               modelStats = NULL,
                                               groupStats = calculateGroupStatistic(
                                                   factorMerger, factor))
@@ -130,13 +142,12 @@ mergePair <- function(factorMerger, subsequent, factor, model) {
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   pval = modelsPvals[whichMax],
+                   pval = compareModels(prevModel, model),
                    AIC = calculateAIC(model, length(levels(factor))))
 
     return(
         list(factorMerger = factorMerger,
-             factor = factor,
-             model = model)
+             factor = factor)
     )
 }
 
