@@ -1,12 +1,10 @@
 # FACTOR MERGER
 
-The aim of this project is to create hierarchical algorithm for post-hoc testing. Detailed description (currently in Polish) and first results may be found here:
-
-https://github.com/geneticsMiNIng/FactorMerger/blob/master/vignettes/factorMerger.Rmd
+The aim of this project is to create hierarchical algorithm for post-hoc testing.
 
 A short overview in English is available here
 
-https://rawgit.com/geneticsMiNIng/FactorMerger/573948f073a71ababe03dec0a21488118d1f0a48/materials/vignette2.html
+https://rawgit.com/geneticsMiNIng/FactorMerger/master/materials/vignette2.html
 
 ## Generic functions
 
