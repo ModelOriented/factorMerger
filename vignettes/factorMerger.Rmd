@@ -126,7 +126,7 @@ oneDimRandSample <- generateSample(1000, 5)
 ```
 ```{r}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
-plotTree(oneDimFm, simplify = FALSE, "pval")
+plotTree(oneDimFm, simplify = FALSE)
 ```
 
 ```{r}

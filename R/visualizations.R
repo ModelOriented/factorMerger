@@ -199,7 +199,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
             aicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "AIC")] %>%
                 filter(AIC == min(AIC))
             intercept <- aicMin$model
-            label <- paste0("AIC = ", round(aicMin$AIC))
+            label <- paste0("min AIC")
         }
         y <- getLimits(pointsDf, showY)
 
