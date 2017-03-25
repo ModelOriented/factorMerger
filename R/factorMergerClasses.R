@@ -154,6 +154,6 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
 
     fm <- merger(response, factor, family)
     fm <- startMerging(fm, subsequent)
-    return(merge(fm))
+    return(merge(fm, subsequent))
 }
 

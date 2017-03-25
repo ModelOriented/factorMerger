@@ -89,7 +89,10 @@ getAllPairList <- function(groups) {
     return(unlist(twoLevelList, recursive = FALSE))
 }
 
-clusterFactors <- function(dist) {
+clusterFactors <- function(dist, subsequent) {
+    if (subsequent) {
+        return(hclust(d = dist, method = "single"))
+    }
     return(hclust(d = dist, method = "complete"))
 }
 
@@ -119,8 +122,8 @@ recodeClustering <- function(merge, levels, factor) {
     return(res)
 }
 
-merge <- function(factorMerger) {
-    factorMerger$mergingHistory <- recodeClustering(clusterFactors(factorMerger$dist)$merge,
+merge <- function(factorMerger, subsequent) {
+    factorMerger$mergingHistory <- recodeClustering(clusterFactors(factorMerger$dist, subsequent)$merge,
                                                     levels(getIncreasingFactor(factorMerger)),
                                                     getIncreasingFactor(factorMerger))
 
