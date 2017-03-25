@@ -28,8 +28,9 @@ convertToDistanceMatrix <- function(modelsPvals, subsequent, labels) {
     modelsPvals <- modelsPvals %>% matrix(ncol = length(labels))
     colnames(modelsPvals) <- labels
     rownames(modelsPvals) <- labels
-    distances <- as.dist(1 / modelsPvals)
-    distances[distances == Inf] <- max(distances[distances < Inf]) + 1
+    # distances <- as.dist(1 / modelsPvals)
+    distances <- as.dist(modelsPvals)
+    distances[distances == 0] <- max(distances) + 1
     return(distances)
 }
 
@@ -56,7 +57,8 @@ startMerging <- function(factorMerger, subsequent) {
         }
         tmpFactor <- mergeLevels(factor, x[1], x[2])
         tmpModel <- calculateModel(factorMerger, tmpFactor)
-        return(compareModels(model, tmpModel))
+        return(2 * calculateModelStatistic(calculateModel(factorMerger, factorMerger$factor)) -
+                   2 * calculateModelStatistic(tmpModel))
     })
 
 
