@@ -31,14 +31,15 @@ plotTree <- function(factorMerger, stat = "model",
 
 .plotTree <- function(factorMerger, stat,
                       levels, simplify,
-                      alpha = 0.05, showDiagnostics) {
+                      alpha = 0.05,
+                      showDiagnostics = TRUE) {
     UseMethod(".plotTree", factorMerger)
 }
 
 #' @export
 .plotTree.factorMerger <- function(factorMerger, stat = "model",
                                    levels = NULL, simplify = TRUE,
-                                   alpha = 0.05, showDiagnostics) {
+                                   alpha = 0.05, showDiagnostics = TRUE) {
     stopifnot(stat %in% c("model", "pval"))
 
     if (simplify) {
@@ -155,15 +156,6 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
                 pointsDf = pointsDf))
 }
 
-#' @importFrom ggplot2 theme theme_minimal element_blank
-theme_blank <- function() {
-    return(theme_minimal() +
-               theme(axis.title = element_blank(),
-                     axis.text.y = element_blank(),
-                     panel.grid.major = element_blank(),
-                     panel.grid.minor = element_blank()))
-}
-
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
@@ -172,7 +164,7 @@ theme_blank <- function() {
 plotCustomizedTree <- function(factorMerger, stat = "model",
                                pos, levels = NULL,
                                showY = TRUE, alpha = 0.05,
-                               showDiagnostics) {
+                               showDiagnostics = TRUE) {
 
     segment <- getTreeSegmentDf(factorMerger, stat, pos)
     df <- segment$df
@@ -221,7 +213,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
 
 plotSimpleTree <- function(factorMerger, stat = "model",
                            levels = NULL, alpha = 0.05,
-                           showDiagnostics) {
+                           showDiagnostics = TRUE) {
     pos <- getFinalOrder(factorMerger) %>% data.frame()
     merging <- mergingHistory(factorMerger)
     noStep <- nrow(merging)
@@ -262,13 +254,13 @@ appendToTree <- function(factorMerger, plot) {
 
 #' @export
 appendToTree.default <- function(factorMerger, plot) {
-    grid.arrange(.plotTree(factorMerger), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger, showDiagnostics = FALSE, simplify = TRUE), plot, ncol = 2)
 }
 
 #' @export
 appendToTree.profilePlot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
-    grid.arrange(.plotTree(factorMerger, levels = lev), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger, levels = lev, showDiagnostics = FALSE, simplify = TRUE), plot, ncol = 2)
 }
 
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual
