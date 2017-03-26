@@ -40,15 +40,16 @@ startMerging <- function(factorMerger, subsequent) {
     if (subsequent) {
         factorMerger$factor <- getIncreasingFactor(factorMerger)
     }
-
+    factorMerger <- appendProjection(factorMerger)
     factor <- factorMerger$factor
-    factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
-    factorMerger$mergingList[[1]]$groups <- levels(factorMerger$factor)
-    model <- calculateModel(factorMerger, factorMerger$factor)
+    factorMerger$mergingList[[1]]$groupStats <- calculateGroupStatistic(factorMerger, factor)
+    factorMerger$mergingList[[1]]$groups <- levels(factor)
+    model <- calculateModel(factorMerger, factor)
+    initStat <- calculateModelStatistic(model)
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
-        model = calculateModelStatistic(model),
+        model = initStat,
         pval = 1,
-        AIC = calculateAIC(model, length(levels(factorMerger$factor))))
+        AIC = calculateAIC(model, length(levels(factor))))
 
     pairs <- getPairList(levels(factorMerger$factor), subsequent)
     modelsPvals <- sapply(pairs, function(x) {
@@ -57,10 +58,8 @@ startMerging <- function(factorMerger, subsequent) {
         }
         tmpFactor <- mergeLevels(factor, x[1], x[2])
         tmpModel <- calculateModel(factorMerger, tmpFactor)
-        return(2 * calculateModelStatistic(calculateModel(factorMerger, factorMerger$factor)) -
-                   2 * calculateModelStatistic(tmpModel))
+        return(2 * initStat - 2 * calculateModelStatistic(tmpModel))
     })
-
 
     factorMerger$dist <- convertToDistanceMatrix(modelsPvals, subsequent, levels(factorMerger$factor))
 
@@ -125,8 +124,9 @@ recodeClustering <- function(merge, levels, factor) {
 }
 
 merge <- function(factorMerger, subsequent) {
-    factorMerger$mergingHistory <- recodeClustering(clusterFactors(factorMerger$dist, subsequent)$merge,
-                                                    levels(getIncreasingFactor(factorMerger)),
+    clust <- clusterFactors(factorMerger$dist, subsequent)
+    factorMerger$mergingHistory <- recodeClustering(clust$merge,
+                                                    clust$labels,
                                                     getIncreasingFactor(factorMerger))
 
     factor <- factorMerger$factor
@@ -145,7 +145,6 @@ mergePair <- function(factorMerger, factor) {
                                   tmp = "tmp")
 
     factorMerger$mergingList[[step]]$merged <- merged
-    prevModel <- calculateModel(factorMerger, factor)
     factor <- mergeLevels(factor, merged[1], merged[2])
     model <- calculateModel(factorMerger, factor)
 
