@@ -199,7 +199,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
             aicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "AIC")] %>%
                 filter(AIC == min(AIC))
             intercept <- aicMin$model
-            label <- paste0("AIC = ", round(aicMin$AIC))
+            label <- paste0("min AIC")
         }
         y <- getLimits(pointsDf, showY)
 
@@ -227,23 +227,8 @@ plotSimpleTree <- function(factorMerger, stat = "model",
     return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE, alpha))
 }
 
-customDistance <- function(vec1, vec2) {
-    stopifnot(length(vec1) == length(vec2))
-    stopifnot(setdiff(vec1, vec2) == 0)
-    tmp1 <- 1:length(vec1)
-    tmp2 <- factor(vec2, levels = vec1, labels = tmp1)
-    pList <- getPairList(tmp1, FALSE)
-    inversions <- sapply(pList, function(x) {
-        if(x[1] < x[2]) {
-            return(which(vec2 == x[1]) > which(vec2 == x[2]))
-        } else {
-            return(FALSE)
-        }
-    })
-    return(sum(inversions))
-}
-
 #' @importFrom proxy dist
+#' @importFrom dplyr arrange
 findSimilarities <- function(factorMerger) {
     stats <- calculateMeansAndRanks(factorMerger$response,
                                     factorMerger$factor)
@@ -251,11 +236,12 @@ findSimilarities <- function(factorMerger) {
                               idvar = "level",
                               timevar = "variable",
                               direction = "wide")
-    distances <- proxy::dist(t(varsToBePloted[, -1]), method = customDistance)
-    distances <- cor(varsToBePloted[, -1])
-    hClustOrder <- hclust(dist(distances), method = "single")$order
+    distances <- dist(varsToBePloted[, -1] %>% t(), method = "manhattan")
+    iso <- MASS::isoMDS(distances, k = 1, trace = FALSE)$points[, 1]
+    iso <- data.frame(var = stats$variable %>% unique(), proj = iso) %>%
+        arrange(proj)
     stats$variable <- factor(stats$variable,
-                             levels = levels(as.factor(stats$variable))[hClustOrder])
+                             levels = iso$var)
     return(stats)
 
 }
@@ -326,10 +312,6 @@ plotHeatmap <- function(factorMerger) {
         scale_fill_distiller(palette = customPalette)
 }
 
-plotSurvPlot <- function(factorMerger) {
-    return(NULL)
-}
-
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip
 #' @importFrom dplyr group_by summarize left_join
@@ -368,10 +350,11 @@ plotProportion <- function(factorMerger) {
 }
 
 #' @export
-#' @importFrom survminer ggcoxadjustedcurves
 plotSurvival <- function(factorMerger) {
     model <- calculateModel(factorMerger, factorMerger$factor)
     survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
                         individual.curves = TRUE,
-                        palette = "magenta2green", curve.size = 1)
+                        theme = treeTheme(NULL),
+                        palette = "RdBu", curve.size = 1) +
+        treeTheme(NULL)
 }
