@@ -357,4 +357,6 @@ plotSurvival <- function(factorMerger) {
                         theme = treeTheme(NULL),
                         palette = "RdBu", curve.size = 1) +
         treeTheme(NULL)
+
+    # variable = fdsfds
 }

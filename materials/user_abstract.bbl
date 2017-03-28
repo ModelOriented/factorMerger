@@ -1,0 +1,30 @@
+\begin{thebibliography}{xx}
+
+\harvarditem{Bondell \harvardand\ Reich}{2008}{Casanova}
+Bondell, Howard~D. \harvardand\ Brian~J. Reich. 2008.
+\newblock ``{Simultaneous factor selection and collapsing levels in ANOVA}.''
+  {\em Department of Statistics, North Carolina State University} .
+
+\harvarditem{Prochenka}{2016{\em a}}{Proch}
+Prochenka, Agnieszka. 2016{\em a}.
+\newblock {\em {Delete or Merge Regressors algorithm}}.
+\newblock chapter 4.3, p.~37.
+
+\harvarditem{Prochenka}{2016{\em b}}{ProchEx}
+Prochenka, Agnieszka. 2016{\em b}.
+\newblock {\em {Delete or Merge Regressors algorithm}}.
+\newblock chapter 5--6, pp.~44--91.
+
+\harvarditem[Tibshirani et~al.]{Tibshirani, Saunders, Rosset, Zhu \harvardand\
+  Knight}{2005}{Tib}
+Tibshirani, Robert, Michael Saunders, Saharon Rosset, Ji Zhu \harvardand\ Keith
+  Knight. 2005.
+\newblock ``{Sparsity and smoothness via the fused lasso}.'' {\em Journal of
+  the Royal Statistical Society} pp.~01--108.
+
+\harvarditem{Tukey}{1949}{Tukey}
+Tukey, John. 1949.
+\newblock ``{Comparing Individual Means in the Analysis of Variance}.'' {\em
+  BIOMETRICS} pp.~99--114.
+
+\end{thebibliography}

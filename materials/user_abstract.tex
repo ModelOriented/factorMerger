@@ -1,0 +1,281 @@
+\documentclass[11pt,]{article}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in]{geometry}
+\newcommand*{\authorfont}{\fontfamily{phv}\selectfont}
+\usepackage[]{mathpazo}
+
+
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+
+
+
+\usepackage{abstract}
+\renewcommand{\abstractname}{}    % clear the title
+\renewcommand{\absnamepos}{empty} % originally center
+
+\renewenvironment{abstract}
+ {{%
+    \setlength{\leftmargin}{0mm}
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \relax}
+ {\endlist}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+%  \null
+%  \vskip 2em%
+%  \begin{center}%
+  \let \footnote \thanks
+    {\fontsize{18}{20}\selectfont\raggedright  \setlength{\parindent}{0pt} \@title \par}%
+}
+%\fi
+\makeatother
+
+
+
+
+\setcounter{secnumdepth}{0}
+
+\usepackage{longtable,booktabs}
+
+
+\title{factorMerger: a set of tools to support results from post hoc testing  }
+
+
+
+\author{\Large Agnieszka Sitko\vspace{0.05in} \newline\normalsize\emph{University of Warsaw}  }
+
+
+\date{}
+
+\usepackage{titlesec}
+
+\titleformat*{\section}{\normalsize\bfseries}
+\titleformat*{\subsection}{\normalsize\itshape}
+\titleformat*{\subsubsection}{\normalsize\itshape}
+\titleformat*{\paragraph}{\normalsize\itshape}
+\titleformat*{\subparagraph}{\normalsize\itshape}
+
+
+\usepackage{natbib}
+\bibliographystyle{apsr}
+
+
+
+\newtheorem{hypothesis}{Hypothesis}
+\usepackage{setspace}
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{%
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+}
+\@ifpackageloaded{color}{
+    \PassOptionsToPackage{usenames,dvipsnames}{color}
+}{%
+    \usepackage[usenames,dvipsnames]{color}
+}
+\makeatother
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Agnieszka Sitko (University of Warsaw)},
+             pdfkeywords = {analysis of variance (ANOVA), hierarchical clustering, likelihood ratio
+test (LRT), post hoc testing},  
+            pdftitle={factorMerger: a set of tools to support results from post hoc testing},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+
+
+\begin{document}
+	
+% \pagenumbering{arabic}% resets `page` counter to 1 
+%
+% \maketitle
+
+{% \usefont{T1}{pnc}{m}{n}
+\setlength{\parindent}{0pt}
+\thispagestyle{plain}
+{\fontsize{18}{20}\selectfont\raggedright 
+\maketitle  % title \par  
+
+}
+
+{
+   \vskip 13.5pt\relax \normalsize\fontsize{11}{12} 
+\textbf{\authorfont Agnieszka Sitko} \hskip 15pt \emph{\small University of Warsaw}   
+
+}
+
+}
+
+
+
+
+
+
+
+\begin{abstract}
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+    \vskip 8.5pt % \small 
+
+\noindent \textbf{factorMerger} is an \emph{R} package whose purpose is to extend
+methods of analysing dependencies between groups of a categorical
+variable after carrying out an analysis of variance (ANOVA). The idea of
+the package arose from the need to create an algorithm which outputs in
+a hierachical interpretation of relations between levels of a
+categorical variable. Thereby, for a given significance level groups may
+be devided into nonoverlapping clusters. \textbf{factorMerger}
+implements iterative version of post hoc testing based on likelihood
+ratio test for parametric models: gaussian, binomial and survival. It
+also provides custom visualizations for each model built on
+\textbf{ggplot2} package. ~\\
+\emph{Package webpage}:
+\url{https://github.com/geneticsMiNIng/FactorMerger}
+
+
+\vskip 8.5pt \noindent \emph{Keywords}: analysis of variance (ANOVA), hierarchical clustering, likelihood ratio
+test (LRT), post hoc testing \par
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+
+
+\end{abstract}
+
+
+\vskip 6.5pt
+
+\noindent  \section{Introduction}\label{introduction}
+
+If data is analysed using ANOVA a more detailed analysis of differences
+among categorical variable levels might be needed. The traditional
+approach will be to perform \emph{pairwise post hocs} - multiple
+comparisons after ANOVA. For each pair of groups we run specific
+statistical test which outputs with an information whether response
+averages in those groups are significantly different. However, if we
+look from the distant perspective, for a certain significance level,
+these results may not be consistent. One may consider the case that mean
+in group A does not differ significantly from the one in group B,
+similarly with groups B and C. In the same time difference between group
+A and C is detected. Then data partition is unequivocal and, as a
+consequence, impossible to put through.
+
+The problem of clustering categorical variable into non-overlapping
+groups has already been present in statistics. First, J. Tukey proposed
+an iterative procedure of merging factor levels based on studentized
+range distribution \citep{Tukey}. However, statistical test used in this
+approach made it limited to gaussian models. Collapse And Shrinkage in
+ANOVA (CAS-ANOVA, \citet{Casanova}) is an algorithm that extends
+categorical variable partitioning for generalized linear models. It is
+based on the Tibshirani's Fused LASSO \citep{Tib} with the constraint
+taken on the pairwise differences within a factor, which yields to their
+smoothing.
+
+Delete or Merge Regressors algorithm \citep{Proch} is also adjusted to
+generalized linear models. It directly uses hierarchical clustering to
+gain hierarchical structure of a factor. At the beginning,
+\emph{DMR4glm} calculates likelihood ratio test statistics for models
+arising from pairewise merging of factor levels against the initial
+model (the one with all groups included). Then performs agglomerative
+clustering taking LRT statistic as a distance --- each step of
+clustering is associated with model with different factor structure.
+Experimental studies \citep{ProchEx} showed that Delete or Merge
+Regressors's performance is better than CAS-ANOVA's when it comes to
+model accuracy.
+
+\textbf{factorMerger} package gives an approximate implementation of
+\emph{DMR4glm}. In addition to the base algorithm, it also provides its
+sequential version, which merges only those levels which are relatively
+close (levels distance is dependent on the model chosen). While the
+basic approach (all vs.~all comparisons) may sometimes result in a
+slightly better partition from the statistical point of view, proposed
+extention (all vs.~subsequent comparisons) seems to be more graceful
+when it comes to the interpretation. Moreover, the former is more
+computationally expensive.
+
+Furthermore, \textbf{factorMerger} offers yet another algorithm of
+hierarchical clustering. This is also an iterative procedure, but in
+each step it chooses model with the highest likelihood. While this
+algorithm is more complex than \emph{DMR4glm} it is easily expandable
+for non-parametric models (using permutation tests instead of LRTs). The
+greedy algorithm is also available in two versions - comprehensive and
+sequential.
+
+More detailed description of all algorithms implemented in
+\textbf{factorMerger} is given in the section \emph{Algorithms
+overview}.
+
+\section{Algorithms overview}\label{algorithms-overview}
+
+\subsection{Sequential version}\label{sequential-version}
+
+In the sequential version of the algorithm at the begining categorical
+variable is releveled. Depending on the model family chosen, we specify
+different statistics to set levels order.
+
+\begin{longtable}[]{@{}cc@{}}
+\toprule
+model & metric\tabularnewline
+\midrule
+\endhead
+single dimensional gaussian & mean\tabularnewline
+multi dimensional gaussian & mean of isoMDS fit\tabularnewline
+binomial & success proportion\tabularnewline
+survival & relative survival coefficient\tabularnewline
+\bottomrule
+\end{longtable}
+
+For single dimensional gaussian and binomial models groups are sorted by
+means and proportions of success, respectively. In survival case we
+estimate survival model which takes all factor levels separately. Then
+beta coefficient approximations specify levels order (base level gets
+coefficient equal to zero). Multi dimensional gaussian model needs
+additional preprocessing. We propose to order levels by means of isoMDS
+projection (into one dimension, currently isoMDS from package
+\textbf{MASS} is used). However, the projection is used only in this
+preliminary stage. In the merging phase of the algorithm all test
+statistics are calculated for multi dimensional gaussian model.
+Calculating isoMDS projection is an expensive procedure --- it usually
+takes more time than the merging phase.
+
+Having set the factor order, we may limit number of comparisons in each
+step.
+
+\subsection{DMR4glm}\label{dmr4glm}
+
+\subsection{Greedy algorithm}\label{greedy-algorithm}
+
+\subsection{Cost comparisons}\label{cost-comparisons}
+
+\section{\texorpdfstring{The \emph{R} package
+\textbf{factorMerger}}{The R package factorMerger}}\label{the-r-package-factormerger}
+
+\subsection{Setting up merging
+options}\label{setting-up-merging-options}
+
+\subsection{Visualizations}\label{visualizations}
+
+\subsection{Sample results}\label{sample-results}
+
+\section{Possible extensions}\label{possible-extensions}
+
+\newpage
+\singlespacing 
+\renewcommand\refname{Bibliography}
+\bibliography{factorMerger.bib}
+
+\end{document}
