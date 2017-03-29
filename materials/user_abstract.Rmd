@@ -10,8 +10,7 @@ title: "factorMerger: a set of tools to support results from post hoc testing"
 author:
 - name: Agnieszka Sitko
   affiliation: University of Warsaw
-abstract: "**factorMerger** is an *R* package whose purpose is to extend methods of analysing dependencies between groups of a categorical variable after carrying out an analysis of variance (ANOVA). The idea of the package arose from the need to create an algorithm which outputs in a hierachical interpretation of relations between levels of a categorical variable. Thereby, for a given significance level groups may be devided into nonoverlapping clusters. **factorMerger** implements iterative version of post hoc testing based on likelihood ratio test for parametric models: gaussian, binomial and survival. It also provides custom visualizations for each model built on **ggplot2** package. 
-
+abstract: "*ANOVA*-like statistical tests for differences among groups are available for almost a hundred years. But for large number of groups the results from commonly used post-hoc tests are often hard to interpret. To deal with this problem, the **factorMerger** package constructs and plots the hierarchical relation among compared groups. Such hierarchical structure is derived based on the *Likelihood Ratio Test* and is presented with the *Merging Paths Plots* created with the **ggplot2** package. The current implementation handles univariate and multivariate gaussian models as well as binomial and survival models. This article presents the theory and examples for a single-factor use cases.
 \\
 \\
 
