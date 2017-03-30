@@ -94,24 +94,24 @@ getStatisticName.survivalFactorMerger <- function(factorMerger) {
 }
 
 #' @importFrom dplyr left_join
-getLabels <- function(pointsDf, factorMerger) {
+getLabels <- function(labelsDf, factorMerger) {
     stats <- groupsStats(factorMerger)
     if (is.null(stats)) return(NULL)
     stats$label <- rownames(stats)
-    pointsDf <- pointsDf %>% left_join(stats, by = "label")
-    return(paste0(pointsDf$label, ": ", round(pointsDf[, ncol(pointsDf)], 2)))
+    labelsDf <- labelsDf %>% left_join(stats, by = "label")
+    return(paste0(labelsDf$label, ": ", round(labelsDf[, ncol(labelsDf)], 2)))
 }
 
 #' @importFrom dplyr left_join
-getLabelsColors <- function(pointsDf, levels) {
+getLabelsColors <- function(labelsDf, levels) {
     if (is.null(levels)) {
         return(NULL)
     }
     colors <- data.frame(
         label = levels,
-        color =colorRamps::magenta2green(nrow(pointsDf)),
+        color =colorRamps::magenta2green(nrow(labelsDf)),
         stringsAsFactors = FALSE)
-    return((pointsDf %>%
+    return((labelsDf %>%
                 left_join(colors, by = "label"))$color %>%
                        as.character())
 }
@@ -125,6 +125,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
     df$label <- rownames(pos)[1:noGroups]
     df$x1 <- factorMerger$mergingList$`1`$modelStats[, stat]
     df$x2 <- NA
+    labelsDf <- df
     pointsDf <- df
     merging <- mergingHistory(factorMerger)
 
@@ -139,6 +140,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         newVertex <- c(pairMean, pairMean, pairLabel, statVal, NA)
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
+        pointsDf <- rbind(pointsDf, newVertex)
     }
 
     df <- df %>% subset(select = -label) %>%
@@ -147,7 +149,11 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
 
     df <- df[complete.cases(df), ]
 
+    pointsDf <- subset(pointsDf, select = c(x1, y1))
+    pointsDf <- pointsDf %>% apply(2, as.numeric) %>% as.data.frame()
+
     return(list(df = df,
+                labelsDf = labelsDf,
                 pointsDf = pointsDf))
 }
 
@@ -180,14 +186,15 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     segment <- getTreeSegmentDf(factorMerger, stat, pos)
     df <- segment$df
     pointsDf <- segment$pointsDf
+    labelsDf <- segment$labelsDf
 
     g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
-        geom_point(data = pointsDf, aes(x = x1, y = y1)) +
-        scale_y_continuous(limits = getLimits(pointsDf, showY),
+        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75) +
+        scale_y_continuous(limits = getLimits(labelsDf, showY),
                            position = "right",
-                           breaks = pointsDf$y1,
-                           labels = getLabels(pointsDf, factorMerger)) +
+                           breaks = labelsDf$y1,
+                           labels = getLabels(labelsDf, factorMerger)) +
         ylab(getStatisticName(factorMerger))
 
     upperBreaks <- df$x1 %>% unique() %>% sort
@@ -208,10 +215,10 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
             g <- g +
                 scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
         }
-        y <- getLimits(pointsDf, showY)
+        y <- getLimits(labelsDf, showY)
 
         g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = intercept, y = getLimits(pointsDf, showY)[1],
+            geom_label(x = intercept, y = getLimits(labelsDf, showY)[1],
                       label = label, alpha = 0.5, col = "mediumorchid3",
                       angle = 90,
                       size = 3, fontface = "italic")
@@ -314,17 +321,24 @@ plotProfile <- function(factorMerger) {
     return(g)
 }
 
+scaleStat <- function(df) {
+    df <- split(df, df$variable)
+    sapply
+}
+
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
-#' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller labs
+#' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller labs guides
 #' @importFrom magrittr %>%
 #' @importFrom reshape2 melt
 #' @importFrom dplyr filter arrange
 plotHeatmap <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
-    findSimilarities(factorMerger) %>%
-            ggplot() +
+    df <- findSimilarities(factorMerger)
+    tmp <- tapply(df$mean, df$variable, function(x) scale(x) %>% as.numeric())
+    df$mean <- (do.call(cbind, tmp) %>% reshape2::melt())$value
+    df %>% ggplot() +
         geom_tile(aes(x = level, y = variable, fill = mean)) +
         coord_flip() + theme_minimal() +
         theme(panel.grid.major = element_blank(),
@@ -333,9 +347,10 @@ plotHeatmap <- function(factorMerger) {
               panel.background = element_blank(),
               axis.title.y = element_blank(),
               axis.ticks.y = element_blank(),
-              axis.text.y = element_blank()) +
+              axis.text.y = element_blank(),
+              legend.position = "none") +
         scale_fill_distiller(palette = customPalette) +
-        labs(title = "Heatmap", subtitle = "")
+        labs(title = "Heatmap", subtitle = "Group means by variables")
 }
 
 #' @export
