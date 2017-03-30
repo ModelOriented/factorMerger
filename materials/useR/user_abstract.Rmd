@@ -21,7 +21,7 @@ geometry: margin=1in
 fontfamily: mathpazo
 fontsize: 11pt
 # spacing: double
-bibliography: ./factorMerger.bib
+bibliography: ../factorMerger.bib
 biblio-style: apsr
 ---
 
