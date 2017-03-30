@@ -363,6 +363,31 @@ plotBoxplot <- function(factorMerger) {
 }
 
 #' @export
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs
+#' @importFrom dplyr group_by summarize left_join
+plotMeansAndStds <- function(factorMerger) {
+    factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
+    model <- lm(factorMerger$response ~ factor - 1)
+    df <- data.frame(group = levels(factor))
+    sumModel <- summary(model)
+    df$mean <- sumModel$coefficients[, 1]
+    df$left <- df$mean - sumModel$coefficients[, 2]
+    df$right <- df$mean + sumModel$coefficients[, 2]
+    df$group <- factor(df$group, levels = df$group)
+
+    ggplot(data = df, aes(x = as.factor(group), y = mean, group = as.factor(group))) +
+        geom_errorbar(aes(ymin = left, ymax = right),
+                      color = "black",
+                      width = .5,
+                      position = position_dodge(.5)) + treeTheme(NULL) +
+        geom_point() + coord_flip() +
+        theme(axis.title.x = element_text(), axis.text.y = element_blank()) +
+        labs(title = "Summary statistics", subtitle = "Means and standard deviations estimators") +
+        ylab("")
+
+}
+
+#' @export
 #' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
 #' @importFrom dplyr group_by summarize left_join
 plotProportion <- function(factorMerger) {
