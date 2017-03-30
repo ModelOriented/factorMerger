@@ -131,7 +131,7 @@ The heatmap on the right shows means of all variables taken into analysis by gro
 oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
-oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
+oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, method = "hclust")
 print(oneDimFm)
 ```
 ```{r}
