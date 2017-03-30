@@ -2,8 +2,6 @@
 #'
 #' @importFrom data.table data.table
 #'
-#' @export
-#'
 merger <- function(response, factor, family = "gaussian",
                          subsequent = FALSE) {
 
@@ -64,14 +62,10 @@ stats <- function(factorMerger) {
 
 #' Show levels statistic - ...
 #'
-#' @export
-#'
 groupsStats <- function(object) {
     UseMethod("groupsStats", object)
 }
 
-#' ---
-#' @export
 groupsStats.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$groupStats) })
@@ -87,7 +81,7 @@ groupsStats.factorMerger <- function(factorMerger) {
     return(statsDf)
 }
 
-#' Show merging history - ...
+#' Merging
 #'
 #' @export
 #'
@@ -153,13 +147,7 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
     }
 
     fm <- merger(response, factor, family)
-    fmList <- startMerging(fm, subsequent)
-    fm <- fmList$factorMerger
-    while (canBeMerged(fm)) {
-
-        fmList <- mergePair(fm, subsequent, fmList$factor, fmList$model)
-        fm <- fmList$factorMerger
-    }
-    return(fmList$factorMerger)
+    fm <- startMerging(fm, subsequent)
+    return(merge(fm, subsequent))
 }
 

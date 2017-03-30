@@ -30,8 +30,9 @@ plotTree <- function(factorMerger, stat = "model",
 }
 
 .plotTree <- function(factorMerger, stat,
-                      levels, simplify = TRUE,
-                      alpha = 0.05, showDiagnostics = TRUE) {
+                      levels, simplify,
+                      alpha = 0.05,
+                      showDiagnostics = TRUE) {
     UseMethod(".plotTree", factorMerger)
 }
 
@@ -155,18 +156,9 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
                 pointsDf = pointsDf))
 }
 
-#' @importFrom ggplot2 theme theme_minimal element_blank
-theme_blank <- function() {
-    return(theme_minimal() +
-               theme(axis.title = element_blank(),
-                     axis.text.y = element_blank(),
-                     panel.grid.major = element_blank(),
-                     panel.grid.minor = element_blank()))
-}
-
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw
+#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
 #' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_label
 #' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous
 plotCustomizedTree <- function(factorMerger, stat = "model",
@@ -200,6 +192,12 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                 filter(AIC == min(AIC))
             intercept <- aicMin$model
             label <- paste0("min AIC")
+            right <- g$data$x1 %>% max()
+            left <- g$data$x2 %>% min()
+            g <- g +
+                scale_x_continuous(
+                    breaks = seq(left, right, qchisq(1 - alpha, 1)),
+                    labels = seq(left, right, qchisq(1 - alpha, 1)) %>% round())
         }
         y <- getLimits(pointsDf, showY)
 
@@ -224,7 +222,9 @@ plotSimpleTree <- function(factorMerger, stat = "model",
         pos <- rbind(pos, mean(pos[rownames(pos) %in% merging[step, ],]))
         rownames(pos)[nrow(pos)] <- paste(merging[step, ], collapse = "")
     }
-    return(plotCustomizedTree(factorMerger, stat, pos, levels, showY = FALSE, alpha))
+    return(plotCustomizedTree(factorMerger, stat, pos,
+                              levels, showY = FALSE,
+                              alpha, showDiagnostics = showDiagnostics))
 }
 
 #' @importFrom proxy dist
@@ -254,13 +254,13 @@ appendToTree <- function(factorMerger, plot) {
 
 #' @export
 appendToTree.default <- function(factorMerger, plot) {
-    grid.arrange(.plotTree(factorMerger), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger, showDiagnostics = FALSE, simplify = TRUE), plot, ncol = 2)
 }
 
 #' @export
 appendToTree.profilePlot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
-    grid.arrange(.plotTree(factorMerger, levels = lev), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger, levels = lev, showDiagnostics = FALSE, simplify = TRUE), plot, ncol = 2)
 }
 
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual
@@ -357,4 +357,6 @@ plotSurvival <- function(factorMerger) {
                         theme = treeTheme(NULL),
                         palette = "RdBu", curve.size = 1) +
         treeTheme(NULL)
+
+    # variable = fdsfds
 }
