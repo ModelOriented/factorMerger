@@ -1,5 +1,5 @@
-calculateAIC <- function(model, k) {
-    return(-2 * calculateModelStatistic(model) + 2 * k)
+calculateGIC <- function(model, k, penatly = 2) {
+    return(-2 * calculateModelStatistic(model) + penatly * k)
 }
 
 calculateModel <- function(factorMerger, factor) {

@@ -140,7 +140,7 @@ print.factorMerger <- function(factorMerger) {
 mergeFactors <- function(response, factor,
                          family = "gaussian",
                          subsequent = FALSE,
-                         method = "LRT") {
+                         method = "LRT", penalty = 2) {
 
     stopifnot(!is.null(response), !is.null(factor))
 
@@ -152,11 +152,11 @@ mergeFactors <- function(response, factor,
     fm <- merger(response, factor, family)
 
     if (method == "LRT") {
-        return(mergeLTR(fm, subsequent))
+        return(mergeLTR(fm, subsequent, penalty))
     }
 
     if (method == "hclust") {
-        return(mergeHClust(fm, subsequent))
+        return(mergeHClust(fm, subsequent, penalty))
     }
 
     else {
@@ -164,12 +164,12 @@ mergeFactors <- function(response, factor,
     }
 }
 
-mergeLTR <- function(factorMerger, subsequent) {
-    fmList <- startMerging(factorMerger, subsequent, "LTR")
+mergeLTR <- function(factorMerger, subsequent, penalty) {
+    fmList <- startMerging(factorMerger, subsequent, "LTR", penalty)
     fm <- fmList$factorMerger
 
     while(canBeMerged(fm)) {
-        fmList <- mergePairLTR(fm, subsequent, fmList$factor, fmList$model)
+        fmList <- mergePairLTR(fm, subsequent, fmList$factor, fmList$model, penalty)
         fm <- fmList$factorMerger
     }
 
@@ -177,9 +177,9 @@ mergeLTR <- function(factorMerger, subsequent) {
 }
 
 
-mergeHClust <- function(factorMerger, subsequent) {
+mergeHClust <- function(factorMerger, subsequent, penalty) {
 
-    factorMerger <- startMerging(factorMerger, subsequent, "hclust")
+    factorMerger <- startMerging(factorMerger, subsequent, "hclust", penalty)
     clust <- clusterFactors(factorMerger$dist, subsequent)
     factorMerger$mergingHistory <- recodeClustering(clust$merge,
                                                     clust$labels,
@@ -187,7 +187,7 @@ mergeHClust <- function(factorMerger, subsequent) {
 
     factor <- factorMerger$factor
     for (i in 1:nrow(factorMerger$mergingHistory)) {
-        fm <- mergePairHClust(factorMerger, factor)
+        fm <- mergePairHClust(factorMerger, factor, penalty)
         factorMerger <- fm$factorMerger
         factor <- fm$factor
     }

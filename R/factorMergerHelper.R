@@ -35,7 +35,7 @@ convertToDistanceMatrix <- function(modelsPvals, subsequent, labels) {
 }
 
 #' @importFrom MASS isoMDS
-startMerging <- function(factorMerger, subsequent, method) {
+startMerging <- function(factorMerger, subsequent, method, penalty) {
 
     if (subsequent) {
         factorMerger$factor <- getIncreasingFactor(factorMerger)
@@ -50,7 +50,7 @@ startMerging <- function(factorMerger, subsequent, method) {
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = initStat,
         pval = 1,
-        AIC = calculateAIC(model, length(levels(factor))))
+        GIC = calculateGIC(model, length(levels(factor)), penalty))
 
     if (method == "LTR") {
         return(
@@ -136,7 +136,7 @@ recodeClustering <- function(merge, levels, factor) {
     return(res)
 }
 
-mergePairHClust <- function(factorMerger, factor) {
+mergePairHClust <- function(factorMerger, factor, penalty) {
     step <- length(factorMerger$mergingList)
     merged <-  factorMerger$mergingHistory[step, ]
     factorMerger$mergingList <- c(factorMerger$mergingList,
@@ -156,7 +156,7 @@ mergePairHClust <- function(factorMerger, factor) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    pval = compareModels(calculateModel(factorMerger, factorMerger$factor), model),
-                   AIC = calculateAIC(model, length(levels(factor))))
+                   GIC = calculateGIC(model, length(levels(factor)), penalty))
 
     return(
         list(factorMerger = factorMerger,
@@ -164,7 +164,7 @@ mergePairHClust <- function(factorMerger, factor) {
     )
 }
 
-mergePairLTR <- function(factorMerger, subsequent, factor, model) {
+mergePairLTR <- function(factorMerger, subsequent, factor, model, penalty) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
     pairs <- getPairList(fs$groups, subsequent)
@@ -193,7 +193,7 @@ mergePairLTR <- function(factorMerger, subsequent, factor, model) {
         data.frame(model = calculateModelStatistic(model),
                    pval = compareModels(calculateModel(factorMerger,
                                                        factorMerger$factor), model),
-                   AIC = calculateAIC(model, length(levels(factor))))
+                   GIC = calculateGIC(model, length(levels(factor)), penalty))
 
     return(
         list(factorMerger = factorMerger,
@@ -226,3 +226,6 @@ getFinalOrderVec <- function(factorMerger) {
     finalOrder <- finalOrder %>% arrange(order)
     return(finalOrder$label %>% factor(levels = finalOrder$label))
 }
+
+
+# getOptimalModel
