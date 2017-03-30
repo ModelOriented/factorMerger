@@ -109,7 +109,7 @@ getLabelsColors <- function(pointsDf, levels) {
     }
     colors <- data.frame(
         label = levels,
-        color = colorRamps::magenta2green(nrow(pointsDf)),
+        color =colorRamps::magenta2green(nrow(pointsDf)),
         stringsAsFactors = FALSE)
     return((pointsDf %>%
                 left_join(colors, by = "label"))$color %>%
@@ -200,10 +200,10 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
             g <- g + scale_x_log10()
         }
         if (stat == "model") {
-            aicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "AIC")] %>%
-                filter(AIC == min(AIC))
-            intercept <- aicMin$model
-            label <- paste0("min AIC")
+            gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
+                filter(GIC == min(GIC))
+            intercept <- gicMin$model
+            label <- paste0("min GIC")
             labBr <- getChisqBreaks(g$data, alpha)
             g <- g +
                 scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
@@ -217,7 +217,9 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                       size = 3, fontface = "italic")
     }
 
-    g <- g + labs(title = "Merging path plot")
+    g <- g + labs(title = "Merging path plot",
+                  subtitle = paste0("Optimal GIC partition: ",
+                                    paste(getOptimalPartition(factorMerger), collapse = ":")))
 
     return(g)
 }
@@ -271,12 +273,23 @@ appendToTree.default <- function(factorMerger, plot) {
 #' @export
 appendToTree.profilePlot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
-    grid.arrange(.plotTree(factorMerger, levels = lev, showDiagnostics = FALSE, simplify = TRUE), plot, ncol = 2)
+    grid.arrange(.plotTree(factorMerger,
+                           levels = lev,
+                           showDiagnostics = FALSE,
+                           simplify = TRUE), plot, ncol = 2)
 }
 
-#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual
 #' @export
-# TODO: dodać wybór między rank a średnią
+appendToTree.survPlot <- function(factorMerger, plot) {
+    lev <- levels(plot$data$variable)
+    grid.arrange(.plotTree(factorMerger,
+                           levels = lev,
+                           showDiagnostics = FALSE,
+                           simplify = TRUE), plot, ncol = 2)
+}
+
+#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual labs
+#' @export
 plotProfile <- function(factorMerger) {
     stat <- findSimilarities(factorMerger)
 
@@ -295,14 +308,15 @@ plotProfile <- function(factorMerger) {
                   aes(x = variable),
                   size = 3.5, hjust = 0.8,  nudge_x = 0.1) +
         theme_minimal() + theme(legend.position = "none") +
-        scale_color_manual(values = colorRamps::magenta2green(noLevels))
+        scale_color_manual(values = colorRamps::magenta2green(noLevels)) +
+        labs(title = "Profile plot", subtitle = "")
     class(g) <- append(class(g), "profilePlot")
     return(g)
 }
 
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
-#' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller
+#' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller labs
 #' @importFrom magrittr %>%
 #' @importFrom reshape2 melt
 #' @importFrom dplyr filter arrange
@@ -320,11 +334,12 @@ plotHeatmap <- function(factorMerger) {
               axis.title.y = element_blank(),
               axis.ticks.y = element_blank(),
               axis.text.y = element_blank()) +
-        scale_fill_distiller(palette = customPalette)
+        scale_fill_distiller(palette = customPalette) +
+        labs(title = "Heatmap", subtitle = "")
 }
 
 #' @export
-#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs
 #' @importFrom dplyr group_by summarize left_join
 plotBoxplot <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
@@ -343,31 +358,37 @@ plotBoxplot <- function(factorMerger) {
                          upper = y75,
                          ymax = y100), stat = "identity") +
         coord_flip() + treeTheme(NULL) +
-        theme(axis.title = element_blank(), axis.text.y = element_blank())
+        theme(axis.title = element_blank(), axis.text.y = element_blank()) +
+        labs(title = "Boxplot", subtitle = "Summary statistic = mean")
 }
 
 #' @export
-#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous
+#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
 #' @importFrom dplyr group_by summarize left_join
 plotProportion <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     data <- data.frame(x = factorMerger$factor, y = factorMerger$response)
     data %>% ggplot() + geom_bar(aes(x = x, fill = as.factor(y)), position = "fill") +
-        scale_y_continuous(label = scales::percent, name = "Success proportion") +
+        scale_y_continuous(label = scales::percent, name = "") +
         coord_flip() + treeTheme(NULL) +
         scale_fill_manual(values = customPaletteValues[c(2, length(customPaletteValues) - 1)]) +
-        theme(axis.title.y = element_blank(), axis.text.y = element_blank())
+        theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
+        labs(title = "Group success proportion", subtitle = "")
 }
 
+#' @importFrom ggplot2 labs
+#'
 #' @export
 plotSurvival <- function(factorMerger) {
     model <- calculateModel(factorMerger, factorMerger$factor)
-    survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
+    g <- survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
                         individual.curves = TRUE,
                         theme = treeTheme(NULL),
-                        palette = "RdBu", curve.size = 1) +
-        treeTheme(NULL)
-
-    # variable = fdsfds
+                        variable = factorMerger$factor,
+                        palette = colorRamps::magenta2green(length(levels(factorMerger$factor))),
+                        curve.size = 1) +
+        treeTheme(NULL) + labs(title = "Survival plot", subtitle = "")
+    class(g) <- append(class(g), "survPlot")
+    return(g)
 }
