@@ -55,7 +55,7 @@ plotTree <- function(factorMerger, stat = "model",
 renameStat <- function(stat) {
     switch(stat,
            "pval" = {
-               stat <- "log10(p-value)"
+               stat <- "p-value"
            },
            "model" = {
                stat <- "loglikelihood"
@@ -156,6 +156,22 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
                 pointsDf = pointsDf))
 }
 
+nLabels <- 5
+
+getChisqBreaks <- function(plotData, alpha) {
+    right <- plotData$x1 %>% max()
+    left <- plotData$x2 %>% min()
+    breaks <- seq(left, right, qchisq(1 - alpha, 1))
+    labels <- seq(left, right, qchisq(1 - alpha, 1)) %>% round()
+    labels[setdiff(1:length(breaks), seq(1, length(breaks), length.out = nLabels) %>% round())] <- ""
+    return(
+        list(
+            breaks = breaks,
+            labels = labels
+        )
+    )
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
@@ -192,12 +208,9 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                 filter(AIC == min(AIC))
             intercept <- aicMin$model
             label <- paste0("min AIC")
-            right <- g$data$x1 %>% max()
-            left <- g$data$x2 %>% min()
+            labBr <- getChisqBreaks(g$data, alpha)
             g <- g +
-                scale_x_continuous(
-                    breaks = seq(left, right, qchisq(1 - alpha, 1)),
-                    labels = seq(left, right, qchisq(1 - alpha, 1)) %>% round())
+                scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
         }
         y <- getLimits(pointsDf, showY)
 
