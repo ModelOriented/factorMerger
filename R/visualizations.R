@@ -9,6 +9,7 @@ treeTheme <- function(ticksColors) {
               panel.grid.major.y = element_blank(),
               panel.grid.minor.y = element_blank(),
               panel.grid.minor.x = element_blank(),
+              axis.title.y = element_blank(),
               legend.position = "none")
     if(!is.null(ticksColors)) {
         myTheme <- myTheme + theme(axis.text.y = element_text(color = ticksColors))
@@ -144,13 +145,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         apply(2, as.numeric) %>%
         as.data.frame()
 
-    if (stat == "pval") {
-        df$x1 <- log10(df$x1)
-        df$x2 <- log10(df$x2)
-        pointsDf$x1 <- log10(pointsDf$x1)
-    }
-
-    df$x2[is.na(df$x2)] <- min(df$x2, na.rm = TRUE) - ((max(df$x2, na.rm = TRUE) - min(df$x1)) / 20)
+    df <- df[complete.cases(df), ]
 
     return(list(df = df,
                 pointsDf = pointsDf))
@@ -176,7 +171,7 @@ getChisqBreaks <- function(plotData, alpha) {
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
 #' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_label
-#' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous
+#' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous labs
 plotCustomizedTree <- function(factorMerger, stat = "model",
                                pos, levels = NULL,
                                showY = TRUE, alpha = 0.05,
@@ -200,8 +195,9 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
 
     if (showDiagnostics) {
         if (stat == "pval") {
-            intercept <- log10(alpha)
+            intercept <- alpha
             label <- paste0("alpha = ", alpha)
+            g <- g + scale_x_log10()
         }
         if (stat == "model") {
             aicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "AIC")] %>%
@@ -220,6 +216,8 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                       angle = 90,
                       size = 3, fontface = "italic")
     }
+
+    g <- g + labs(title = "Merging path plot")
 
     return(g)
 }
