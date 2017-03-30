@@ -278,7 +278,7 @@ appendToTree.default <- function(factorMerger, plot) {
 }
 
 #' @export
-appendToTree.ot <- function(factorMerger, plot) {
+appendToTree.profilePlot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
     grid.arrange(.plotTree(factorMerger,
                            levels = lev,
@@ -294,6 +294,21 @@ appendToTree.survPlot <- function(factorMerger, plot) {
                            showDiagnostics = FALSE,
                            simplify = TRUE), plot, ncol = 2)
 }
+
+#' @importFrom grid grid.draw grid.newpage
+#' @importFrom ggplot2 ggplotGrob theme labs
+#'
+#' @export
+appendToTree.GICPlot <- function(factorMerger, plot) {
+    grid.newpage()
+    grid.draw(rbind(ggplotGrob(plot +
+                                   labs(title = "Merging path plot",
+                                        subtitle = paste0("Optimal GIC partition: ",
+                                                          paste(getOptimalPartition(factorMerger), collapse = ":")))),
+                    ggplotGrob(plotTree(factorMerger) +
+                                   theme(title = element_blank())), size = "last"))
+}
+
 
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual labs
 #' @export
@@ -434,5 +449,25 @@ plotSurvival <- function(factorMerger) {
                         curve.size = 1) +
         treeTheme(NULL) + labs(title = "Survival plot", subtitle = "Adjusted survival curves for coxph model")
     class(g) <- append(class(g), "survPlot")
+    return(g)
+}
+
+#' @importFrom ggplot2 ggplot geom_line aes theme element_blank scale_y_continuous labs geom_point geom_ribbon
+#'
+#' @export
+plotGIC <- function(factorMerger) {
+    mH <- mergingHistory(factorMerger, T)
+    minGIC <- min(mH$GIC)
+    minModel <- mH$model[which.min(mH$GIC)]
+    g <- mH %>% ggplot(aes(x = model, y = GIC)) + geom_line(col = customPaletteValues[1], size = 1) +
+        geom_point(x = minModel, y = minGIC, col = customPaletteValues[1], size = 2.5) +
+        geom_ribbon(aes(x = model, ymin = minGIC, ymax = GIC), fill = customPaletteValues[1], alpha = 0.2) +
+        treeTheme(NULL) +
+        theme(axis.text.x = element_blank(),
+              axis.title.x = element_blank(),
+              axis.title.y = element_text(),
+              panel.grid.major = element_blank()) +
+        scale_y_continuous(position = "right")
+    class(g) <- append(class(g), "GICPlot")
     return(g)
 }
