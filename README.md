@@ -4,7 +4,7 @@ The aim of this project is to create hierarchical algorithm for post-hoc testing
 
 A short overview is available here
 
-https://rawgit.com/geneticsMiNIng/FactorMerger/master/materials/vignette2.html
+https://rawgit.com/geneticsMiNIng/FactorMerger/master/materials/vignette.html
 
 ## Generic functions
 
