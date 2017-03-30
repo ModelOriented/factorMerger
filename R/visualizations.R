@@ -109,7 +109,7 @@ getLabelsColors <- function(labelsDf, levels) {
     }
     colors <- data.frame(
         label = levels,
-        color =colorRamps::magenta2green(nrow(labelsDf)),
+        color = colorRamps::magenta2green(nrow(labelsDf)),
         stringsAsFactors = FALSE)
     return((labelsDf %>%
                 left_join(colors, by = "label"))$color %>%
@@ -198,7 +198,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
         ylab(getStatisticName(factorMerger))
 
     upperBreaks <- df$x1 %>% unique() %>% sort
-    g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(pointsDf, levels))
+    g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(labelsDf, levels))
 
     if (showDiagnostics) {
         if (stat == "pval") {
@@ -278,7 +278,7 @@ appendToTree.default <- function(factorMerger, plot) {
 }
 
 #' @export
-appendToTree.profilePlot <- function(factorMerger, plot) {
+appendToTree.ot <- function(factorMerger, plot) {
     lev <- levels(plot$data$level)
     grid.arrange(.plotTree(factorMerger,
                            levels = lev,
@@ -316,7 +316,8 @@ plotProfile <- function(factorMerger) {
                   size = 3.5, hjust = 0.8,  nudge_x = 0.1) +
         theme_minimal() + theme(legend.position = "none") +
         scale_color_manual(values = colorRamps::magenta2green(noLevels)) +
-        labs(title = "Profile plot", subtitle = "")
+        ylab("") +
+        labs(title = "Profile plot", subtitle = "Variable means ranks")
     class(g) <- append(class(g), "profilePlot")
     return(g)
 }
@@ -407,6 +408,7 @@ plotMeansAndStds <- function(factorMerger) {
 #' @importFrom dplyr group_by summarize left_join
 plotProportion <- function(factorMerger) {
     levels <- getFinalOrderVec(factorMerger)
+    responseLevels <- factorMerger$response %>% as.factor() %>% levels()
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     data <- data.frame(x = factorMerger$factor, y = factorMerger$response)
     data %>% ggplot() + geom_bar(aes(x = x, fill = as.factor(y)), position = "fill") +
@@ -414,7 +416,9 @@ plotProportion <- function(factorMerger) {
         coord_flip() + treeTheme(NULL) +
         scale_fill_manual(values = customPaletteValues[c(2, length(customPaletteValues) - 1)]) +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
-        labs(title = "Group success proportion", subtitle = "")
+        labs(title = "Group success proportion",
+             subtitle = paste0("Success: ", responseLevels[2],
+                               " (green), failure: ", responseLevels[1], " (violet)"))
 }
 
 #' @importFrom ggplot2 labs
@@ -428,7 +432,7 @@ plotSurvival <- function(factorMerger) {
                         variable = factorMerger$factor,
                         palette = colorRamps::magenta2green(length(levels(factorMerger$factor))),
                         curve.size = 1) +
-        treeTheme(NULL) + labs(title = "Survival plot", subtitle = "")
+        treeTheme(NULL) + labs(title = "Survival plot", subtitle = "Adjusted survival curves for coxph model")
     class(g) <- append(class(g), "survPlot")
     return(g)
 }

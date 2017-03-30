@@ -15,13 +15,11 @@ calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
 
 #' @importFrom survival Surv coxph coxph.control
 calculateModel.survivalFactorMerger <- function(factorMerger, factor) {
-    survObject <- Surv(time = factorMerger$response[, 1],
-                       event = factorMerger$response[, 2])
     if (length(unique(factor)) > 1) {
-        return(coxph(survObject ~ factor,
+        return(coxph(factorMerger$response ~ factor,
                      control = coxph.control(iter.max = 50)))
     }
-    return(coxph(survObject ~ 1,
+    return(coxph(factorMerger$response ~ 1,
                  control = coxph.control(iter.max = 50)))
 }
 
