@@ -28,6 +28,7 @@ convertToDistanceMatrix <- function(modelsPvals, subsequent, labels) {
     modelsPvals <- modelsPvals %>% matrix(ncol = length(labels))
     colnames(modelsPvals) <- labels
     rownames(modelsPvals) <- labels
+    distances <- as.dist(modelsPvals)
     distances[distances == 0] <- max(distances) + 1
     return(distances)
 }

@@ -296,13 +296,13 @@ appendToTree.survPlot <- function(factorMerger, plot) {
 }
 
 #' @importFrom grid grid.draw grid.newpage
-#' @importFrom ggplot2 ggplotGrob theme labs
+#' @importFrom ggplot2 ggplotGrob theme labs ylab
 #'
 #' @export
 appendToTree.GICPlot <- function(factorMerger, plot) {
     grid.newpage()
-    grid.draw(rbind(ggplotGrob(plot +
-                                   labs(title = "Merging path plot",
+    grid.draw(rbind(ggplotGrob(plot + ylab("") +
+                                   labs(title = "Merging path plot (with GIC profile)",
                                         subtitle = paste0("Optimal GIC partition: ",
                                                           paste(getOptimalPartition(factorMerger), collapse = ":")))),
                     ggplotGrob(plotTree(factorMerger) +
@@ -390,11 +390,11 @@ plotBoxplot <- function(factorMerger) {
                          ymax = y100), stat = "identity") +
         coord_flip() + treeTheme(NULL) +
         theme(axis.title = element_blank(), axis.text.y = element_blank()) +
-        labs(title = "Boxplot", subtitle = "Summary statistic = mean")
+        labs(title = "Boxplot", subtitle = "Summary statistic: mean")
 }
 
 #' @export
-#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
 #' @importFrom dplyr group_by summarize left_join
 plotMeansAndStds <- function(factorMerger) {
     factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
@@ -413,7 +413,7 @@ plotMeansAndStds <- function(factorMerger) {
                       position = position_dodge(.5)) + treeTheme(NULL) +
         geom_point() + coord_flip() +
         theme(axis.title.x = element_text(), axis.text.y = element_blank()) +
-        labs(title = "Summary statistics", subtitle = "Means and standard deviations estimators") +
+        labs(title = "Summary statistics", subtitle = "Means and standard deviations of coefficients' estimators") +
         ylab("")
 
 }

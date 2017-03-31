@@ -10,12 +10,20 @@ title: "factorMerger: a set of tools to support results from post hoc testing"
 author:
 - name: Agnieszka Sitko
   affiliation: University of Warsaw
+- name: Przemysław Biecek
+  affiliation: University of Warsaw
+  
+header-includes:
+ - \usepackage{algorithm}
+ - \usepackage{algorithmicx}
+ - \usepackage{amsmath}
+ - \usepackage{algpseudocode}
 abstract: "*ANOVA*-like statistical tests for differences among groups are available for almost a hundred years. But for large number of groups the results from commonly used post-hoc tests are often hard to interpret. To deal with this problem, the **factorMerger** package constructs and plots the hierarchical relation among compared groups. Such hierarchical structure is derived based on the *Likelihood Ratio Test* and is presented with the *Merging Paths Plots* created with the **ggplot2** package. The current implementation handles univariate and multivariate gaussian models as well as binomial and survival models. This article presents the theory and examples for a single-factor use cases.
 \\
 \\
 
 *Package webpage*: https://github.com/geneticsMiNIng/FactorMerger"
-keywords: "analysis of variance (ANOVA), hierarchical clustering, likelihood ratio test (LRT), post hoc testing"
+keywords: "analysis of variance (*ANOVA*), hierarchical clustering, likelihood ratio test (LRT), post hoc testing"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
 fontfamily: mathpazo
@@ -31,20 +39,47 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 # Introduction
 
-If data is analysed using ANOVA a more detailed analysis of differences among categorical variable levels might be needed. The traditional approach will be to perform *pairwise post hocs* - multiple comparisons after ANOVA. For each pair of groups we run specific statistical test which outputs with an information whether response averages in those groups are significantly different. However, if we look from the distant perspective, for a certain significance level, these results may not be consistent. One may consider the case that mean in group A does not differ significantly from the one in group B, similarly with groups B and C. In the same time difference between group A and C is detected. Then data partition is unequivocal and, as a consequence, impossible to put through. 
+If data is analysed using *ANOVA* a more detailed analysis of differences among categorical variable levels might be needed. The traditional approach is to perform *pairwise post hocs* - multiple comparisons after *ANOVA*. For each pair of groups we run specific statistical test which outputs with an information whether response averages in those groups are significantly different on a given significance level. 
 
-The problem of clustering categorical variable into non-overlapping groups has already been present in statistics. First, J. Tukey proposed an iterative procedure of merging factor levels based on studentized range distribution [@Tukey]. However, statistical test used in this approach made it limited to gaussian models. Collapse And Shrinkage in ANOVA (CAS-ANOVA, @Casanova) is an algorithm that extends categorical variable partitioning for generalized linear models. It is based on the Tibshirani's Fused LASSO [@Tib] with the constraint taken on the pairwise differences within a factor, which yields to their smoothing.
+One may found implementations of traditional *post hoc tests* in many *R* packages. Package **agricolae** [@Agric] offers wide range of them. It gives one of the most popular *post hoc test*, Tukey HSD test (`HSD.test`), its less conservative version --- Student-Newman-Keuls test (`SNK.test`) or Scheffe test (`scheffe.test`) which is robust to factor imbalance. These parametric tests are based on Student's t-distribution, thus, are reduced to gaussian models only. In contrasts, **multcomp** package [@Multcomp] can be used with generalized linear models (function `glht`) as it uses general linear hypothesis. Similarly to **multcomp**, some implementations that accept `glm` objects are also given in **car** [`linearHypothesis`,@car] and **lsmeans** [@lsmeans].
 
-Delete or Merge Regressors algorithm [@Proch] is also adjusted to generalized linear models. It directly uses hierarchical clustering to gain hierarchical structure of a factor. At the beginning, *DMR4glm* calculates likelihood ratio test statistics for models arising from pairewise merging of factor levels against the initial model (the one with all groups included). Then performs agglomerative clustering taking LRT statistic as a distance --- each step of clustering is associated with model with different factor structure. Experimental studies [@ProchEx] showed that Delete or Merge Regressors's performance is better than CAS-ANOVA's when it comes to model accuracy.
+However, an undeniable disadvantage of single-step *post hoc tests* is the inconsistency of their results. For a fixed significance level, it is possible that mean in group A does not differ significantly from the one in group B, similarly with groups B and C. In the same time difference between group A and C is detected. Then data partition is unequivocal and, as a consequence, impossible to put through. 
 
-**factorMerger** package gives an approximate implementation of *DMR4glm*. In addition to the base algorithm, it also provides its sequential version, which merges only those levels which are relatively close (levels distance is dependent on the model chosen). While the basic approach (all vs. all comparisons) may sometimes result in a slightly better partition from the statistical point of view, proposed extention (all vs. subsequent comparisons) seems to be more graceful when it comes to the interpretation. Moreover, the former is more computationally expensive.
+The problem of clustering categorical variable into non-overlapping groups has already been present in statistics. First, J. Tukey proposed an iterative procedure of merging factor levels based on studentized range distribution [@Tukey]. However, statistical test used in this approach made it limited to gaussian models. *Collapse And Shrinkage in ANOVA* [*CAS-ANOVA*, @Casanova] is an algorithm that extends categorical variable partitioning for generalized linear models in testing. It is based on the Tibshirani's *Fused LASSO* [@Tib] with the constraint taken on the pairwise differences within a factor, which yields to their smoothing.
 
-Furthermore, **factorMerger** offers yet another algorithm of hierarchical clustering. This is also an iterative procedure, but in each step it chooses model with the highest likelihood. While this algorithm is more complex than *DMR4glm* it is easily expandable for non-parametric models (using permutation tests instead of LRTs). The greedy algorithm is also available in two versions - comprehensive and sequential.
+*Delete or Merge Regressors* algorithm [@Proch, p. 37] is also adjusted to generalized linear models. It directly uses hierarchical clustering to gain hierarchical structure of a factor. At the beginning, *DMR4glm* calculates likelihood ratio test statistics for models arising from pairewise merging of factor levels or deleting factor levels against the initial model (the one with all groups included). Then performs agglomerative clustering taking LRT statistic as a distance --- each step of clustering is associated with a model with different factor structure. Experimental studies [@Proch, p. 44--91] showed that *Delete or Merge Regressors*'s performance is better than *CAS-ANOVA*'s when it comes to model accuracy.
+
+**factorMerger** package gives an approximate implementation of *DMR4glm* (skipping the deleting procedure). In addition to the base algorithm, it also provides its sequential version, which merges only those levels which are relatively close (levels distance is dependent on the model chosen). While the basic approach (all vs. all comparisons) may sometimes result in a slightly better partition from the statistical point of view, proposed extention (all vs. subsequent comparisons) seems to be more graceful when it comes to the interpretation. Moreover, the former is more computationally expensive.
+
+Furthermore, **factorMerger** offers also another algorithm of hierarchical clustering. This is also an iterative procedure, but in each step it chooses model with the highest p-value from *LRT* test. While this algorithm is more complex than *DMR4glm*, it maximizes likelihood on the merging path. What is more, it is easily expandable for non-parametric models (using permutation tests instead of LRTs). This algorithm is also available in two versions - comprehensive and sequential.
 
 More detailed description of all algorithms implemented in **factorMerger** is given in the section *Algorithms overview*.
 
 
 # Algorithms overview
+
+**factorMerger** gives a user the ability to perform analysis for the wide family of models and choose from the broad spectrum of merging approaches. 
+
+In the current version the package supports parametric models: 
+
+- single dimensional gaussian, 
+- multi dimensional gaussian,
+- binomial,
+- survival.
+
+Set of hypothesis that are tested during merging may be either comprehensive or limited. This gives two possibilities:
+
+- *all-to-all*,
+- *subsequent*.
+
+*All-to-all* version considers all possible pairs of factor levels. In *subsequent* approach factor levels are preliminarily sorted and then only consecutives groups are tested for means equality.
+
+**factorMerger** also implements two strategies of a single iteration of the algolithm. They use one of the following:
+
+- *Likelihood Ratio Test*,
+- *agglomerative clustering with constant distance matrix*.
+
+The second approach is based on *DMR4glm* algorithm. 
 
 ## Sequential version 
 
@@ -58,29 +93,109 @@ metrics <- data.frame(
     metric = c("mean", "mean of isoMDS fit", 
                "success proportion", "relative survival coefficient"))
 
-knitr::kable(metrics, align = "c")
+knitr::kable(metrics, caption = "Factor ordering by model used", align = "c")
 ```
 
 For single dimensional gaussian and binomial models groups are sorted by means and proportions of success, respectively. In survival case we estimate survival model which takes all factor levels separately. Then beta coefficient approximations specify levels order (base level gets coefficient equal to zero). Multi dimensional gaussian model needs additional preprocessing. We propose to order levels by means of isoMDS projection (into one dimension, currently isoMDS from package **MASS** is used). However, the projection is used only in this preliminary stage. In the merging phase of the algorithm all test statistics are calculated for multi dimensional gaussian model. Calculating isoMDS projection is an expensive procedure --- it usually takes more time than the merging phase.
 
 Having set the factor order, we may limit number of comparisons in each step.
 
-## DMR4glm
+## Likelihood Ratio Test
+
+The substantial part of **factorMerger** algorithms is calculating the *Likelihood Ratio Test* statistics. In this section we define *LRT* statistic used in merging.
+
+Let's assume $y$ is a response variable and $C$ is a factor with $k$ levels ($C \in \{1, 2, ..., k \}$). We denote as $h$ some linear hypothesis on $C$ levels, $M_0$ the initial model (taking all factor levels independently) and $M_h$ --- the model under $h$. Then, the *Likelihood Ratio Test* statistic is calculated as a logarithm of $M_0$ and $M_h$ likelihood ratio  
+
+$$ 
+LRT(M_h|M_0) = 2 \cdot l (M_0) - 2 \cdot l (M_h), 
+$$
+
+where $l(\cdot)$ is log-likelihood function.
+
+As $M_h$ is nested in $M_0$, likelihood of $M_h$ is not greater than $M_0$'s likelihood. Therefore, if $\mathcal{H}$ is a set of considered linear hypothesis, hypothesis 
+$$
+\mathrm{argmin}_{h \in \mathcal{H}} LRT(M_h|M_0) = \mathrm{argmax}_{h \in \mathcal{H}} l(M_h)
+$$
+
+will reduce likelihood the least.
+
+A convenient result by Samuel S. Wilks [@wilks1938large] shows that $LRT(M_h|M_0)$ tends asymptotically to chi-square distribution with degrees of freedom equal to the difference in degrees of freedom between $M_0$ and $M_h$ as number of observations approaches infinity. This convergence will be used to evaluate model's 'statistical correctness'.
+
+## Agglomerative clustering
+
+The `hclust`-based approach is an approximation of *DMR4glm*. The algorithm process is described below.
+
+\begin{algorithm}
+\caption{Merging with agglomerative clustering}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, subsequent$}
+\State{$pairsSet := generatePairs(response, factor, subsequent$)}
+\State{$dist :=$ set of distances }
+\ForAll{$pair \in pairsSet$} 
+    \State{$h := \{\mu_{pair_1} = \mu_{pair_2}\}$ }
+    \Comment{hypothesis under which $pair$ is merged}
+    \State{$dist$[$pair$] $= LRT(M_h|M_0)$}
+\EndFor
+        
+\If{subsequent}
+\State{$hClust$($dist$, method = "single")}
+\Else 
+\State{$hClust$($dist$, method = "complete")}
+\EndIf
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 ## Greedy algorithm
 
-## Cost comparisons
+In contrary to the previous method, *greedy* approach minimizes likelihood reduction in each step. It may be summarized as follow.
 
+\begin{algorithm}
+\caption{Merging with $LRT$}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, subsequent$}
+\State{$pairsSet := generatePairs(response, factor, subsequent$)}
+\State{$M_0:=$ full model}
+\While{$levels(factor) > 1$}
+    \State{$toBeMerged = \mathrm{argmax}_{pair \in pairsSet} l(updateModel(M_0, pair))$}
+    
+    \State{$M_0 = updateModel(M_0, toBeMerged)$}
+    \State{$factor = mergeLevels(factor, pair)$}
+\EndWhile
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 # The *R* package **factorMerger**
 
-## Setting up merging options
+**factorMerger** provides easy-to-use functions for factor merging and visualizing obtained results. Package's functionalities are illustrated using 3-dimensional gaussian response and factor variable with 5 levels.
 
-## Visualizations
+```{r}
+library(factorMerger)
+sample <- generateMultivariateSample(100, 5, 3)
+fm <- mergeFactors(response = sample$response, factor = sample$factor, 
+                   family = "gaussian", subsequent = TRUE,
+                   method = "LRT", penalty = 2)
+```
 
-## Sample results
+`mergeFactors` takes arguments: `response` -- vector/matrix of response used in a given model (note: in survival model response must be of a class `Surv`), `factor` -- factor to be merged, `family` -- model family, `subsequent` -- binary variable specifying which levels are permitted to be merged, `method` -- algorithm step method (either "LTR" or "hclust"), `penalty` -- penalty used in GIC calculations.
 
-# Possible extensions
+```{r, echo = FALSE}
+knitr::kable(mergingHistory(fm, T), align = "c", caption = "Multinomial gaussian merging results")
+```
+
+
+**factorMerger** gives plenty possibilities to plot merging results. We may want to plot cluster tree in simplified form (nodes are distributed evenly) or customized (nodes represent group statistic). We can choose between plotting p-value on the x axis or loglikelihood. 
+
+```{r, echo = FALSE, fig.height = 4, fig.width = 5.5}
+plotTree(fm, simplify = FALSE)
+```
+
+In the above plot panel grid interval corresponds to the quantile 0.95 of chi-square distribution with one degree of freedom. Models distant more than this interval may be considered as significantly different.
+
+Visualizations available in **factorMerger** may be found in the Appendix *factorMerger: Visualizations*
 
 # Bibliography
 
