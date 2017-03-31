@@ -196,10 +196,12 @@ knitr::kable(mH, align = "c", caption = "Multinomial Gaussian merging results")
 appendToTree(fm, plotHeatmap(fm))
 ```
 
-```{r, echo = FALSE, fig.height = 3, fig.width = 7.5, fig.cap='An example for multi-dimensonal Gaussian reposonse with profile plot', fig.pos='h'}
-appendToTree(fm, plotProfile(fm))
+```{r, echo = FALSE, fig.height = 3, fig.width = 7.5, fig.cap='An example forbinomial reposonse', fig.pos='h'}
+binomRandSample <- generateSample(1000, 10, distr = "binomial")
+binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor, 
+                        family = "binomial", subsequent = TRUE)
+appendToTree(binomFm, plotProportion(binomFm))
 ```
-
 
 The **factorMerger** package gives plenty of possibilities to plot merging results. We may want to plot cluster tree in a simplified form (nodes are distributed evenly) or customized (nodes represent group statistic). We can choose between plotting p-value on the x axis or loglikelihood. We can also decide if we want to mark the best model in GIC criterion. There are also many possibilities of summarizing response variable visually. 
 
