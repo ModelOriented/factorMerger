@@ -177,7 +177,7 @@ In contrary to the previous method, *greedy* approach minimizes likelihood reduc
 library(factorMerger)
 sample <- generateMultivariateSample(100, 5, 3)
 fm <- mergeFactors(response = sample$response, factor = sample$factor, 
-                   family = "Gaussian", subsequent = TRUE,
+                   family = "gaussian", subsequent = TRUE,
                    method = "LRT", penalty = 2)
 ```
 
@@ -195,10 +195,11 @@ knitr::kable(mH, align = "c", caption = "Multinomial Gaussian merging results")
 
 **factorMerger** gives plenty possibilities to plot merging results. We may want to plot cluster tree in a simplified form (nodes are distributed evenly) or customized (nodes represent group statistic). We can choose between plotting p-value on the x axis or loglikelihood. We can also decide if we want to mark the best model in GIC criterion. There are also many possibilities of summarizing response variable visually. 
 
+\vspace{5mm}
 ```{r, echo = FALSE, fig.height = 4, fig.width = 5.5}
 plotTree(fm, simplify = FALSE)
 ```
-
+\vspace{5mm}
 In the above plot panel grid interval corresponds to the 0.95 quantile of chi-square distribution with one degree of freedom. Models distant more than this interval may be considered as significantly different.
 
 Visualizations available in **factorMerger** may be found in the Appendix *factorMerger: Visualizations*
