@@ -4,7 +4,8 @@
 \alias{mergeFactors}
 \title{Merge factors - ...}
 \usage{
-mergeFactors(response, factor, family = "gaussian", subsequent = FALSE)
+mergeFactors(response, factor, family = "gaussian", subsequent = FALSE,
+  method = "LRT", penalty = 2)
 }
 \description{
 Merge factors - ...

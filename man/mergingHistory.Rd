@@ -2,10 +2,10 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{mergingHistory}
 \alias{mergingHistory}
-\title{Show merging history - ...}
+\title{Merging}
 \usage{
 mergingHistory(object, showStats = FALSE)
 }
 \description{
-Show merging history - ...
+Merging
 }

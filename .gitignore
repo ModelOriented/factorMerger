@@ -8,3 +8,6 @@ inst/doc
 ignore.R
 test.rda
 *.RDataTmp*
+*vignette*files/*
+*user_abstract.tex*
+*.bbl*

@@ -2,8 +2,6 @@
 #'
 #' @importFrom data.table data.table
 #'
-#' @export
-#'
 merger <- function(response, factor, family = "gaussian",
                          subsequent = FALSE) {
 
@@ -33,8 +31,7 @@ merger <- function(response, factor, family = "gaussian",
            },
 
            "survival" = {
-               stopifnot(!sum(response[, 1] < 0))
-               stopifnot(length(unique(response[, 2])) == 2)
+               stopifnot(class(response) == "Surv")
                class(fm) <- append(class(fm), "survivalFactorMerger")
            },
 
@@ -64,14 +61,10 @@ stats <- function(factorMerger) {
 
 #' Show levels statistic - ...
 #'
-#' @export
-#'
 groupsStats <- function(object) {
     UseMethod("groupsStats", object)
 }
 
-#' ---
-#' @export
 groupsStats.factorMerger <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$groupStats) })
@@ -87,7 +80,7 @@ groupsStats.factorMerger <- function(factorMerger) {
     return(statsDf)
 }
 
-#' Show merging history - ...
+#' Merging
 #'
 #' @export
 #'
@@ -143,7 +136,10 @@ print.factorMerger <- function(factorMerger) {
 #'
 #' @export
 #'
-mergeFactors <- function(response, factor, family = "gaussian", subsequent = FALSE) {
+mergeFactors <- function(response, factor,
+                         family = "gaussian",
+                         subsequent = FALSE,
+                         method = "LRT", penalty = 2) {
 
     stopifnot(!is.null(response), !is.null(factor))
 
@@ -153,13 +149,46 @@ mergeFactors <- function(response, factor, family = "gaussian", subsequent = FAL
     }
 
     fm <- merger(response, factor, family)
-    fmList <- startMerging(fm, subsequent)
-    fm <- fmList$factorMerger
-    while (canBeMerged(fm)) {
 
-        fmList <- mergePair(fm, subsequent, fmList$factor, fmList$model)
+    if (method == "LRT") {
+        return(mergeLTR(fm, subsequent, penalty))
+    }
+
+    if (method == "hclust") {
+        return(mergeHClust(fm, subsequent, penalty))
+    }
+
+    else {
+        stop("Requested method of merging is not supported.")
+    }
+}
+
+mergeLTR <- function(factorMerger, subsequent, penalty) {
+    fmList <- startMerging(factorMerger, subsequent, "LTR", penalty)
+    fm <- fmList$factorMerger
+
+    while(canBeMerged(fm)) {
+        fmList <- mergePairLTR(fm, subsequent, fmList$factor, fmList$model, penalty)
         fm <- fmList$factorMerger
     }
+
     return(fmList$factorMerger)
 }
 
+
+mergeHClust <- function(factorMerger, subsequent, penalty) {
+
+    factorMerger <- startMerging(factorMerger, subsequent, "hclust", penalty)
+    clust <- clusterFactors(factorMerger$dist, subsequent)
+    factorMerger$mergingHistory <- recodeClustering(clust$merge,
+                                                    clust$labels,
+                                                    getIncreasingFactor(factorMerger))
+
+    factor <- factorMerger$factor
+    for (i in 1:nrow(factorMerger$mergingHistory)) {
+        fm <- mergePairHClust(factorMerger, factor, penalty)
+        factorMerger <- fm$factorMerger
+        factor <- fm$factor
+    }
+    return(factorMerger)
+}

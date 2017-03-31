@@ -44,8 +44,9 @@ To visualize functionalities of `factorMerger` we use samples for which response
 To do so, we may use function `generateSample` or `generateMultivariateSample`.
 
 ```{r}
+set.seed(1)
 library(factorMerger) 
-randSample <- generateMultivariateSample(N = 1000, k = 10, d = 3)
+randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ```
 
 ## Merging factors
@@ -62,13 +63,18 @@ randSample <- generateMultivariateSample(N = 1000, k = 10, d = 3)
 
 
 ```{r}
-fm <- mergeFactors(randSample$response, randSample$factor)
+fmAll <- mergeFactors(randSample$response, randSample$factor)
 ```
 
 `mergeFactors` outputs with information about 'merging history'.
 
 ```{r}
-print(fm)
+print(fmAll)
+```
+
+
+```{r}
+plotTree(fmAll)
 ```
 
 Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers some statistic calculated for the model after merging (e.g. in gaussian case loglikelihood is calculated), column 'pval' gives significance threshold below which hypothesis about means equality holds.
@@ -91,7 +97,7 @@ plotTree(fm, stat = "model")
 ```
 
 ```{r, fig.height = 5, fig.width = 7}
-plotTree(fm, "pval")
+plotTree(fm, "pval", alpha = 0.5)
 ```
 
 It also takes logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the x axis. As default we use `simplify = TRUE`. 
@@ -117,15 +123,24 @@ In the above plots colours are connected with the group. The plot on the right s
 appendToTree(fm, plotHeatmap(fm))
 ```
 
+
+```{r}
+appendToTree(fm, plotGIC(fm))
+```
+
+
 The heatmap on the right shows means of all variables taken into analysis by groups.
 
 ### One-dimensional gaussian response
 
 ```{r}
-oneDimRandSample <- generateSample(1000, 5)
+oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
-oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor)
+oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, method = "hclust")
+print(oneDimFm)
+```
+```{r}
 plotTree(oneDimFm, simplify = FALSE)
 ```
 
@@ -133,6 +148,9 @@ plotTree(oneDimFm, simplify = FALSE)
 appendToTree(oneDimFm, plotBoxplot(oneDimFm))
 ```
 
+```{r}
+appendToTree(oneDimFm, plotMeansAndStds(oneDimFm))
+```
 
 ### Binomial response
 
@@ -165,13 +183,15 @@ appendToTree(binomFm, plotProportion(binomFm))
 ```{r}
 library(survival)
 data(veteran)
-survivalFm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
+survResponse <- Surv(time = veteran$time, 
+                 event = veteran$status)
+survivalFm <- mergeFactors(response = survResponse, 
                    factor = veteran$celltype, 
                    family = "survival")
 ```
 
 ```{r}
-survivalFm <- mergeFactors(response = subset(veteran, select = c(time, status)), 
+survivalFm <- mergeFactors(response = survResponse, 
                    factor = veteran$celltype, 
                    subsequent = TRUE,
                    family = "survival")
