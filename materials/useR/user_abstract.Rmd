@@ -191,12 +191,12 @@ colnames(mH)[4] <- "p-value"
 knitr::kable(mH, align = "c", caption = "Multinomial Gaussian merging results")
 ```
 
-```{r, echo = FALSE, fig.height = 3, fig.width = 7.5, fig.cap='An example for multi-dimensonal Gaussian reposonse with corresponding heatmap', fig.pos='h'}
+```{r, echo = FALSE, fig.height = 3, fig.width = 7.5, fig.cap='An example for a multi-dimensonal Gaussian reposonse with corresponding heatmap', fig.pos='h'}
 #plotTree(fm, simplify = FALSE)
 appendToTree(fm, plotHeatmap(fm))
 ```
 
-```{r, echo = FALSE, fig.height = 3, fig.width = 7.5, fig.cap='An example forbinomial reposonse', fig.pos='h'}
+```{r, echo = FALSE, fig.height = 3, fig.width = 7.5, fig.cap='An example for a binomial reposonse', fig.pos='h'}
 binomRandSample <- generateSample(1000, 10, distr = "binomial")
 binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor, 
                         family = "binomial", subsequent = TRUE)
