@@ -7,6 +7,7 @@ vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: ../materials/factorMerger.bib
 ---
 
 ```{r, echo = FALSE}
@@ -22,20 +23,24 @@ This project arose from the need to create a method of post hoc testing which gi
 
 ## Algorithm inputs
 
-Current version of `factorMerger` accepts **one-dimensional grouping variable** as independent variable only (multi-dimensional version is yet to be written; grouping variable is discrete). When it comes to dependent variable, `factorMerger` supports the following models:
+In the current version the **factorMerger** package supports parametric models: 
 
- - **gaussian** - either with one-dimensional or multivariate response,
- - **binomial**,
- - **survival**.
- 
-In each case we may specify whether in a single iteration of the algorithm test statistics are calculated for every possible pair of factor levels (cubic complexity) or only for "successive" pairs (quadratic complexity).
+- one-dimensional Gaussian (with the argument `family = "gaussian"`),
+- multi dimensional Gaussian (with the argument `family = "gaussian"`),
+- binomial (with the argument `family = "binomial"`),
+- survival (with the argument `family = "survival"`).
 
-If the latter option is chosen factor variable is reordered before merging is performed. Order is determined on the basis of:
+Set of hypotheses that are tested during merging may be either comprehensive or limited. This gives two possibilities:
 
- - groups means of the response variable for *one-dimensional gaussian model*,
- - groups means of the vector fitted by non-metric multidimensional scaling for *multivariate gaussian model*,
- - groups proportions of the response variable for *binomial model*,
- - ... for *survival model*.
+- *all-to-all* (with the argument `successive = FALSE`),
+- *successive* (with the argument `successive = TRUE`).
+
+The version *all-to-all* considers all possible pairs of factor levels. In the  *successive* approach factor levels are preliminarily sorted and then only consecutive groups are tested for means equality.
+
+The **factorMerger** package also implements two strategies of a single iteration of the algorithm. They use one of the following:
+
+- *Likelihood Ratio Test* (with the argument `method = "LRT"`),
+- *agglomerative clustering with constant distance matrix* [based on the *DMR4glm* algorithm @Proch, with the argument `method = "hclust"`]. 
 
 ## Generating samples 
 
@@ -44,7 +49,6 @@ To visualize functionalities of `factorMerger` we use samples for which response
 To do so, we may use function `generateSample` or `generateMultivariateSample`.
 
 ```{r}
-set.seed(1)
 library(factorMerger) 
 randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ```
@@ -59,7 +63,6 @@ randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ### Gaussian multi-dimensional response
 
 #### Calculations
-
 
 
 ```{r}
@@ -97,7 +100,7 @@ plotTree(fm, stat = "model")
 ```
 
 ```{r, fig.height = 5, fig.width = 7}
-plotTree(fm, "pval", alpha = 0.5)
+plotTree(fmAll, "pval", alpha = 0.5)
 ```
 
 It also takes logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the x axis. As default we use `simplify = TRUE`. 
@@ -123,6 +126,7 @@ In the above plots colours are connected with the group. The plot on the right s
 appendToTree(fm, plotHeatmap(fm))
 ```
 
+It is also possible to plot *GIC* together with the merging path plot.
 
 ```{r}
 appendToTree(fm, plotGIC(fm))
@@ -211,3 +215,4 @@ plotTree(survivalFm, "pval", simplify = FALSE)
 appendToTree(survivalFm, plotSurvival(survivalFm))
 ```
 
+#Bibliography

@@ -205,7 +205,7 @@ binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor,
 appendToTree(binomFm, plotProportion(binomFm))
 ```
 
-The **factorMerger** package gives plenty of possibilities to plot merging results. We may want to plot cluster tree in a simplified form (nodes are distributed evenly) or customized (nodes represent group statistic). We can choose between plotting p-value on the x axis or loglikelihood. We can also decide if we want to mark the best model in GIC criterion. There are also many possibilities of summarizing response variable visually. 
+The **factorMerger** package gives plenty of possibilities to plot merging results. We may want to plot cluster tree in a simplified form (nodes are distributed evenly) or customized (nodes represent group statistic). We can choose between plotting p-value on the OX axis or loglikelihood. We can also decide if we want to mark the best model in GIC criterion. There are also many possibilities of summarizing response variable visually. 
 
 In Figures 1 and 2 each interval in the OX axis corresponds to the 0.95 quantile of chi-square distribution with one degree of freedom. Models distant more than this interval may be considered as significantly different.
 
