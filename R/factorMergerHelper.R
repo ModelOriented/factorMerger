@@ -14,8 +14,8 @@ appendProjection.gaussianFactorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
-convertToDistanceMatrix <- function(modelsPvals, subsequent, labels) {
-    if (subsequent) {
+convertToDistanceMatrix <- function(modelsPvals, successive, labels) {
+    if (successive) {
         m <- matrix(0, ncol = length(labels),
                     nrow = length(labels))
         tmp <- cbind(1:(nrow(m) - 1), 2:nrow(m))
@@ -34,9 +34,9 @@ convertToDistanceMatrix <- function(modelsPvals, subsequent, labels) {
 }
 
 #' @importFrom MASS isoMDS
-startMerging <- function(factorMerger, subsequent, method, penalty) {
+startMerging <- function(factorMerger, successive, method, penalty) {
 
-    if (subsequent) {
+    if (successive) {
         factorMerger$factor <- getIncreasingFactor(factorMerger)
     }
     factorMerger <- appendProjection(factorMerger)
@@ -62,7 +62,7 @@ startMerging <- function(factorMerger, subsequent, method, penalty) {
     }
 
     # method == "hclust"
-    pairs <- getPairList(levels(factorMerger$factor), subsequent)
+    pairs <- getPairList(levels(factorMerger$factor), successive)
     modelsPvals <- sapply(pairs, function(x) {
         if (x[1] == x[2]) {
             return(1)
@@ -73,7 +73,7 @@ startMerging <- function(factorMerger, subsequent, method, penalty) {
     })
 
     factorMerger$dist <- convertToDistanceMatrix(modelsPvals,
-                                                 subsequent, levels(factorMerger$factor))
+                                                 successive, levels(factorMerger$factor))
 
     return(factorMerger)
 }
@@ -83,15 +83,15 @@ canBeMerged <- function(factorMerger) {
     return(length(ml[[length(ml)]]$groups) > 1)
 }
 
-getPairList <- function(groups, subsequent) {
-    if (subsequent) {
-        getSubsequentPairList(groups)
+getPairList <- function(groups, successive) {
+    if (successive) {
+        getsuccessivePairList(groups)
     } else {
         getAllPairList(groups)
     }
 }
 
-getSubsequentPairList <- function(groups) {
+getsuccessivePairList <- function(groups) {
     noGroups <- length(groups)
     pairs <- t(cbind(groups[1:(noGroups - 1)], groups[2:(noGroups)]))
     return(split(pairs, rep(1:ncol(pairs), each = nrow(pairs))))
@@ -102,8 +102,8 @@ getAllPairList <- function(groups) {
     return(unlist(twoLevelList, recursive = FALSE))
 }
 
-clusterFactors <- function(dist, subsequent) {
-    if (subsequent) {
+clusterFactors <- function(dist, successive) {
+    if (successive) {
         return(hclust(d = dist, method = "single"))
     }
     return(hclust(d = dist, method = "complete"))
@@ -163,10 +163,10 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
     )
 }
 
-mergePairLTR <- function(factorMerger, subsequent, factor, model, penalty) {
+mergePairLTR <- function(factorMerger, successive, factor, model, penalty) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
-    pairs <- getPairList(fs$groups, subsequent)
+    pairs <- getPairList(fs$groups, successive)
     modelsPvals <- sapply(pairs, function(x) {
         if (x[1] == x[2]) {
             return(-1)

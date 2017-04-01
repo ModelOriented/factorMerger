@@ -211,10 +211,8 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                 filter(GIC == min(GIC))
             intercept <- gicMin$model
             label <- paste0("min GIC")
-            labBr <- getChisqBreaks(g$data, alpha)
-            g <- g +
-                scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
         }
+
         y <- getLimits(labelsDf, showY)
 
         g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
@@ -223,6 +221,10 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                       angle = 90,
                       size = 3, fontface = "italic")
     }
+
+    labBr <- getChisqBreaks(g$data, alpha)
+    g <- g +
+        scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
 
     g <- g + labs(title = "Merging path plot",
                   subtitle = paste0("Optimal GIC partition: ",
