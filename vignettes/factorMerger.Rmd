@@ -28,7 +28,7 @@ Current version of `factorMerger` accepts **one-dimensional grouping variable** 
  - **binomial**,
  - **survival**.
  
-In each case we may specify whether in a single iteration of the algorithm test statistics are calculated for every possible pair of factor levels (cubic complexity) or only for "subsequent" pairs (quadratic complexity).
+In each case we may specify whether in a single iteration of the algorithm test statistics are calculated for every possible pair of factor levels (cubic complexity) or only for "successive" pairs (quadratic complexity).
 
 If the latter option is chosen factor variable is reordered before merging is performed. Order is determined on the basis of:
 
@@ -79,10 +79,10 @@ plotTree(fmAll)
 
 Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers some statistic calculated for the model after merging (e.g. in gaussian case loglikelihood is calculated), column 'pval' gives significance threshold below which hypothesis about means equality holds.
 
-If we set `subsequent = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Then, in each step only groups whose means are closed are compared.
+If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Then, in each step only groups whose means are closed are compared.
 
 ```{r}
-fm <- mergeFactors(randSample$response, randSample$factor, subsequent = TRUE)
+fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE)
 print(fm)
 ```
 
@@ -160,7 +160,7 @@ table(binomRandSample$response, binomRandSample$factor)
 ```
 
 ```{r}
-binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor, family = "binomial", subsequent = TRUE)
+binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor, family = "binomial", successive = TRUE)
 print(binomFm)
 ```
 
@@ -193,7 +193,7 @@ survivalFm <- mergeFactors(response = survResponse,
 ```{r}
 survivalFm <- mergeFactors(response = survResponse, 
                    factor = veteran$celltype, 
-                   subsequent = TRUE,
+                   successive = TRUE,
                    family = "survival")
 
 ```
