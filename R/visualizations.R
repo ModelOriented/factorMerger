@@ -157,7 +157,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
                 pointsDf = pointsDf))
 }
 
-nLabels <- 5
+nLabels <- 6
 
 getChisqBreaks <- function(plotData, alpha) {
     right <- plotData$x1 %>% max()
@@ -200,11 +200,20 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     upperBreaks <- df$x1 %>% unique() %>% sort
     g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(labelsDf, levels))
 
+    if (stat == "pval") {
+        g <- g + scale_x_log10()
+    }
+
+    if (stat == "model") {
+        labBr <- getChisqBreaks(g$data, alpha)
+        g <- g +
+            scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
+    }
+
     if (showDiagnostics) {
         if (stat == "pval") {
             intercept <- alpha
             label <- paste0("alpha = ", alpha)
-            g <- g + scale_x_log10()
         }
         if (stat == "model") {
             gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
@@ -221,10 +230,6 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                       angle = 90,
                       size = 3, fontface = "italic")
     }
-
-    labBr <- getChisqBreaks(g$data, alpha)
-    g <- g +
-        scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
 
     g <- g + labs(title = "Merging path plot",
                   subtitle = paste0("Optimal GIC partition: ",

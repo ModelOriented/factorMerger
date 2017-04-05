@@ -2,10 +2,17 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{mergingHistory}
 \alias{mergingHistory}
-\title{Merging}
+\title{Merging history}
 \usage{
-mergingHistory(object, showStats = FALSE)
+mergingHistory(factorMerger, showStats = FALSE)
+}
+\arguments{
+\item{factorMerger}{Object of a class \code{factorMerger}}
+
+\item{showStats}{If \code{TRUE} extends results with loglikelihood (column \code{model}),
+p-value for the \code{LRT} tests against the full model (column \code{pval}) and Generalized Information
+Criterion value (column \code{GIC}). By default \code{showStats} is set to \code{FALSE}.}
 }
 \description{
-Merging
+Summarizes merging path by giving pairs of factor groups merged in each iteration.
 }

@@ -2,10 +2,13 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{groupsStats}
 \alias{groupsStats}
-\title{Show levels statistic - ...}
+\title{Groups statistic}
 \usage{
-groupsStats(object)
+groupsStats(factorMerger)
+}
+\arguments{
+\item{factorMerger}{object of a class \code{factorMerger}}
 }
 \description{
-Show levels statistic - ...
+Summary of statistics specific for a model for each group that appeared in merging.
 }

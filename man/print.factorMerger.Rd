@@ -2,10 +2,15 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{print.factorMerger}
 \alias{print.factorMerger}
-\title{Factor Merger - ...}
+\title{factorMerger}
 \usage{
 \method{print}{factorMerger}(factorMerger)
 }
 \description{
-Factor Merger - ...
+\code{factorMerger} is the
+base class of the factorMerger package. \code{factorMerger} stores information about
+response, initial factor, its levels and their abbreviated names (field \code{map}).
+\code{factorMerger} creates its own structure of inheritance connected with model family.
+
+**TODO:** Tell more about the table from print.factorMerger
 }
