@@ -68,6 +68,11 @@ stats <- function(factorMerger) {
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #'
+#' @examples
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' fm <- mergeFactors(randSample$response, randSample$factor)
+#' groupsStats(fm)
+#'
 #' @export
 groupsStats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
@@ -93,6 +98,11 @@ groupsStats <- function(factorMerger) {
 #' @param showStats If \code{TRUE} extends results with loglikelihood (column \code{model}),
 #' p-value for the \code{LRT} tests against the full model (column \code{pval}) and Generalized Information
 #' Criterion value (column \code{GIC}). By default \code{showStats} is set to \code{FALSE}.
+#'
+#' @examples
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' fm <- mergeFactors(randSample$response, randSample$factor)
+#' mergingHistory(fm, showStats = TRUE)
 #'
 #' @importFrom dplyr rename
 mergingHistory <- function(factorMerger, showStats = FALSE) {
@@ -127,7 +137,9 @@ call <- function(factorMerger) {
 #' response, initial factor, its levels and their abbreviated names (field \code{map}).
 #' \code{factorMerger} creates its own structure of inheritance connected with model family.
 #'
-#' **TODO:** Tell more about the table from print.factorMerger
+#' When merging is applied, \code{factorMerger} shows which levels have been merged together with
+#' the matching summary statistics: model loglikelihood, pvalue for the \code{LRT} test
+#' against the full model and Generalized Information Criterion value.
 #'
 #' @export
 #'
@@ -147,17 +159,23 @@ print.factorMerger <- function(factorMerger) {
 
 #' Merge factors
 #'
-#' @description
+#' @description Performs step-wise merging of factor levels.
 #'
 #' @param response A response \code{vector/matrix} suitable for the model family.
 #' @param factor A factor \code{vector}.
-#' @param family Model family to be used in merging. Available models are: \code{"gaussian", "survival", "binomial"}.
+#' @param family Model family to be used in merging. Available models are: \code{"gaussian",}
+#' \code{ "survival", "binomial"}.
 #' By default \code{mergeFactors} uses \code{"gaussian"} model.
 #' @param successive If \code{FALSE}, the default, in each step of the merging procedure all possible pairs are compared.
 #' Otherwise, factor levels are preliminarly sorted and only succesive pairs are compared.
 #' @param method A string specifying method used during merging.
 #' Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.
-#' @param penalty A number used as a multiplication in GIC calculation. By default AIC is calculated with the \code{penalty = 2}.
+#' @param penalty A number used as a multiplication in GIC calculation.
+#' By default AIC is calculated with the \code{penalty = 2}.
+#'
+#' @examples
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' mergeFactors(randSample$response, randSample$factor)
 #'
 #' @export
 #'
@@ -202,7 +220,6 @@ mergeLTR <- function(factorMerger, successive, penalty) {
 
 
 mergeHClust <- function(factorMerger, successive, penalty) {
-
     factorMerger <- startMerging(factorMerger, successive, "hclust", penalty)
     clust <- clusterFactors(factorMerger$dist, successive)
     factorMerger$mergingHistory <- recodeClustering(clust$merge,

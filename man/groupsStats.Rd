@@ -12,3 +12,9 @@ groupsStats(factorMerger)
 \description{
 Summary of statistics specific for a model for each group that appeared in merging.
 }
+\examples{
+randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+fm <- mergeFactors(randSample$response, randSample$factor)
+groupsStats(fm)
+
+}

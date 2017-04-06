@@ -6,12 +6,7 @@ A short overview is available here
 
 https://rawgit.com/geneticsMiNIng/FactorMerger/master/materials/vignette.html
 
-## Generic functions
+Longer description may be found here
 
-* `calculateModel [gaussianFactorMerger, survivalFactorMerge, binomialFactorMerger]`
-* `appendProjection [factorMerger, gaussianFactorMerger]`
-* `getStatisticName [gaussianFactorMerger, binomialFactorMerger, survivalFactorMerger]`
-* `compareModels [lm, coxph, binomglm]`
-* `getPvals [lm, mlm]`
-* `calculateModelStatistic [coxph]` # logLik
-* `logLik [mlm]`
+https://github.com/geneticsMiNIng/FactorMerger/blob/master/materials/useR/user_abstract.pdf
+

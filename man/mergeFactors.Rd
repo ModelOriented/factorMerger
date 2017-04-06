@@ -12,7 +12,8 @@ mergeFactors(response, factor, family = "gaussian", successive = FALSE,
 
 \item{factor}{A factor \code{vector}.}
 
-\item{family}{Model family to be used in merging. Available models are: \code{"gaussian", "survival", "binomial"}.
+\item{family}{Model family to be used in merging. Available models are: \code{"gaussian",}
+\code{ "survival", "binomial"}.
 By default \code{mergeFactors} uses \code{"gaussian"} model.}
 
 \item{successive}{If \code{FALSE}, the default, in each step of the merging procedure all possible pairs are compared.
@@ -21,8 +22,14 @@ Otherwise, factor levels are preliminarly sorted and only succesive pairs are co
 \item{method}{A string specifying method used during merging.
 Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.}
 
-\item{penalty}{A number used as a multiplication in GIC calculation. By default AIC is calculated with the \code{penalty = 2}.}
+\item{penalty}{A number used as a multiplication in GIC calculation.
+By default AIC is calculated with the \code{penalty = 2}.}
 }
 \description{
+Performs step-wise merging of factor levels.
+}
+\examples{
+randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+mergeFactors(randSample$response, randSample$factor)
 
 }

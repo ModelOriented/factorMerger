@@ -23,8 +23,6 @@ setIncreasingOrder <- function(response, factor, family = "gaussian") {
     factor(factor, levels = as.character(newOrder[, 1]))
 }
 
-#' Merge factor
-#'
 mergeLevels <- function(factor, groupA, groupB, groupAB = NULL) {
     if (is.null(groupAB)) {
         groupAB <- paste0(groupA, groupB)
@@ -64,11 +62,7 @@ calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
     return(coefs)
 }
 
-#' Calculate means by factor
-#'
-#' @rdname calculateMeans
 #' @importFrom dplyr group_by summarize arrange
-#'
 calculateMeans <- function(response, factor) {
     if (is.null(response)) {
         return(NA)

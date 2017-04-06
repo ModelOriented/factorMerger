@@ -16,3 +16,9 @@ Criterion value (column \code{GIC}). By default \code{showStats} is set to \code
 \description{
 Summarizes merging path by giving pairs of factor groups merged in each iteration.
 }
+\examples{
+randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+fm <- mergeFactors(randSample$response, randSample$factor)
+mergingHistory(fm, showStats = TRUE)
+
+}

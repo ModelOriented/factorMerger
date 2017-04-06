@@ -18,8 +18,7 @@ generateSample(N, k, distr = "gaussian")
 and factor variable \code{factor}.
 }
 \description{
-Function generateSample() produces a random sample consisting
-of k groups drawn from the same distribution with different
+Produces a random sample of k groups drawn from the same distribution with different
 parameters.
 }
 \examples{
