@@ -2,10 +2,13 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{merger}
 \alias{merger}
-\title{Factor Merger - ...}
+\title{factorMerger}
 \usage{
-merger(response, factor, family = "gaussian", subsequent = FALSE)
+merger(response, factor, family = "gaussian", successive = FALSE)
 }
 \description{
-Factor Merger - ...
+\code{factorMerger} is the
+base class of the factorMerger package. \code{factorMerger} stores information about
+response, initial factor, its levels and their abbreviated names (field \code{map}).
+\code{factorMerger} creates its own structure of inheritance connected with model family.
 }

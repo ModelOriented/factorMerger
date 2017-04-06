@@ -2,10 +2,19 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{groupsStats}
 \alias{groupsStats}
-\title{Show levels statistic - ...}
+\title{Groups statistic}
 \usage{
-groupsStats(object)
+groupsStats(factorMerger)
+}
+\arguments{
+\item{factorMerger}{object of a class \code{factorMerger}}
 }
 \description{
-Show levels statistic - ...
+Summary of statistics specific for a model for each group that appeared in merging.
+}
+\examples{
+randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+fm <- mergeFactors(randSample$response, randSample$factor)
+groupsStats(fm)
+
 }

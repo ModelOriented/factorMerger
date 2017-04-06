@@ -1,6 +1,9 @@
-#' Factor Merger - ...
+#' factorMerger
 #'
-#' @importFrom data.table data.table
+#' @description \code{factorMerger} is the
+#' base class of the factorMerger package. \code{factorMerger} stores information about
+#' response, initial factor, its levels and their abbreviated names (field \code{map}).
+#' \code{factorMerger} creates its own structure of inheritance connected with model family.
 #'
 merger <- function(response, factor, family = "gaussian",
                          successive = FALSE) {
@@ -59,13 +62,19 @@ stats <- function(factorMerger) {
     do.call(rbind, statsList)
 }
 
-#' Show levels statistic - ...
+#' Groups statistic
 #'
-groupsStats <- function(object) {
-    UseMethod("groupsStats", object)
-}
-
-groupsStats.factorMerger <- function(factorMerger) {
+#' @description Summary of statistics specific for a model for each group that appeared in merging.
+#'
+#' @param factorMerger object of a class \code{factorMerger}
+#'
+#' @examples
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' fm <- mergeFactors(randSample$response, randSample$factor)
+#' groupsStats(fm)
+#'
+#' @export
+groupsStats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
                         function(x) { as.data.frame(x$groupStats) })
     statsDf <- do.call(rbind, statsList)
@@ -80,17 +89,23 @@ groupsStats.factorMerger <- function(factorMerger) {
     return(statsDf)
 }
 
-#' Merging
+#' Merging history
 #'
+#' @description Summarizes merging path by giving pairs of factor groups merged in each iteration.
 #' @export
 #'
-mergingHistory <- function(object, showStats = FALSE) {
-    UseMethod("mergingHistory", object)
-}
-
-#' @export
+#' @param factorMerger Object of a class \code{factorMerger}
+#' @param showStats If \code{TRUE} extends results with loglikelihood (column \code{model}),
+#' p-value for the \code{LRT} tests against the full model (column \code{pval}) and Generalized Information
+#' Criterion value (column \code{GIC}). By default \code{showStats} is set to \code{FALSE}.
+#'
+#' @examples
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' fm <- mergeFactors(randSample$response, randSample$factor)
+#' mergingHistory(fm, showStats = TRUE)
+#'
 #' @importFrom dplyr rename
-mergingHistory.factorMerger <- function(factorMerger, showStats = FALSE) {
+mergingHistory <- function(factorMerger, showStats = FALSE) {
     mergingList <- sapply(factorMerger$mergingList,
                         function(x) { x$merged })
     mergingDf <- do.call(rbind, mergingList) %>%
@@ -114,7 +129,17 @@ call <- function(factorMerger) {
         )
 }
 
-#' Factor Merger - ...
+
+#' factorMerger
+#'
+#' @description \code{factorMerger} is the
+#' base class of the factorMerger package. \code{factorMerger} stores information about
+#' response, initial factor, its levels and their abbreviated names (field \code{map}).
+#' \code{factorMerger} creates its own structure of inheritance connected with model family.
+#'
+#' When merging is applied, \code{factorMerger} shows which levels have been merged together with
+#' the matching summary statistics: model loglikelihood, pvalue for the \code{LRT} test
+#' against the full model and Generalized Information Criterion value.
 #'
 #' @export
 #'
@@ -132,7 +157,25 @@ print.factorMerger <- function(factorMerger) {
 }
 
 
-#' Merge factors - ...
+#' Merge factors
+#'
+#' @description Performs step-wise merging of factor levels.
+#'
+#' @param response A response \code{vector/matrix} suitable for the model family.
+#' @param factor A factor \code{vector}.
+#' @param family Model family to be used in merging. Available models are: \code{"gaussian",}
+#' \code{ "survival", "binomial"}.
+#' By default \code{mergeFactors} uses \code{"gaussian"} model.
+#' @param successive If \code{FALSE}, the default, in each step of the merging procedure all possible pairs are compared.
+#' Otherwise, factor levels are preliminarly sorted and only succesive pairs are compared.
+#' @param method A string specifying method used during merging.
+#' Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.
+#' @param penalty A number used as a multiplication in GIC calculation.
+#' By default AIC is calculated with the \code{penalty = 2}.
+#'
+#' @examples
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' mergeFactors(randSample$response, randSample$factor)
 #'
 #' @export
 #'
@@ -177,7 +220,6 @@ mergeLTR <- function(factorMerger, successive, penalty) {
 
 
 mergeHClust <- function(factorMerger, successive, penalty) {
-
     factorMerger <- startMerging(factorMerger, successive, "hclust", penalty)
     clust <- clusterFactors(factorMerger$dist, successive)
     factorMerger$mergingHistory <- recodeClustering(clust$merge,

@@ -1,7 +1,6 @@
 #' Generate sample
 #'
-#' Function generateSample() produces a random sample consisting
-#' of k groups drawn from the same distribution with different
+#' Produces a random sample of k groups drawn from the same distribution with different
 #' parameters.
 #'
 #' @param N sample size
@@ -52,12 +51,26 @@ generateSample <- function(N, k, distr = "gaussian") {
     return(generatedSample)
 }
 
-#' Generate multivariate sample
+#' Generate multivariate normal sample
+#'
+#' Produces a random sample of k groups and d dimensions drawn from the normal distribution with different
+#' parameters.
+#'
+#' @param N Sample size.
+#' @param k Number of groups.
+#' @param d Number of dimensions.
+#'
+#' @examples
+#' generateMultivariateSample(N = 100, k = 10, d = 5)
+#'
+#' @return
+#' \code{list} with two fields: matrix \code{response}
+#' and factor variable \code{factor}.
 #'
 #' @export
 #'
-generateMultivariateSample <- function(N, k, d = 2, distr = "gaussian") {
-    tmp <- generateSample(N, k, distr)
+generateMultivariateSample <- function(N, k, d = 2) {
+    tmp <- generateSample(N, k, "gaussian")
     if (d > 1) {
         res <- matrix(, nrow = N, ncol = d)
         res[, 1] <- tmp$response

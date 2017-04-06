@@ -20,11 +20,32 @@ treeTheme <- function(ticksColors) {
 }
 
 
+#' Plot tree (Merging Path Plot)
+#'
+#' @description Visualizes merging history of a \code{factorMerger}.
+#'
+#' @param factorMerger Object of a class \code{factorMerger}.
+#' @param stat Summary statistic to be displayed on the OX axis. It can be either
+#' \code{"model"} (loglikelihood), the default, or \code{"pval"} (pvalue).
+#' @param simplify If \code{TRUE}, tree leaves are plotted uniformly. Otherwise, each node
+#' position (on the OY axis) is connected with a group statistic for observations represented
+#' by the node. By default \code{simplify = TRUE} is used.
+#' @param showDiagnostics If \code{TRUE}:
+#' \itemize{
+#' \item if \code{stat = "model"}, vertical line is drawn for a model with lowest GIC,
+#' \item if \code{stat = "pval"}, vertical line is drawn for significance level \code{alpha}.
+#' }
+#' @param alpha significance level used when \code{showDiagnostics = TRUE} and \code{stat = "pval"}.
+#'
+#' @details When \code{stat = "model"} each interval in the OX axis corresponds to the quantile 0.95
+#' of chi-square distribution with one degree of freedom.
+#'
 #' @export
 #'
 plotTree <- function(factorMerger, stat = "model",
-                     simplify = TRUE, alpha = 0.05,
-                     showDiagnostics = TRUE) {
+                     simplify = TRUE,
+                     showDiagnostics = TRUE,
+                     alpha = 0.05) {
     stopifnot(alpha > 0 && alpha < 1)
     .plotTree(factorMerger, stat, NULL, simplify, alpha = alpha,
               showDiagnostics = showDiagnostics)
@@ -157,7 +178,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
                 pointsDf = pointsDf))
 }
 
-nLabels <- 5
+nLabels <- 6
 
 getChisqBreaks <- function(plotData, alpha) {
     right <- plotData$x1 %>% max()
@@ -200,11 +221,20 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     upperBreaks <- df$x1 %>% unique() %>% sort
     g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(labelsDf, levels))
 
+    if (stat == "pval") {
+        g <- g + scale_x_log10()
+    }
+
+    if (stat == "model") {
+        labBr <- getChisqBreaks(g$data, alpha)
+        g <- g +
+            scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
+    }
+
     if (showDiagnostics) {
         if (stat == "pval") {
             intercept <- alpha
             label <- paste0("alpha = ", alpha)
-            g <- g + scale_x_log10()
         }
         if (stat == "model") {
             gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
@@ -221,10 +251,6 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                       angle = 90,
                       size = 3, fontface = "italic")
     }
-
-    labBr <- getChisqBreaks(g$data, alpha)
-    g <- g +
-        scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
 
     g <- g + labs(title = "Merging path plot",
                   subtitle = paste0("Optimal GIC partition: ",
@@ -268,6 +294,21 @@ findSimilarities <- function(factorMerger) {
 
 }
 
+#' Extended Merging Path Plot
+#'
+#' @description Plots Merging Path Plot with additional summary.
+#'
+#' @param factorMerger Object of a class \code{factorMerger}
+#' @param plot Object of a class \code{gg}. There is a variety of plots implemented in
+#' the \code{factorMerger} package highly recommended to use as the \code{plot} parameter.
+#'
+#' @examples
+#' ## Multinomial gaussian model
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' fm <- mergeFactor(randSample$response, randSample$factor)
+#' appendToTree(fm, plotProfile(fm)) # profile plot on the right
+#' appendToTree(fm, plotGIC(fm)) # GIC plot on the top
+#'
 #' @export
 #' @importFrom gridExtra grid.arrange
 appendToTree <- function(factorMerger, plot) {
@@ -312,6 +353,12 @@ appendToTree.GICPlot <- function(factorMerger, plot) {
 }
 
 
+#' Profile plot (multi-dimensional gaussian)
+#'
+#' @description Plots rank plot - one series is a single factor level and one group
+#' on the OX axis is a single dimension of the response.
+#'
+#'
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual labs
 #' @export
 plotProfile <- function(factorMerger) {
@@ -344,6 +391,11 @@ scaleStat <- function(df) {
     sapply
 }
 
+#' Heatmap (multi-dimensional gaussian)
+#'
+#' @description Plots heatmap for each dimension of the response variable. Vector of means of factor levels for a given
+#' dimension is scaled to have mean equal to zero and standard deviation equal to one.
+#'
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
 #' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller labs guides
@@ -371,6 +423,10 @@ plotHeatmap <- function(factorMerger) {
         labs(title = "Heatmap", subtitle = "Group means by variables")
 }
 
+#' Boxplot (single-dimensional gaussian)
+#'
+#' @description Plots boxplot with mean as a summary statistic groupping observation by factor levels.
+#'
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs
 #' @importFrom dplyr group_by summarize left_join
@@ -395,6 +451,10 @@ plotBoxplot <- function(factorMerger) {
         labs(title = "Boxplot", subtitle = "Summary statistic: mean")
 }
 
+#' Means and standard deviation plot (single-dimensional gaussian)
+#'
+#' @description For each factor level plots its mean and interval of the length equal to its standard deviation.
+#'
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
 #' @importFrom dplyr group_by summarize left_join
@@ -420,6 +480,10 @@ plotMeansAndStds <- function(factorMerger) {
 
 }
 
+#' Proportion plot (binomial)
+#'
+#' @description Plots proportion of success for each factor level.
+#'
 #' @export
 #' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
 #' @importFrom dplyr group_by summarize left_join
@@ -438,6 +502,10 @@ plotProportion <- function(factorMerger) {
                                " (green), failure: ", responseLevels[1], " (violet)"))
 }
 
+#' Survival plot (survival)
+#'
+#' @description Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
+#'
 #' @importFrom ggplot2 labs
 #'
 #' @export
@@ -454,6 +522,11 @@ plotSurvival <- function(factorMerger) {
     return(g)
 }
 
+
+#' GIC plot
+#'
+#' @description Plots Generalized Information Criterion for models on the Merging Path Plot.
+#'
 #' @importFrom ggplot2 ggplot geom_line aes theme element_blank scale_y_continuous labs geom_point geom_ribbon
 #'
 #' @export

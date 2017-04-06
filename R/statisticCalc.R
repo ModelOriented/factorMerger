@@ -37,10 +37,16 @@ calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
     return(mod)
 }
 
-#' Gaussian model loglikelihood
-#'
-#' http://r.789695.n4.nabble.com/Multiple-regression-information-criterion-td4689113.html
-logLik.mlm <- function(obj) {
+calculateModelStatistic <- function(model) {
+    UseMethod("calculateModelStatistic", model)
+}
+
+calculateModelStatistic.default <- function(model) {
+    return(logLik(model))
+}
+
+# http://r.789695.n4.nabble.com/Multiple-regression-information-criterion-td4689113.html
+calculateModelStatistic.mlm <- function(obj) {
     E <- obj$residuals
     S <- cov(matrix(E, nrow = NROW(E)))
     Sinv <- solve(S)
@@ -48,18 +54,6 @@ logLik.mlm <- function(obj) {
     p <- NCOL(E)
     return(- n * p / 2 * log(2 * pi) - n / 2 * log(det(S)) -
                1/2 * sum(diag(E %*% Sinv %*% t(E))))
-}
-
-#' Calculate model statistic - ...
-#'
-calculateModelStatistic <- function(model) {
-    UseMethod("calculateModelStatistic", model)
-}
-
-#' Calculate model statistic (gaussian case) - ...
-#'
-calculateModelStatistic.default <- function(model) {
-    return(logLik(model))
 }
 
 calculateModelStatistic.coxph <- function(model) {

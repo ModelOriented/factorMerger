@@ -2,10 +2,26 @@
 % Please edit documentation in R/sampleGeneration.R
 \name{generateMultivariateSample}
 \alias{generateMultivariateSample}
-\title{Generate multivariate sample}
+\title{Generate multivariate normal sample}
 \usage{
-generateMultivariateSample(N, k, d = 2, distr = "gaussian")
+generateMultivariateSample(N, k, d = 2)
+}
+\arguments{
+\item{N}{Sample size.}
+
+\item{k}{Number of groups.}
+
+\item{d}{Number of dimensions.}
+}
+\value{
+\code{list} with two fields: matrix \code{response}
+and factor variable \code{factor}.
 }
 \description{
-Generate multivariate sample
+Produces a random sample of k groups and d dimensions drawn from the normal distribution with different
+parameters.
+}
+\examples{
+generateMultivariateSample(N = 100, k = 10, d = 5)
+
 }

@@ -159,7 +159,7 @@ In contrary to the previous method, *greedy* approach minimizes likelihood reduc
 \State{$pairsSet := generatePairs(response, factor, successive$)}
 \State{$M_0:=$ full model}
 \While{$levels(factor) > 1$}
-    \State{$toBeMerged = \mathrm{argmax}_{pair \in pairsSet} l(updateModel(M_0, pair))$}
+    \State{$toBeMerged := \mathrm{argmax}_{pair \in pairsSet} l(updateModel(M_0, pair))$}
     
     \State{$M_0 := updateModel(M_0, toBeMerged)$}
     \State{$factor := mergeLevels(factor, pair)$}
@@ -209,7 +209,7 @@ The **factorMerger** package gives plenty of possibilities to plot merging resul
 
 In Figures 1 and 2 each interval in the OX axis corresponds to the 0.95 quantile of chi-square distribution with one degree of freedom. Models distant more than this interval may be considered as significantly different.
 
-Find more examples and visualizations in the **factorMerger** vignette.
+Find more examples and visualizations in the [**factorMerger** vignette](https://rawgit.com/geneticsMiNIng/FactorMerger/master/materials/vignette.html).
 
 # Bibliography
 

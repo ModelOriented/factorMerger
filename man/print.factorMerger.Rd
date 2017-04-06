@@ -2,10 +2,17 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{print.factorMerger}
 \alias{print.factorMerger}
-\title{Factor Merger - ...}
+\title{factorMerger}
 \usage{
 \method{print}{factorMerger}(factorMerger)
 }
 \description{
-Factor Merger - ...
+\code{factorMerger} is the
+base class of the factorMerger package. \code{factorMerger} stores information about
+response, initial factor, its levels and their abbreviated names (field \code{map}).
+\code{factorMerger} creates its own structure of inheritance connected with model family.
+
+When merging is applied, \code{factorMerger} shows which levels have been merged together with
+the matching summary statistics: model loglikelihood, pvalue for the \code{LRT} test
+against the full model and Generalized Information Criterion value.
 }
