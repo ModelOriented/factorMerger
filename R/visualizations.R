@@ -262,18 +262,20 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
         if (stat == "pval") {
             intercept <- alpha
             label <- paste0("alpha = ", alpha)
+            labelIntercept <- log10(alpha)
         }
         if (stat == "model") {
             gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
                 filter(GIC == min(GIC))
             intercept <- gicMin$model
             label <- paste0("min GIC")
+            labelIntercept <- intercept
         }
 
         y <- getLimits(labelsDf, showY)
 
         g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = log10(intercept), y = getLimits(labelsDf, showY)[1],
+            geom_label(x = labelIntercept, y = getLimits(labelsDf, showY)[1],
                       label = label, alpha = 0.5, col = "mediumorchid3",
                       angle = 90,
                       size = 3, fontface = "italic")

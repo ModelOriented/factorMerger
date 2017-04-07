@@ -52,12 +52,9 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
 calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
     groups <- levels(factor)
     model <- calculateModel(factorMerger, factor)
-    coefs <- data.frame(level = groups, stringsAsFactors = FALSE)
+    coefs <- data.frame(level = factor,
+                        coef = predict(model, type = "risk")) %>% unique()
 
-    coefs <- coefs %>% left_join(data.frame(level = factor,
-                                           coef = predict(model, type = "risk"),
-                                           stringsAsFactors = FALSE),
-                                by = "level")
     coefs <- coefs %>% arrange(coef)
     return(coefs)
 }
