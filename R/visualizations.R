@@ -184,8 +184,12 @@ getChisqBreaks <- function(plotData, alpha) {
     right <- plotData$x1 %>% max()
     left <- plotData$x2 %>% min()
     breaks <- seq(left, right, qchisq(1 - alpha, 1))
-    labels <- seq(left, right, qchisq(1 - alpha, 1)) %>% round()
-    labels[setdiff(1:length(breaks), seq(1, length(breaks), length.out = nLabels) %>% round())] <- ""
+    step <- ceiling(length(breaks) / nLabels)
+    subs <- (1:nLabels) * step
+    subs <- subs[subs <= length(breaks)]
+    labels <- breaks %>% round()
+
+    labels[setdiff(1:length(breaks), subs) %>% round()] <- ""
     return(
         list(
             breaks = breaks,
