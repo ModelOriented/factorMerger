@@ -238,7 +238,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75) +
         geom_text(data = pointsDf, aes(x = x1, y = y1, label = factor(significance)),
-                  hjust = 1, vjust = 0.5, size = 5) +
+                  hjust = 1, vjust = 0.25, size = 5) +
         scale_y_continuous(limits = getLimits(labelsDf, showY),
                            position = "right",
                            breaks = labelsDf$y1,
@@ -273,7 +273,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
         y <- getLimits(labelsDf, showY)
 
         g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = intercept, y = getLimits(labelsDf, showY)[1],
+            geom_label(x = log10(intercept), y = getLimits(labelsDf, showY)[1],
                       label = label, alpha = 0.5, col = "mediumorchid3",
                       angle = 90,
                       size = 3, fontface = "italic")
