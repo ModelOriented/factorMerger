@@ -137,6 +137,22 @@ getLabelsColors <- function(labelsDf, levels) {
                        as.character())
 }
 
+getSignificanceStar <- function(pval) {
+    if (pval > 0.1) {
+        return("")
+    }
+    if (pval > 0.05) {
+        return(".")
+    }
+    if (pval > 0.01) {
+        return("*")
+    }
+    if (pval > 0.001) {
+        return("**")
+    }
+    return("***")
+}
+
 getTreeSegmentDf <- function(factorMerger, stat, pos) {
     factor <- factorMerger$factor
     noGroups <- length(levels(factor))
@@ -148,10 +164,12 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
     df$x2 <- NA
     labelsDf <- df
     pointsDf <- df
+    pointsDf$significance <- ""
     merging <- mergingHistory(factorMerger)
 
     for (step in 1:nrow(merging)) {
-        statVal <- factorMerger$mergingList[[step + 1]]$modelStats[, stat]
+        stepStats <- factorMerger$mergingList[[step + 1]]$modelStats
+        statVal <- stepStats[, stat]
         pair <- merging[step, ]
         whichDf <- which(df$label %in% pair)
         df[whichDf, "x2"] <- statVal
@@ -161,7 +179,10 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         newVertex <- c(pairMean, pairMean, pairLabel, statVal, NA)
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
-        pointsDf <- rbind(pointsDf, newVertex)
+        pointsDf <- rbind(pointsDf, c(newVertex, ""))
+        if ("pvalLRT" %in% colnames(stepStats)) {
+            pointsDf[nrow(pointsDf), "significance"] <- getSignificanceStar(stepStats[, "pvalLRT"])
+        }
     }
 
     df <- df %>% subset(select = -label) %>%
@@ -170,8 +191,8 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
 
     df <- df[complete.cases(df), ]
 
-    pointsDf <- subset(pointsDf, select = c(x1, y1))
-    pointsDf <- pointsDf %>% apply(2, as.numeric) %>% as.data.frame()
+    pointsDf <- subset(pointsDf, select = c(x1, y1, significance))
+    pointsDf[, -3] <- pointsDf[, -3] %>% apply(2, as.numeric) %>% as.data.frame()
 
     return(list(df = df,
                 labelsDf = labelsDf,
@@ -184,8 +205,12 @@ getChisqBreaks <- function(plotData, alpha) {
     right <- plotData$x1 %>% max()
     left <- plotData$x2 %>% min()
     breaks <- seq(left, right, qchisq(1 - alpha, 1))
-    labels <- seq(left, right, qchisq(1 - alpha, 1)) %>% round()
-    labels[setdiff(1:length(breaks), seq(1, length(breaks), length.out = nLabels) %>% round())] <- ""
+    step <- ceiling(length(breaks) / nLabels)
+    subs <- (1:nLabels) * step
+    subs <- subs[subs <= length(breaks)]
+    labels <- breaks %>% round()
+
+    labels[setdiff(1:length(breaks), subs) %>% round()] <- ""
     return(
         list(
             breaks = breaks,
@@ -212,6 +237,8 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
         geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75) +
+        geom_text(data = pointsDf, aes(x = x1, y = y1, label = factor(significance)),
+                  hjust = 1, vjust = 0.25, size = 5) +
         scale_y_continuous(limits = getLimits(labelsDf, showY),
                            position = "right",
                            breaks = labelsDf$y1,
@@ -235,18 +262,20 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
         if (stat == "pval") {
             intercept <- alpha
             label <- paste0("alpha = ", alpha)
+            labelIntercept <- log10(alpha)
         }
         if (stat == "model") {
             gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
                 filter(GIC == min(GIC))
             intercept <- gicMin$model
             label <- paste0("min GIC")
+            labelIntercept <- intercept
         }
 
         y <- getLimits(labelsDf, showY)
 
         g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = intercept, y = getLimits(labelsDf, showY)[1],
+            geom_label(x = labelIntercept, y = getLimits(labelsDf, showY)[1],
                       label = label, alpha = 0.5, col = "mediumorchid3",
                       angle = 90,
                       size = 3, fontface = "italic")
@@ -545,4 +574,8 @@ plotGIC <- function(factorMerger) {
         scale_y_continuous(position = "right")
     class(g) <- append(class(g), "GICPlot")
     return(g)
+}
+
+plotClusters <- function(factorMerger) {
+
 }

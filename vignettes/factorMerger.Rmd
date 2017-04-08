@@ -2,7 +2,14 @@
 title: "factorMerger: set of tools to support results from post hoc testing"
 author: "Agnieszka Sitko"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+    html_document:
+        toc: true
+        toc_float: 
+            collapsed: false
+        theme: united
+        highlight: tango    
+        collapsed: false
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,13 +22,13 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
                       fig.height = 5, fig.width = 7)
 ```
 
-## Introduction
+# Introduction
 
 The aim of `factorMerger` is to provide set of tools to support results from post hoc comparisons. Post hoc testing is an analysis performed after running *ANOVA* to examine differences between group means (of some response numeric variable) for each pair of groups (groups are defined by a factor variable).
 
 This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into nonoverlapping cluster. 
 
-## Algorithm inputs
+# Algorithm inputs
 
 In the current version the **factorMerger** package supports parametric models: 
 
@@ -42,7 +49,7 @@ The **factorMerger** package also implements two strategies of a single iteratio
 - *Likelihood Ratio Test* (with the argument `method = "LRT"`),
 - *agglomerative clustering with constant distance matrix* [based on the *DMR4glm* algorithm @Proch, with the argument `method = "hclust"`]. 
 
-## Generating samples 
+# Generating samples 
 
 To visualize functionalities of `factorMerger` we use samples for which response variable is generated from one of the distributions listed above and corresponding factor variable is sampled uniformly from a finite set of a size $k$. 
 
@@ -53,16 +60,14 @@ library(factorMerger)
 randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ```
 
-## Merging factors
+# Merging factors
 
 `mergeFactors` is a function that performs hierarchical post hoc testing. As arguments it takes:
 
  - matrix/data.frame/vector with numeric response,
  - factor vector defining groups.
 
-### Gaussian multi-dimensional response
-
-#### Calculations
+## Multi-dimensional Gaussian model
 
 
 ```{r}
@@ -75,12 +80,12 @@ fmAll <- mergeFactors(randSample$response, randSample$factor)
 print(fmAll)
 ```
 
+Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers loglikelihood for the model after merging, column 'pval' gives p-value for the *LRT* test against the full model.
+
 
 ```{r}
 plotTree(fmAll)
 ```
-
-Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers some statistic calculated for the model after merging (e.g. in gaussian case loglikelihood is calculated), column 'pval' gives significance threshold below which hypothesis about means equality holds.
 
 If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Then, in each step only groups whose means are closed are compared.
 
@@ -89,9 +94,6 @@ fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE)
 print(fm)
 ```
 
-
-
-#### Visualizations
 
 We may plot results using functions `plotTree`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or logarithm of 'pval').
 
@@ -126,6 +128,9 @@ In the above plots colours are connected with the group. The plot on the right s
 appendToTree(fm, plotHeatmap(fm))
 ```
 
+The heatmap on the right shows means of all variables taken into analysis by groups.
+
+
 It is also possible to plot *GIC* together with the merging path plot.
 
 ```{r}
@@ -133,9 +138,7 @@ appendToTree(fm, plotGIC(fm))
 ```
 
 
-The heatmap on the right shows means of all variables taken into analysis by groups.
-
-### One-dimensional gaussian response
+## One-dimensional Gaussian model
 
 ```{r}
 oneDimRandSample <- generateSample(1000, 10)
@@ -156,7 +159,7 @@ appendToTree(oneDimFm, plotBoxplot(oneDimFm))
 appendToTree(oneDimFm, plotMeansAndStds(oneDimFm))
 ```
 
-### Binomial response
+## Binomial model
 
 ```{r}
 binomRandSample <- generateSample(1000, 10, distr = "binomial")
@@ -181,7 +184,7 @@ appendToTree(binomFm, plotProportion(binomFm))
 ```
 
 
-### Survival model
+## Survival model
  
  
 ```{r}

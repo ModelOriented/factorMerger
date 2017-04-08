@@ -52,6 +52,7 @@ startMerging <- function(factorMerger, successive, method, penalty) {
         GIC = calculateGIC(model, length(levels(factor)), penalty))
 
     if (method == "LTR") {
+        factorMerger$mergingList[[1]]$modelStats$pvalLRT <- 1
         return(
             list(
                 factorMerger = factorMerger,
@@ -192,7 +193,8 @@ mergePairLTR <- function(factorMerger, successive, factor, model, penalty) {
         data.frame(model = calculateModelStatistic(model),
                    pval = compareModels(calculateModel(factorMerger,
                                                        factorMerger$factor), model),
-                   GIC = calculateGIC(model, length(levels(factor)), penalty))
+                   GIC = calculateGIC(model, length(levels(factor)), penalty),
+                   pvalLRT = pval)
 
     return(
         list(factorMerger = factorMerger,
