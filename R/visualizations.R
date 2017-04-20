@@ -569,8 +569,11 @@ plotSurvival <- function(factorMerger) {
 plotGIC <- function(factorMerger) {
     mH <- mergingHistory(factorMerger, T)
     minGIC <- min(mH$GIC)
+    yBreaks <- c(mH$GIC[1], minGIC, mH$GIC[length(mH$GIC)]) %>% unique() %>% round()
     minModel <- mH$model[which.min(mH$GIC)]
-    g <- mH %>% ggplot(aes(x = model, y = GIC)) + geom_line(col = customPaletteValues[1], size = 1) +
+    g <- mH %>% ggplot(aes(x = model, y = GIC)) +
+        geom_line(col = customPaletteValues[1], size = 1) +
+        geom_point( col = customPaletteValues[1], size = 1.5) +
         geom_point(x = minModel, y = minGIC, col = customPaletteValues[1], size = 2.5) +
         geom_ribbon(aes(x = model, ymin = minGIC, ymax = GIC), fill = customPaletteValues[1], alpha = 0.2) +
         treeTheme(NULL) +
@@ -578,7 +581,7 @@ plotGIC <- function(factorMerger) {
               axis.title.x = element_blank(),
               axis.title.y = element_text(),
               panel.grid.major = element_blank()) +
-        scale_y_continuous(position = "right")
+        scale_y_continuous(position = "right", breaks = yBreaks)
     class(g) <- append(class(g), "GICPlot")
     return(g)
 }
