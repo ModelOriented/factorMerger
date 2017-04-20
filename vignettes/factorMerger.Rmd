@@ -81,10 +81,12 @@ fmAll <- mergeFactors(randSample$response, randSample$factor)
 `mergeFactors` outputs with information about the 'merging history'. 
 
 ```{r}
-mergingHistory(fmAll, showStats = TRUE) %>% kable()
+mergingHistory(fmAll, showStats = TRUE) %>% 
+    kable(caption = "Merging history of the 
+          multi-dimensional Gaussian Factor Merger (all-to-all merging)")
 ```
 
-Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns *model* and *GIC* gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the *Likelihood Ratio Test* -- against the full model and against the previous one.
+Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns *model* and *GIC* gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the *Likelihood Ratio Test* -- against the full model (*pvalVsFull*) and against the previous one (*pvalVsPrevious*).
 
 
 ```{r}
@@ -95,7 +97,9 @@ If we set `successive = TRUE` then at the beginning one dimensional response is 
 
 ```{r}
 fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE, method = "hclust")
-mergingHistory(fm) %>% kable()
+mergingHistory(fm, showStats = TRUE) %>% 
+    kable(caption = "Merging history of the multi-dimensional 
+          Gaussian Factor Merger (successive merging)")
 ```
 
 
@@ -141,6 +145,7 @@ It is also possible to plot *GIC* together with the merging path plot.
 appendToTree(fm, plotGIC(fm))
 ```
 
+Model with the lowest GIC is marked.
 
 ## One-dimensional Gaussian model
 
@@ -149,7 +154,8 @@ oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, method = "hclust")
-mergingHistory(oneDimFm) %>% kable()
+mergingHistory(oneDimFm, showStats = TRUE) %>% 
+    kable()
 ```
 ```{r}
 plotTree(oneDimFm, simplify = FALSE)
@@ -170,12 +176,17 @@ If `family = "binomial"` response must have to values: `0` and `1` (`1` is inter
 
 ```{r}
 binomRandSample <- generateSample(1000, 10, distr = "binomial")
-table(binomRandSample$response, binomRandSample$factor)
+table(binomRandSample$response, binomRandSample$factor) %>% 
+    kable()
 ```
 
 ```{r}
-binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor, family = "binomial", successive = TRUE)
-mergingHistory(binomFm) %>% kable()
+binomFm <- mergeFactors(binomRandSample$response, 
+                        binomRandSample$factor, 
+                        family = "binomial", 
+                        successive = TRUE)
+mergingHistory(binomFm, showStats = TRUE) %>% 
+    kable()
 ```
 
 ```{r}
@@ -206,7 +217,8 @@ survivalFm <- mergeFactors(response = survResponse,
 ```
 
 ```{r}
-mergingHistory(survivalFm) %>% kable()
+mergingHistory(survivalFm, showStats = TRUE) %>% 
+    kable()
 ```
 
 
