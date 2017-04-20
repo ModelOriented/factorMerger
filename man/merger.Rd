@@ -4,7 +4,7 @@
 \alias{merger}
 \title{factorMerger}
 \usage{
-merger(response, factor, family = "gaussian", successive = FALSE)
+merger(response, factor, family = "gaussian", abbreviate)
 }
 \description{
 \code{factorMerger} is the

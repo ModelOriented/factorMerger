@@ -230,16 +230,38 @@ getFinalOrderVec <- function(factorMerger) {
     return(finalOrder$label %>% factor(levels = finalOrder$label))
 }
 
+#' @export
+predict.factorMerger <- function(factorMerger) {
+    mH <- mergingHistory(factorMerger, T)
+    nMerges <- which.min(mH$GIC) - 1
+    factor <- factorMerger$factor
+    if (nMerges == 0) {
+        return(factor)
+    }
+
+    for (i in 1:nMerges) {
+        factor <- mergeLevels(factor, mH$groupA[i + 1], mH$groupB[i + 1])
+    }
+    return(factor)
+}
+
+getOptimalPartitionDf <- function(factorMerger) {
+    return(data.frame(pred = predict(factorMerger), orig = factorMerger$factor,
+                      stringsAsFactors = FALSE) %>% unique())
+}
 
 getOptimalPartition <- function(factorMerger) {
     mH <- mergingHistory(factorMerger, T)
     nMerges <- which.min(mH$GIC) - 1
     factor <- factorMerger$factor
+
     if (nMerges == 0) {
         return(levels(factor))
     }
+
     for (i in 1:nMerges) {
         factor <- mergeLevels(factor, mH$groupA[i + 1], mH$groupB[i + 1])
     }
+
     return(levels(factor))
 }

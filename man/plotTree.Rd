@@ -5,7 +5,7 @@
 \title{Plot tree (Merging Path Plot)}
 \usage{
 plotTree(factorMerger, stat = "model", simplify = TRUE,
-  showDiagnostics = TRUE, alpha = 0.05)
+  showDiagnostics = TRUE, alpha = 0.05, colorCluster = FALSE)
 }
 \arguments{
 \item{factorMerger}{Object of a class \code{factorMerger}.}
