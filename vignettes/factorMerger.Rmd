@@ -82,15 +82,14 @@ fmAll <- mergeFactors(randSample$response, randSample$factor)
 
 ```{r}
 mergingHistory(fmAll, showStats = TRUE) %>% 
-    kable(caption = "Merging history of the 
-          multi-dimensional Gaussian Factor Merger (all-to-all merging)")
+    kable()
 ```
 
 Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns *model* and *GIC* gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the *Likelihood Ratio Test* -- against the full model (*pvalVsFull*) and against the previous one (*pvalVsPrevious*).
 
 
 ```{r}
-plotTree(fmAll)
+plotTree(fmAll, colorCluster = TRUE)
 ```
 
 If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Then, in each step only groups whose means are closed are compared.
@@ -98,8 +97,7 @@ If we set `successive = TRUE` then at the beginning one dimensional response is 
 ```{r}
 fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE, method = "hclust")
 mergingHistory(fm, showStats = TRUE) %>% 
-    kable(caption = "Merging history of the multi-dimensional 
-          Gaussian Factor Merger (successive merging)")
+    kable()
 ```
 
 
@@ -116,7 +114,7 @@ plotTree(fmAll, "pval", alpha = 0.5)
 It also takes logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the x axis. As default we use `simplify = TRUE`. 
 
 ```{r}
-plotTree(fm, simplify = FALSE)
+plotTree(fm, simplify = FALSE, colorCluster = TRUE)
 ```
 
 
@@ -190,11 +188,11 @@ mergingHistory(binomFm, showStats = TRUE) %>%
 ```
 
 ```{r}
-plotTree(binomFm)
+plotTree(binomFm, colorCluster = TRUE)
 ```
 
 ```{r}
-plotTree(binomFm, simplify = FALSE)
+plotTree(binomFm, simplify = FALSE, colorCluster = TRUE)
 ```
 
 ```{r}
@@ -223,11 +221,11 @@ mergingHistory(survivalFm, showStats = TRUE) %>%
 
 
 ```{r}
-plotTree(survivalFm, "model")
+plotTree(survivalFm, "model", colorCluster = TRUE)
 ```
 
 ```{r}
-plotTree(survivalFm, "pval", simplify = FALSE)
+plotTree(survivalFm, "pval", simplify = FALSE, colorCluster = TRUE)
 ```
 
 ```{r}
