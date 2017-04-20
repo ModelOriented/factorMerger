@@ -26,7 +26,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 The aim of `factorMerger` is to provide set of tools to support results from post hoc comparisons. Post hoc testing is an analysis performed after running *ANOVA* to examine differences between group means (of some response numeric variable) for each pair of groups (groups are defined by a factor variable).
 
-This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into nonoverlapping cluster. 
+This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into nonoverlapping clusters. 
 
 # Algorithm inputs
 
@@ -57,6 +57,8 @@ To do so, we may use function `generateSample` or `generateMultivariateSample`.
 
 ```{r}
 library(factorMerger) 
+library(knitr)
+library(dplyr)
 randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ```
 
@@ -66,6 +68,8 @@ randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 
  - matrix/data.frame/vector with numeric response,
  - factor vector defining groups.
+ 
+By default (with argument `abbreviate = TRUE`) factor levels are abbreviated and surrounded with brackets.
 
 ## Multi-dimensional Gaussian model
 
@@ -74,24 +78,26 @@ randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 fmAll <- mergeFactors(randSample$response, randSample$factor)
 ```
 
-`mergeFactors` outputs with information about 'merging history'.
+`mergeFactors` outputs with information about the 'merging history'. 
 
 ```{r}
-print(fmAll)
+mergingHistory(fmAll, showStats = TRUE) %>% 
+    kable()
 ```
 
-Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, column 'model' gathers loglikelihood for the model after merging, column 'pval' gives p-value for the *LRT* test against the full model.
+Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns *model* and *GIC* gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the *Likelihood Ratio Test* -- against the full model (*pvalVsFull*) and against the previous one (*pvalVsPrevious*).
 
 
 ```{r}
-plotTree(fmAll)
+plotTree(fmAll, colorCluster = TRUE)
 ```
 
 If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Then, in each step only groups whose means are closed are compared.
 
 ```{r}
-fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE)
-print(fm)
+fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE, method = "hclust")
+mergingHistory(fm, showStats = TRUE) %>% 
+    kable()
 ```
 
 
@@ -108,7 +114,7 @@ plotTree(fmAll, "pval", alpha = 0.5)
 It also takes logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the x axis. As default we use `simplify = TRUE`. 
 
 ```{r}
-plotTree(fm, simplify = FALSE)
+plotTree(fm, simplify = FALSE, colorCluster = TRUE)
 ```
 
 
@@ -137,6 +143,7 @@ It is also possible to plot *GIC* together with the merging path plot.
 appendToTree(fm, plotGIC(fm))
 ```
 
+Model with the lowest GIC is marked.
 
 ## One-dimensional Gaussian model
 
@@ -145,7 +152,8 @@ oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, method = "hclust")
-print(oneDimFm)
+mergingHistory(oneDimFm, showStats = TRUE) %>% 
+    kable()
 ```
 ```{r}
 plotTree(oneDimFm, simplify = FALSE)
@@ -161,22 +169,30 @@ appendToTree(oneDimFm, plotMeansAndStds(oneDimFm))
 
 ## Binomial model
 
+
+If `family = "binomial"` response must have to values: `0` and `1` (`1` is interpreted as success).
+
 ```{r}
 binomRandSample <- generateSample(1000, 10, distr = "binomial")
-table(binomRandSample$response, binomRandSample$factor)
+table(binomRandSample$response, binomRandSample$factor) %>% 
+    kable()
 ```
 
 ```{r}
-binomFm <- mergeFactors(binomRandSample$response, binomRandSample$factor, family = "binomial", successive = TRUE)
-print(binomFm)
+binomFm <- mergeFactors(binomRandSample$response, 
+                        binomRandSample$factor, 
+                        family = "binomial", 
+                        successive = TRUE)
+mergingHistory(binomFm, showStats = TRUE) %>% 
+    kable()
 ```
 
 ```{r}
-plotTree(binomFm)
+plotTree(binomFm, colorCluster = TRUE)
 ```
 
 ```{r}
-plotTree(binomFm, simplify = FALSE)
+plotTree(binomFm, simplify = FALSE, colorCluster = TRUE)
 ```
 
 ```{r}
@@ -186,6 +202,7 @@ appendToTree(binomFm, plotProportion(binomFm))
 
 ## Survival model
  
+If `family = "survival"` response must be of a class `Surv`.
  
 ```{r}
 library(survival)
@@ -198,20 +215,17 @@ survivalFm <- mergeFactors(response = survResponse,
 ```
 
 ```{r}
-survivalFm <- mergeFactors(response = survResponse, 
-                   factor = veteran$celltype, 
-                   successive = TRUE,
-                   family = "survival")
-
+mergingHistory(survivalFm, showStats = TRUE) %>% 
+    kable()
 ```
 
 
 ```{r}
-plotTree(survivalFm, "model")
+plotTree(survivalFm, "model", colorCluster = TRUE)
 ```
 
 ```{r}
-plotTree(survivalFm, "pval", simplify = FALSE)
+plotTree(survivalFm, "pval", simplify = FALSE, colorCluster = TRUE)
 ```
 
 ```{r}

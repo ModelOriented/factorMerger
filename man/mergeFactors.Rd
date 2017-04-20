@@ -5,7 +5,7 @@
 \title{Merge factors}
 \usage{
 mergeFactors(response, factor, family = "gaussian", successive = FALSE,
-  method = "LRT", penalty = 2)
+  method = "LRT", penalty = 2, abbreviate = TRUE)
 }
 \arguments{
 \item{response}{A response \code{vector/matrix} suitable for the model family.}

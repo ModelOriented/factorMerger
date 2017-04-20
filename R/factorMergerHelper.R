@@ -48,11 +48,11 @@ startMerging <- function(factorMerger, successive, method, penalty) {
     initStat <- calculateModelStatistic(model)
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = initStat,
-        pval = 1,
-        GIC = calculateGIC(model, length(levels(factor)), penalty))
+        GIC = calculateGIC(model, length(levels(factor)), penalty),
+        pvalVsFull = 1,
+        pvalVsPrevious = 1)
 
-    if (method == "LTR") {
-        factorMerger$mergingList[[1]]$modelStats$pvalLRT <- 1
+    if (method == "LRT") {
         return(
             list(
                 factorMerger = factorMerger,
@@ -143,6 +143,7 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
                                   tmp = "tmp")
 
     factorMerger$mergingList[[step]]$merged <- merged
+    prevModel <- calculateModel(factorMerger, factor)
     factor <- mergeLevels(factor, merged[1], merged[2])
     model <- calculateModel(factorMerger, factor)
 
@@ -155,8 +156,9 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   pval = compareModels(calculateModel(factorMerger, factorMerger$factor), model),
-                   GIC = calculateGIC(model, length(levels(factor)), penalty))
+                   GIC = calculateGIC(model, length(levels(factor)), penalty),
+                   pvalVsFull = compareModels(calculateModel(factorMerger, factorMerger$factor), model),
+                   pvalVsPrevious = compareModels(prevModel, model))
 
     return(
         list(factorMerger = factorMerger,
@@ -164,7 +166,7 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
     )
 }
 
-mergePairLTR <- function(factorMerger, successive, factor, model, penalty) {
+mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
     pairs <- getPairList(fs$groups, successive)
@@ -191,10 +193,10 @@ mergePairLTR <- function(factorMerger, successive, factor, model, penalty) {
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   pval = compareModels(calculateModel(factorMerger,
-                                                       factorMerger$factor), model),
                    GIC = calculateGIC(model, length(levels(factor)), penalty),
-                   pvalLRT = pval)
+                   pvalVsFull = compareModels(calculateModel(factorMerger,
+                                                       factorMerger$factor), model),
+                   pvalVsPrevious = pval)
 
     return(
         list(factorMerger = factorMerger,
@@ -228,16 +230,38 @@ getFinalOrderVec <- function(factorMerger) {
     return(finalOrder$label %>% factor(levels = finalOrder$label))
 }
 
+#' @export
+predict.factorMerger <- function(factorMerger) {
+    mH <- mergingHistory(factorMerger, T)
+    nMerges <- which.min(mH$GIC) - 1
+    factor <- factorMerger$factor
+    if (nMerges == 0) {
+        return(factor)
+    }
+
+    for (i in 1:nMerges) {
+        factor <- mergeLevels(factor, mH$groupA[i + 1], mH$groupB[i + 1])
+    }
+    return(factor)
+}
+
+getOptimalPartitionDf <- function(factorMerger) {
+    return(data.frame(pred = predict(factorMerger), orig = factorMerger$factor,
+                      stringsAsFactors = FALSE) %>% unique())
+}
 
 getOptimalPartition <- function(factorMerger) {
     mH <- mergingHistory(factorMerger, T)
     nMerges <- which.min(mH$GIC) - 1
     factor <- factorMerger$factor
+
     if (nMerges == 0) {
         return(levels(factor))
     }
+
     for (i in 1:nMerges) {
         factor <- mergeLevels(factor, mH$groupA[i + 1], mH$groupB[i + 1])
     }
+
     return(levels(factor))
 }

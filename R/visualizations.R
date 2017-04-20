@@ -2,10 +2,13 @@ customPalette <- "PRGn"
 customPaletteValues <- c("#762A83", "#9970AB", "#C2A5CF", "#E7D4E8",
                          "#D9F0D3", '#A6DBA0', "#5AAE61", "#1B7837")
 
+pvalVsPrevious <- "pvalVsPrevious"
+
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
 treeTheme <- function(ticksColors) {
     myTheme <- theme_minimal() +
-        theme(panel.grid.major.x = element_line(color = "lightgrey", linetype = 2),
+        theme(panel.grid.major.x = element_line(color = "lightgrey",
+                                                linetype = 2),
               panel.grid.major.y = element_blank(),
               panel.grid.minor.y = element_blank(),
               panel.grid.minor.x = element_blank(),
@@ -45,32 +48,38 @@ treeTheme <- function(ticksColors) {
 plotTree <- function(factorMerger, stat = "model",
                      simplify = TRUE,
                      showDiagnostics = TRUE,
-                     alpha = 0.05) {
+                     alpha = 0.05,
+                     colorCluster = FALSE) {
     stopifnot(alpha > 0 && alpha < 1)
     .plotTree(factorMerger, stat, NULL, simplify, alpha = alpha,
-              showDiagnostics = showDiagnostics)
+              showDiagnostics = showDiagnostics,
+              colorCluster = colorCluster)
 }
 
 .plotTree <- function(factorMerger, stat,
                       levels, simplify,
                       alpha = 0.05,
-                      showDiagnostics = TRUE) {
+                      showDiagnostics = TRUE,
+                      colorCluster = FALSE) {
     UseMethod(".plotTree", factorMerger)
 }
 
 #' @export
 .plotTree.factorMerger <- function(factorMerger, stat = "model",
                                    levels = NULL, simplify = TRUE,
-                                   alpha = 0.05, showDiagnostics = TRUE) {
+                                   alpha = 0.05, showDiagnostics = TRUE,
+                                   colorCluster = FALSE) {
     stopifnot(stat %in% c("model", "pval"))
 
     if (simplify) {
-        plotSimpleTree(factorMerger, stat, levels, alpha, showDiagnostics = showDiagnostics)
+        plotSimpleTree(factorMerger, stat, levels, alpha, showDiagnostics = showDiagnostics,
+                       colorCluster = colorCluster)
     }
     else {
         plotCustomizedTree(factorMerger, stat, groupsStats(factorMerger),
                            levels, alpha = alpha,
-                           showDiagnostics = showDiagnostics)
+                           showDiagnostics = showDiagnostics,
+                           colorCluster = colorCluster)
     }
 }
 
@@ -180,15 +189,15 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
         pointsDf <- rbind(pointsDf, c(newVertex, ""))
-        if ("pvalLRT" %in% colnames(stepStats)) {
-            pointsDf[nrow(pointsDf), "significance"] <- getSignificanceStar(stepStats[, "pvalLRT"])
-        }
+        pointsDf[nrow(pointsDf), "significance"] <- getSignificanceStar(stepStats[, pvalVsPrevious])
     }
 
+    lab <- df$label
     df <- df %>% subset(select = -label) %>%
         apply(2, as.numeric) %>%
         as.data.frame()
 
+    df$label <- lab
     df <- df[complete.cases(df), ]
 
     pointsDf <- subset(pointsDf, select = c(x1, y1, significance))
@@ -219,7 +228,15 @@ getChisqBreaks <- function(plotData, alpha) {
     )
 }
 
-#' @importFrom dplyr mutate filter
+getStatNameInTable <- function(stat) {
+    if (stat == "pval") {
+        return("pvalVsFull")
+    }
+    return(stat)
+}
+
+#' @importFrom dplyr mutate filter group_by count
+#' @importFrom scales hue_pal
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
 #' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_label
@@ -227,17 +244,39 @@ getChisqBreaks <- function(plotData, alpha) {
 plotCustomizedTree <- function(factorMerger, stat = "model",
                                pos, levels = NULL,
                                showY = TRUE, alpha = 0.05,
-                               showDiagnostics = TRUE) {
+                               showDiagnostics = TRUE,
+                               colorCluster = FALSE) {
 
-    segment <- getTreeSegmentDf(factorMerger, stat, pos)
+    if (colorCluster && stat == "pval") {
+        colorCluster <- FALSE
+        warning("Cluster plot is currently supported only with stat = \"model\".")
+    }
+
+    segment <- getTreeSegmentDf(factorMerger, getStatNameInTable(stat), pos)
+
     df <- segment$df
     pointsDf <- segment$pointsDf
     labelsDf <- segment$labelsDf
+    labelsDf <- labelsDf %>% arrange(y1)
 
-    g <- df %>% ggplot() +
-        geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
-        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75) +
-        geom_text(data = pointsDf, aes(x = x1, y = y1, label = factor(significance)),
+    g <- df %>% ggplot() + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2)) +
+        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75)
+
+    if (colorCluster) {
+        segmentColoured <- getClustersColors(segment, factorMerger)
+        g <- g +
+            geom_segment(data = segmentColoured$df,
+                         aes(x = x1, y = y1, xend = x2, yend = y2, col = pred)) +
+            geom_point(data = segmentColoured$pointsDf,
+                       aes(x = x1, y = y1, col = pred), size = 0.75)
+        labelsCount <- (segmentColoured$labelsDf %>% arrange(-y1) %>%
+                            group_by(pred) %>% count())$n
+        nGroups <- length(unique(segmentColoured$labelsDf$pred))
+        colors <- hue_pal()(nGroups)
+        clusterColors <- rep(colors, labelsCount)
+    }
+
+    g <- g + geom_text(data = pointsDf, aes(x = x1, y = y1, label = factor(significance)),
                   hjust = 1, vjust = 0.25, size = 5) +
         scale_y_continuous(limits = getLimits(labelsDf, showY),
                            position = "right",
@@ -285,12 +324,16 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                   subtitle = paste0("Optimal GIC partition: ",
                                     paste(getOptimalPartition(factorMerger), collapse = ":")))
 
+    if (colorCluster) {
+        g <- g + theme(axis.text.y = element_text(color = clusterColors))
+    }
     return(g)
 }
 
 plotSimpleTree <- function(factorMerger, stat = "model",
                            levels = NULL, alpha = 0.05,
-                           showDiagnostics = TRUE) {
+                           showDiagnostics = TRUE,
+                           colorCluster = FALSE) {
     pos <- getFinalOrder(factorMerger) %>% data.frame()
     merging <- mergingHistory(factorMerger)
     noStep <- nrow(merging)
@@ -301,7 +344,8 @@ plotSimpleTree <- function(factorMerger, stat = "model",
     }
     return(plotCustomizedTree(factorMerger, stat, pos,
                               levels, showY = FALSE,
-                              alpha, showDiagnostics = showDiagnostics))
+                              alpha, showDiagnostics = showDiagnostics,
+                              colorCluster = colorCluster))
 }
 
 #' @importFrom proxy dist
@@ -562,8 +606,11 @@ plotSurvival <- function(factorMerger) {
 plotGIC <- function(factorMerger) {
     mH <- mergingHistory(factorMerger, T)
     minGIC <- min(mH$GIC)
+    yBreaks <- c(mH$GIC[1], minGIC, mH$GIC[length(mH$GIC)]) %>% unique() %>% round()
     minModel <- mH$model[which.min(mH$GIC)]
-    g <- mH %>% ggplot(aes(x = model, y = GIC)) + geom_line(col = customPaletteValues[1], size = 1) +
+    g <- mH %>% ggplot(aes(x = model, y = GIC)) +
+        geom_line(col = customPaletteValues[1], size = 1) +
+        geom_point( col = customPaletteValues[1], size = 1.5) +
         geom_point(x = minModel, y = minGIC, col = customPaletteValues[1], size = 2.5) +
         geom_ribbon(aes(x = model, ymin = minGIC, ymax = GIC), fill = customPaletteValues[1], alpha = 0.2) +
         treeTheme(NULL) +
@@ -571,11 +618,51 @@ plotGIC <- function(factorMerger) {
               axis.title.x = element_blank(),
               axis.title.y = element_text(),
               panel.grid.major = element_blank()) +
-        scale_y_continuous(position = "right")
+        scale_y_continuous(position = "right", breaks = yBreaks)
     class(g) <- append(class(g), "GICPlot")
     return(g)
 }
 
-plotClusters <- function(factorMerger) {
+#' @importFrom dplyr arrange
+getClustersColors <- function(segment, factorMerger) {
 
+    gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
+        filter(GIC == min(GIC))
+    bestModel <- gicMin$model
+    segment <- lapply(segment, function(x)
+        x %>% filter(x1 %>% round(4) >= bestModel %>% round(4)))
+    segment$df[segment$df$x2 < bestModel, ]$x2 <- bestModel
+    map <- getOptimalPartitionDf(factorMerger)
+    map$pred <- as.character(map$pred)
+    map$orig <- as.character(map$orig)
+    segment$df <- segment$df %>% left_join(map, by = c("label" = "orig"))
+    bounds <- segment$df %>%
+        group_by(pred) %>%
+        summarise(lower = min(y1), upper = max(y1)) %>%
+        filter(!is.na(pred))
+    segment$labelsDf$pred <- NA
+    segment$pointsDf$pred <- NA
+
+    for (i in 1:nrow(bounds)) {
+        segment$df[segment$df$y1 >= bounds[i, ]$lower &
+                       segment$df$y1 <= bounds[i, ]$upper, ]$pred <-
+            bounds[i, ]$pred
+        segment$pointsDf[segment$pointsDf$y1 >= bounds[i, ]$lower &
+                       segment$pointsDf$y1 <= bounds[i, ]$upper, ]$pred <-
+            bounds[i, ]$pred
+        segment$labelsDf[segment$labelsDf$y1 %>% round(2) >= bounds[i, ]$lower %>% round(2) &
+                       segment$labelsDf$y1 %>% round(2) <= bounds[i, ]$upper %>% round(2), ]$pred <-
+            bounds[i, ]$pred
+    }
+    segment$labelsDf <- segment$labelsDf %>% arrange(y1)
+    segment$labelsDf$pred <- factor(segment$labelsDf$pred,
+                                            levels = segment$labelsDf$pred %>% unique())
+
+    segment$pointsDf$pred <- factor(segment$pointsDf$pred,
+                                    levels = segment$labelsDf$pred %>% unique())
+
+    segment$df$pred <- factor(segment$df$pred,
+                                    levels = segment$labelsDf$pred %>% unique())
+
+    return(segment)
 }
