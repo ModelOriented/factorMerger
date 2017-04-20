@@ -269,7 +269,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                          aes(x = x1, y = y1, xend = x2, yend = y2, col = pred)) +
             geom_point(data = segmentColoured$pointsDf,
                        aes(x = x1, y = y1, col = pred), size = 0.75)
-        labelsCount <- (segmentColoured$labelsDf %>% arrange(y1) %>%
+        labelsCount <- (segmentColoured$labelsDf %>% arrange(-y1) %>%
                             group_by(pred) %>% count())$n
         nGroups <- length(unique(segmentColoured$labelsDf$pred))
         colors <- hue_pal()(nGroups)
