@@ -5,26 +5,34 @@
 #' response, initial factor, its levels and their abbreviated names (field \code{map}).
 #' \code{factorMerger} creates its own structure of inheritance connected with model family.
 #'
-merger <- function(response, factor, family = "gaussian",
-                         successive = FALSE) {
+merger <- function(response, factor,
+                   family = "gaussian",
+                   abbreviate) {
 
     stopifnot(NROW(response) == NROW(factor))
 
     factor <- as.factor(factor)
-    map <- data.frame(`recoded` = paste0("(", abbreviate(levels(factor)), ")"),
-                      `original` = levels(factor))
-    rownames(map) <- NULL
-    factor <- factor(factor, labels = map$recoded)
+
+    if (abbreviate) {
+        map <- data.frame(`recoded` = paste0("(", abbreviate(levels(factor)), ")"),
+                          `original` = levels(factor))
+        rownames(map) <- NULL
+        factor <- factor(factor, labels = map$recoded)
+
+    }
 
     fm <- list(
         response = response,
         factor = factor,
-        map = map,
         mergingList = list(`1` = list(groups = levels(factor),
                                 modelStats = list(),
                                 groupStats = NA,
                                 merged = NA))
     )
+
+    if (abbreviate) {
+        fm[["map"]] <- map
+    }
 
     class(fm) <- "factorMerger"
 
@@ -149,8 +157,12 @@ print.factorMerger <- function(factorMerger) {
    df <- mergingHistory(factorMerger, TRUE)
    colnames(df)[1:2] <- c("groupA", "groupB")
    cat(call(factorMerger))
-   cat("\nFactor levels were recoded as below:")
-   cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
+
+   if ("map" %in% names(factorMerger)) {
+       cat("\nFactor levels were recoded as below:")
+       cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
+   }
+
    cat("\n\nFactor levels were merged in the following order:")
    cat(paste(c("", "", kable(df, output = FALSE)), collapse = "\n"))
    invisible(NULL)
@@ -182,7 +194,9 @@ print.factorMerger <- function(factorMerger) {
 mergeFactors <- function(response, factor,
                          family = "gaussian",
                          successive = FALSE,
-                         method = "LRT", penalty = 2) {
+                         method = "LRT",
+                         penalty = 2,
+                         abbreviate = TRUE) {
 
     stopifnot(!is.null(response), !is.null(factor))
 
@@ -191,10 +205,10 @@ mergeFactors <- function(response, factor,
         response <- as.matrix(response)
     }
 
-    fm <- merger(response, factor, family)
+    fm <- merger(response, factor, family, abbreviate)
 
     if (method == "LRT") {
-        return(mergeLTR(fm, successive, penalty))
+        return(mergeLRT(fm, successive, penalty))
     }
 
     if (method == "hclust") {
@@ -206,12 +220,12 @@ mergeFactors <- function(response, factor,
     }
 }
 
-mergeLTR <- function(factorMerger, successive, penalty) {
-    fmList <- startMerging(factorMerger, successive, "LTR", penalty)
+mergeLRT <- function(factorMerger, successive, penalty) {
+    fmList <- startMerging(factorMerger, successive, "LRT", penalty)
     fm <- fmList$factorMerger
 
     while(canBeMerged(fm)) {
-        fmList <- mergePairLTR(fm, successive, fmList$factor, fmList$model, penalty)
+        fmList <- mergePairLRT(fm, successive, fmList$factor, fmList$model, penalty)
         fm <- fmList$factorMerger
     }
 

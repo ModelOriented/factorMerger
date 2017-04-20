@@ -2,6 +2,8 @@ customPalette <- "PRGn"
 customPaletteValues <- c("#762A83", "#9970AB", "#C2A5CF", "#E7D4E8",
                          "#D9F0D3", '#A6DBA0', "#5AAE61", "#1B7837")
 
+pvalVsPrevious <- "pvalVsPrevious"
+
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
 treeTheme <- function(ticksColors) {
     myTheme <- theme_minimal() +
@@ -180,9 +182,7 @@ getTreeSegmentDf <- function(factorMerger, stat, pos) {
         df <- rbind(df, crosswise)
         df <- rbind(df, newVertex)
         pointsDf <- rbind(pointsDf, c(newVertex, ""))
-        if ("pvalLRT" %in% colnames(stepStats)) {
-            pointsDf[nrow(pointsDf), "significance"] <- getSignificanceStar(stepStats[, "pvalLRT"])
-        }
+        pointsDf[nrow(pointsDf), "significance"] <- getSignificanceStar(stepStats[, pvalVsPrevious])
     }
 
     df <- df %>% subset(select = -label) %>%
@@ -219,6 +219,13 @@ getChisqBreaks <- function(plotData, alpha) {
     )
 }
 
+getStatNameInTable <- function(stat) {
+    if (stat == "pval") {
+        return("pvalVsFull")
+    }
+    return(stat)
+}
+
 #' @importFrom dplyr mutate filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
@@ -229,7 +236,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                                showY = TRUE, alpha = 0.05,
                                showDiagnostics = TRUE) {
 
-    segment <- getTreeSegmentDf(factorMerger, stat, pos)
+    segment <- getTreeSegmentDf(factorMerger, getStatNameInTable(stat), pos)
     df <- segment$df
     pointsDf <- segment$pointsDf
     labelsDf <- segment$labelsDf
