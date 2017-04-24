@@ -239,9 +239,9 @@ getFinalOrderVec <- function(factorMerger) {
 
 #' Cut a Factor Merger Tree
 #'
-#' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object. By default
-#' returns an optimal GIC partition. If a metric and a threshold is specified then performs bottom-up search through models
-#' on the merging path until spots a model scored worse that the given threshold.
+#' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
+#' If a metric and a threshold is specified then performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given threshold.
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
@@ -250,11 +250,13 @@ getFinalOrderVec <- function(factorMerger) {
 #'
 #' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
 #'
+#' @return Returns a factor vector - each observation is given a new cluster label.
+#'
 #' @export
-cutree.factorMerger <- function(factorMerger,
-                                 stat = "GIC",
-                                 threshold = NULL) {
-    stopifnot(is.null(threshold) && stat == "GIC")
+cutTree <- function(factorMerger,
+                    stat = "GIC",
+                    threshold = NULL) {
+    stopifnot(!is.null(threshold) | stat == "GIC")
     mH <- mergingHistory(factorMerger, T)
     stopifnot(stat %in% c("loglikelihood", "p-value", "GIC"))
     if (is.null(threshold)) {
@@ -283,15 +285,50 @@ cutree.factorMerger <- function(factorMerger,
     return(factor)
 }
 
+#' Get optimal partition (clusters dictionary)
+#'
+#' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
+#' If a metric and a threshold is specified then performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given threshold.
+#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param stat statistic used in the bottom-up search. Available statistics are:
+#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' @param threshold cut threshold
+#'
+#' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
+#'
+#' @return Returns a dictionary in a data frame format.
+#' Each row gives an original label of a factor level and its new (cluster) label.
+#'
 #' @export
-getOptimalPartitionDf <- function(factorMerger) {
+getOptimalPartitionDf <- function(factorMerger,
+                                  stat = "GIC",
+                                  threshold = NULL) {
     return(data.frame(orig = factorMerger$factor,
-                      pred = cutree(factorMerger),
+                      pred = cutTree(factorMerger, stat, threshold),
                       stringsAsFactors = FALSE) %>% unique())
 }
 
+#' Get optimal partition (final clusters names)
+#'
+#' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
+#' If a metric and a threshold is specified then performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given threshold.
+#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param stat statistic used in the bottom-up search. Available statistics are:
+#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' @param threshold cut threshold
+#'
+#' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
+#'
+#' @return Returns a vector with the final cluster names from the \code{factorMerger} object.
+#'
 #' @export
-getOptimalPartition <- function(factorMerger) {
-    factor <- cutree(factorMerger)
+getOptimalPartition <- function(factorMerger,
+                                stat = "GIC",
+                                threshold = NULL) {
+    factor <- cutTree(factorMerger, stat, threshold)
     return(levels(factor))
 }
