@@ -4,14 +4,14 @@
 \alias{plotTree}
 \title{Plot tree (Merging Path Plot)}
 \usage{
-plotTree(factorMerger, stat = "model", simplify = TRUE,
+plotTree(factorMerger, stat = "loglikelihood", simplify = TRUE,
   showDiagnostics = TRUE, alpha = 0.05, colorCluster = FALSE)
 }
 \arguments{
 \item{factorMerger}{Object of a class \code{factorMerger}.}
 
 \item{stat}{Summary statistic to be displayed on the OX axis. It can be either
-\code{"model"} (loglikelihood), the default, or \code{"pval"} (pvalue).}
+\code{"loglikelihood"}, the default, or \code{"p-value"}.}
 
 \item{simplify}{If \code{TRUE}, tree leaves are plotted uniformly. Otherwise, each node
 position (on the OY axis) is connected with a group statistic for observations represented
@@ -19,16 +19,16 @@ by the node. By default \code{simplify = TRUE} is used.}
 
 \item{showDiagnostics}{If \code{TRUE}:
 \itemize{
-\item if \code{stat = "model"}, vertical line is drawn for a model with lowest GIC,
-\item if \code{stat = "pval"}, vertical line is drawn for significance level \code{alpha}.
+\item if \code{stat = "loglikelihood"}, vertical line is drawn for a model with lowest GIC,
+\item if \code{stat = "p-value"}, vertical line is drawn for significance level \code{alpha}.
 }}
 
-\item{alpha}{significance level used when \code{showDiagnostics = TRUE} and \code{stat = "pval"}.}
+\item{alpha}{significance level used when \code{showDiagnostics = TRUE} and \code{stat = "p-value"}.}
 }
 \description{
 Visualizes merging history of a \code{factorMerger}.
 }
 \details{
-When \code{stat = "model"} each interval in the OX axis corresponds to the quantile 0.95
+When \code{stat = "loglikelihood"} each interval in the OX axis corresponds to the quantile 0.95
 of chi-square distribution with one degree of freedom.
 }

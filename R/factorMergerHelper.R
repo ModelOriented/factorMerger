@@ -237,14 +237,21 @@ getFinalOrderVec <- function(factorMerger) {
     return(finalOrder$label %>% factor(levels = finalOrder$label))
 }
 
-#' Predict method for Factor Merger
+#' Cut a Factor Merger Tree
 #'
-#' @description Predicted values based on \code{factorMerger} object.
+#' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object. By default
+#' returns an optimal GIC partition. If a metric and a threshold is specified then performs bottom-up search through models
+#' on the merging path until spots a model scored worse that the given threshold.
 #'
-#' @param factorMerger
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param stat statistic used in the bottom-up search. Available statistics are:
+#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' @param threshold cut threshold
+#'
+#' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
 #'
 #' @export
-predict.factorMerger <- function(factorMerger,
+cutree.factorMerger <- function(factorMerger,
                                  stat = "GIC",
                                  threshold = NULL) {
     stopifnot(is.null(threshold) && stat == "GIC")
@@ -279,12 +286,12 @@ predict.factorMerger <- function(factorMerger,
 #' @export
 getOptimalPartitionDf <- function(factorMerger) {
     return(data.frame(orig = factorMerger$factor,
-                      pred = predict(factorMerger),
+                      pred = cutree(factorMerger),
                       stringsAsFactors = FALSE) %>% unique())
 }
 
 #' @export
 getOptimalPartition <- function(factorMerger) {
-    factor <- predict(factorMerger)
+    factor <- cutree(factorMerger)
     return(levels(factor))
 }
