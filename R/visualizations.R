@@ -29,29 +29,31 @@ treeTheme <- function(ticksColors) {
 #'
 #' @param factorMerger Object of a class \code{factorMerger}.
 #' @param stat Summary statistic to be displayed on the OX axis. It can be either
-#' \code{"model"} (loglikelihood), the default, or \code{"pval"} (pvalue).
+#' \code{"loglikelihood"}, the default, or \code{"p-value"}.
 #' @param simplify If \code{TRUE}, tree leaves are plotted uniformly. Otherwise, each node
 #' position (on the OY axis) is connected with a group statistic for observations represented
 #' by the node. By default \code{simplify = TRUE} is used.
 #' @param showDiagnostics If \code{TRUE}:
 #' \itemize{
-#' \item if \code{stat = "model"}, vertical line is drawn for a model with lowest GIC,
-#' \item if \code{stat = "pval"}, vertical line is drawn for significance level \code{alpha}.
+#' \item if \code{stat = "loglikelihood"}, vertical line is drawn for a model with lowest GIC,
+#' \item if \code{stat = "p-value"}, vertical line is drawn for significance level \code{alpha}.
 #' }
-#' @param alpha significance level used when \code{showDiagnostics = TRUE} and \code{stat = "pval"}.
+#' @param alpha significance level used when \code{showDiagnostics = TRUE} and \code{stat = "p-value"}.
 #'
-#' @details When \code{stat = "model"} each interval in the OX axis corresponds to the quantile 0.95
+#' @details When \code{stat = "loglikelihood"} each interval in the OX axis corresponds to the quantile 0.95
 #' of chi-square distribution with one degree of freedom.
 #'
 #' @export
 #'
-plotTree <- function(factorMerger, stat = "model",
+plotTree <- function(factorMerger, stat = "loglikelihood",
                      simplify = TRUE,
                      showDiagnostics = TRUE,
                      alpha = 0.05,
                      colorCluster = FALSE) {
     stopifnot(alpha > 0 && alpha < 1)
-    .plotTree(factorMerger, stat, NULL, simplify, alpha = alpha,
+    stopifnot(stat %in% c("loglikelihood", "p-value"))
+    .plotTree(factorMerger, getStatNameInTable(stat),
+              NULL, simplify, alpha = alpha,
               showDiagnostics = showDiagnostics,
               colorCluster = colorCluster)
 }
@@ -69,7 +71,7 @@ plotTree <- function(factorMerger, stat = "model",
                                    levels = NULL, simplify = TRUE,
                                    alpha = 0.05, showDiagnostics = TRUE,
                                    colorCluster = FALSE) {
-    stopifnot(stat %in% c("model", "pval"))
+    stopifnot(stat %in% c("model", "pvalVsFull"))
 
     if (simplify) {
         plotSimpleTree(factorMerger, stat, levels, alpha, showDiagnostics = showDiagnostics,
@@ -85,7 +87,7 @@ plotTree <- function(factorMerger, stat = "model",
 
 renameStat <- function(stat) {
     switch(stat,
-           "pval" = {
+           "pvalVsFull" = {
                stat <- "p-value"
            },
            "model" = {
@@ -229,10 +231,10 @@ getChisqBreaks <- function(plotData, alpha) {
 }
 
 getStatNameInTable <- function(stat) {
-    if (stat == "pval") {
-        return("pvalVsFull")
-    }
-    return(stat)
+    switch(stat,
+           "loglikelihood" = { return("model") },
+           "p-value" = { return("pvalVsFull") },
+           "GIC" = { return("GIC")} )
 }
 
 #' @importFrom dplyr mutate filter group_by count
@@ -247,12 +249,12 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
                                showDiagnostics = TRUE,
                                colorCluster = FALSE) {
 
-    if (colorCluster && stat == "pval") {
+    if (colorCluster && stat == "pvalVsFull") {
         colorCluster <- FALSE
         warning("Cluster plot is currently supported only with stat = \"model\".")
     }
 
-    segment <- getTreeSegmentDf(factorMerger, getStatNameInTable(stat), pos)
+    segment <- getTreeSegmentDf(factorMerger, stat, pos)
 
     df <- segment$df
     pointsDf <- segment$pointsDf
@@ -287,7 +289,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     upperBreaks <- df$x1 %>% unique() %>% sort
     g <- g + xlab(renameStat(stat)) + treeTheme(getLabelsColors(labelsDf, levels))
 
-    if (stat == "pval") {
+    if (stat == "pvalVsFull") {
         g <- g + scale_x_log10()
     }
 
@@ -298,7 +300,7 @@ plotCustomizedTree <- function(factorMerger, stat = "model",
     }
 
     if (showDiagnostics) {
-        if (stat == "pval") {
+        if (stat == "pvalVsFull") {
             intercept <- alpha
             label <- paste0("alpha = ", alpha)
             labelIntercept <- log10(alpha)

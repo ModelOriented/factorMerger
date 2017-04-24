@@ -222,6 +222,13 @@ getFinalOrder <- function(factorMerger) {
     return(pos)
 }
 
+getStatNameInTable <- function(stat) {
+    switch(stat,
+           "loglikelihood" = { return("model") },
+           "p-value" = { return("pvalVsFull") },
+           "GIC" = { return("GIC")} )
+}
+
 #' @importFrom dplyr arrange
 getFinalOrderVec <- function(factorMerger) {
     finalOrder <- data.frame(order = getFinalOrder(factorMerger))
@@ -230,38 +237,54 @@ getFinalOrderVec <- function(factorMerger) {
     return(finalOrder$label %>% factor(levels = finalOrder$label))
 }
 
+#' Predict method for Factor Merger
+#'
+#' @description Predicted values based on \code{factorMerger} object.
+#'
+#' @param factorMerger
+#'
 #' @export
-predict.factorMerger <- function(factorMerger) {
+predict.factorMerger <- function(factorMerger,
+                                 stat = "GIC",
+                                 threshold = NULL) {
+    stopifnot(is.null(threshold) && stat == "GIC")
     mH <- mergingHistory(factorMerger, T)
-    nMerges <- which.min(mH$GIC) - 1
+    stopifnot(stat %in% c("loglikelihood", "p-value", "GIC"))
+    if (is.null(threshold)) {
+        stat <- "GIC"
+        threshold <- min(mH$GIC)
+    }
+    statColname <- getStatNameInTable(stat)
+
     factor <- factorMerger$factor
-    if (nMerges == 0) {
+    nMerges <- nrow(mH)
+    if (nMerges < 2) {
         return(factor)
     }
 
-    for (i in 1:nMerges) {
-        factor <- mergeLevels(factor, mH$groupA[i + 1], mH$groupB[i + 1])
+    for (i in 2:nMerges) {
+        if (mH[i, statColname] >= threshold) {
+            factor <- mergeLevels(factor, mH$groupA[i], mH$groupB[i])
+        }
+        else {
+            return(factor)
+        }
+        if (stat == "GIC" && mH[i, stat] == threshold) {
+            return(factor)
+        }
     }
     return(factor)
 }
 
+#' @export
 getOptimalPartitionDf <- function(factorMerger) {
-    return(data.frame(pred = predict(factorMerger), orig = factorMerger$factor,
+    return(data.frame(orig = factorMerger$factor,
+                      pred = predict(factorMerger),
                       stringsAsFactors = FALSE) %>% unique())
 }
 
+#' @export
 getOptimalPartition <- function(factorMerger) {
-    mH <- mergingHistory(factorMerger, T)
-    nMerges <- which.min(mH$GIC) - 1
-    factor <- factorMerger$factor
-
-    if (nMerges == 0) {
-        return(levels(factor))
-    }
-
-    for (i in 1:nMerges) {
-        factor <- mergeLevels(factor, mH$groupA[i + 1], mH$groupB[i + 1])
-    }
-
+    factor <- predict(factorMerger)
     return(levels(factor))
 }

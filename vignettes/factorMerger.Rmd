@@ -101,17 +101,17 @@ mergingHistory(fm, showStats = TRUE) %>%
 ```
 
 
-We may plot results using functions `plotTree`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or logarithm of 'pval').
+We may plot results using functions `plotTree`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or logarithm of 'pvalVsFull').
 
 ```{r, fig.height = 5, fig.width = 7}
-plotTree(fm, stat = "model")
+plotTree(fm, stat = "loglikelihood")
 ```
 
 ```{r, fig.height = 5, fig.width = 7}
-plotTree(fmAll, "pval", alpha = 0.5)
+plotTree(fmAll, "p-value", alpha = 0.5)
 ```
 
-It also takes logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the x axis. As default we use `simplify = TRUE`. 
+It also takes a logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected with the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the y axis. As default we use `simplify = TRUE`. 
 
 ```{r}
 plotTree(fm, simplify = FALSE, colorCluster = TRUE)
@@ -221,11 +221,11 @@ mergingHistory(survivalFm, showStats = TRUE) %>%
 
 
 ```{r}
-plotTree(survivalFm, "model", colorCluster = TRUE)
+plotTree(survivalFm, "loglikelihood", colorCluster = TRUE)
 ```
 
 ```{r}
-plotTree(survivalFm, "pval", simplify = FALSE, colorCluster = TRUE)
+plotTree(survivalFm, "p-value", simplify = FALSE, colorCluster = TRUE)
 ```
 
 ```{r}
