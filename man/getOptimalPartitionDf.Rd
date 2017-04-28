@@ -15,7 +15,8 @@ getOptimalPartitionDf(factorMerger, stat = "GIC", threshold = NULL)
 \item{threshold}{cut threshold}
 }
 \value{
-Returns dictionary in a data frame format. Each row gives an original label and a new (cluster) label.
+Returns a dictionary in a data frame format.
+Each row gives an original label of a factor level and its new (cluster) label.
 }
 \description{
 Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.

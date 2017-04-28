@@ -4,6 +4,116 @@ customPaletteValues <- c("#762A83", "#9970AB", "#C2A5CF", "#E7D4E8",
 
 pvalVsPrevious <- "pvalVsPrevious"
 
+checkSummary <- function(object, summary) {
+    UseMethod("checkSummary", object)
+}
+
+checkSummary.gaussianFactorMerger <- function(factorMerger, summary) {
+    if (NCOL(factorMerger$response) > 1) {
+        summarySet <-  c("heatmap", "profile")
+    } else {
+        summarySet <- c("means", "boxplot")
+    }
+    warnIfUnexpectedSummary(summarySet, summary)
+}
+
+checkSummary.binomialFactorMerger <- function(factorMerger, summary) {
+    summarySet <- c("proportion")
+    warnIfUnexpectedSummary(summarySet, summary)
+}
+
+checkSummary.survivalFactorMerger <- function(factorMerger, summary) {
+    summarySet <- c("survival")
+    warnIfUnexpectedSummary(summarySet, summary)
+}
+
+warnIfUnexpectedSummary <- function(summarySet, summary) {
+    if (is.null(summary)) {
+        return(summarySet[1])
+    }
+    if (!(summary %in% summarySet)) {
+        warning(paste0("Summary '", summary, ", is not supported by supplied model family -- ", summarySet[1], " used insted."))
+        return(summarySet[1])
+    }
+    return(summary)
+}
+
+plotResponse <- function(factorMerger, summary, color) {
+    switch(summary,
+           "heatmap" = {
+               return(plotHeatmap(factorMerger))
+           },
+           "profile" = {
+               return(plotProfile(factorMerger))
+           },
+           "boxplot" = {
+               return(plotBoxplot(factorMerger, color))
+           },
+           "means" = {
+               return(plotMeansAndStds(factorMerger, color))
+           },
+           "survival" = {
+               return(plotSurvival(factorMerger))
+           },
+           "proportion" = {
+               return(plotProportion(factorMerger))
+           })
+}
+
+#' Plot Factor Merger
+#'
+#' @param panel \code{c("all", "response", "GIC", "merging")}
+#' @param show \code{c("loglikelihood", "p-value")}
+#' @param nodesSpacing \code{c("equidistant", "effects", "modelSpecific")} # TODO: Change names
+#' @param summary
+#' @param color \code{c("null", "cluster", "summary")}
+#' @param palette
+#' @param showDiagnostics Boolean
+#'
+#' @import gridExtra grid.arrange
+#'
+#' @export
+plot.factorMerger <- function(factorMerger, panel = "all",
+                              show = "loglikelihood",
+                              nodesSpacing = "equidistant",
+                              summary = NULL, color = "null",
+                              showDiagnostics = TRUE,
+                              alpha = 0.05) {
+
+    stopifnot(panel %in% c("all", "response", "GIC", "merging"))
+    stopifnot(show %in% c("loglikelihood", "p-value"))
+    stopifnot(nodesSpacing %in% c("equidistant", "effects", "modelSpecific"))
+    stopifnot(color %in% c("null", "cluster", "summary"))
+    summary <- checkSummary(factorMerger, summary)
+
+    mergingPathPlot <- plotTree(factorMerger, show, nodesSpacing == "equidistant",
+                                showDiagnostics, alpha, colorCluster = (color == "cluster"))
+    if (panel %in% c("all", "GIC") & show == "p-value") {
+        warning("GIC plot is not supported with p-value yet.")
+    }
+
+    switch(panel,
+           "merging" = {
+               return(mergingPathPlot)
+           },
+           "all" = {
+               return(grid.arrange(mergingPathPlot, plotResponse(factorMerger, summary, color),
+                                   plotGIC(factorMerger), ncol = 2,
+                                   widths = c(7.5, 2.5), heights = c(7.5, 2.5)))
+           },
+           "response" = {
+               return(grid.arrange(mergingPathPlot, plotResponse(factorMerger, summary, color),
+                                   ncol = 2,
+                                   widths = c(7.5, 2.5)))
+           },
+           "GIC" = {
+               return(grid.arrange(mergingPathPlot, plotGIC(factorMerger),
+                                   ncol = 1,
+                                   heights = c(7.5, 2.5)))
+           })
+
+}
+
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
 treeTheme <- function(ticksColors) {
     myTheme <- theme_minimal() +
@@ -505,18 +615,31 @@ plotHeatmap <- function(factorMerger) {
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs
 #' @importFrom dplyr group_by summarize left_join
-plotBoxplot <- function(factorMerger) {
+plotBoxplot <- function(factorMerger, color) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
-    data <- data.frame(x = factorMerger$factor, y = factorMerger$response)
-    data %>% left_join(
-        data %>% group_by(x) %>% summarize(y0 = min(y),
+    df <- data.frame(x = factorMerger$factor, y = factorMerger$response)
+    df <- df %>% left_join(
+        df %>% group_by(x) %>% summarize(y0 = min(y),
                                            y25 = quantile(y, 0.25),
                                            y50 = mean(y),
                                            y75 = quantile(y, 0.75),
-                                           y100 = max(y)), by = "x") %>%
-        ggplot(aes(y = y, x = x, group = x)) +
-        geom_boxplot(aes(ymin = y0,
+                                           y100 = max(y)), by = "x")
+
+    switch(color,
+           "cluster" = {
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+                                      by = c("x" = "orig"))
+               g <- df %>% ggplot(aes(y = y, x = x, group = x, colour = pred))
+           },
+           "summary" = {
+               g <- df %>% ggplot(aes(y = y, x = x, group = x, colour = x))
+           },
+           "none" = {
+               g <- df %>% ggplot(aes(y = y, x = x, group = x))
+           })
+
+    g + geom_boxplot(aes(ymin = y0,
                          lower = y25,
                          middle = y50,
                          upper = y75,
@@ -533,7 +656,7 @@ plotBoxplot <- function(factorMerger) {
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
 #' @importFrom dplyr group_by summarize left_join
-plotMeansAndStds <- function(factorMerger) {
+plotMeansAndStds <- function(factorMerger, color = "none") {
     factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
     model <- lm(factorMerger$response ~ factor - 1)
     df <- data.frame(group = levels(factor))
@@ -543,12 +666,28 @@ plotMeansAndStds <- function(factorMerger) {
     df$right <- df$mean + sumModel$coefficients[, 2]
     df$group <- factor(df$group, levels = df$group)
 
-    ggplot(data = df, aes(x = as.factor(group), y = mean, group = as.factor(group))) +
-        geom_errorbar(aes(ymin = left, ymax = right),
-                      color = "black",
+    switch(color,
+           "cluster" = {
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+                                      by = c("group" = "orig"))
+               g <- df %>% ggplot(aes(colour = pred, fill = pred,
+                                      x = as.factor(group),
+                                      y = mean, group = as.factor(group)))
+           },
+           "summary" = {
+               g <- df %>% ggplot(aes(colour = as.factor(group), fill = as.factor(group),
+                                      x = as.factor(group),
+                                      y = mean, group = as.factor(group)))
+           },
+           "none" = {
+               g <- df %>% ggplot(aes(x = as.factor(group),
+                                      y = mean, group = as.factor(group)))
+           })
+
+    g + geom_errorbar(aes(ymin = left, ymax = right),
                       width = .5,
                       position = position_dodge(.5)) + treeTheme(NULL) +
-        geom_point() + coord_flip() +
+        geom_point(size = 2) + coord_flip() +
         theme(axis.title.x = element_text(), axis.text.y = element_blank()) +
         labs(title = "Summary statistics", subtitle = "Means and standard deviations of coefficients' estimators") +
         ylab("")
@@ -625,7 +764,7 @@ plotGIC <- function(factorMerger) {
     return(g)
 }
 
-#' @importFrom dplyr arrange
+#' @importFrom dplyr arrange summarise group_by left_join
 getClustersColors <- function(segment, factorMerger) {
 
     gicMin <- mergingHistory(factorMerger, TRUE)[, c("model", "GIC")] %>%
