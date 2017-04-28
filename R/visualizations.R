@@ -44,7 +44,7 @@ plotResponse <- function(factorMerger, summary, color) {
                return(plotHeatmap(factorMerger))
            },
            "profile" = {
-               return(plotProfile(factorMerger))
+               return(plotProfile(factorMerger, color))
            },
            "boxplot" = {
                return(plotBoxplot(factorMerger, color))
@@ -56,7 +56,7 @@ plotResponse <- function(factorMerger, summary, color) {
                return(plotSurvival(factorMerger))
            },
            "proportion" = {
-               return(plotProportion(factorMerger))
+               return(plotProportion(factorMerger, color))
            })
 }
 
@@ -66,7 +66,7 @@ plotResponse <- function(factorMerger, summary, color) {
 #' @param show \code{c("loglikelihood", "p-value")}
 #' @param nodesSpacing \code{c("equidistant", "effects", "modelSpecific")} # TODO: Change names
 #' @param summary
-#' @param color \code{c("null", "cluster", "summary")}
+#' @param color \code{c("none", "cluster", "summary")}
 #' @param palette
 #' @param showDiagnostics Boolean
 #'
@@ -76,14 +76,14 @@ plotResponse <- function(factorMerger, summary, color) {
 plot.factorMerger <- function(factorMerger, panel = "all",
                               show = "loglikelihood",
                               nodesSpacing = "equidistant",
-                              summary = NULL, color = "null",
+                              summary = NULL, color = "none",
                               showDiagnostics = TRUE,
                               alpha = 0.05) {
 
     stopifnot(panel %in% c("all", "response", "GIC", "merging"))
     stopifnot(show %in% c("loglikelihood", "p-value"))
     stopifnot(nodesSpacing %in% c("equidistant", "effects", "modelSpecific"))
-    stopifnot(color %in% c("null", "cluster", "summary"))
+    stopifnot(color %in% c("none", "cluster", "summary"))
     summary <- checkSummary(factorMerger, summary)
 
     mergingPathPlot <- plotTree(factorMerger, show, nodesSpacing == "equidistant",
@@ -546,25 +546,36 @@ appendToTree.GICPlot <- function(factorMerger, plot) {
 #'
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual labs
 #' @export
-plotProfile <- function(factorMerger) {
-    stat <- findSimilarities(factorMerger)
+plotProfile <- function(factorMerger, color = "summary") {
+    df <- findSimilarities(factorMerger)
 
-    stat$level <- factor(stat$level,
-                             levels = (stat %>%
-                                           filter(variable == levels(stat$variable) %>%
+    df$group <- factor(df$level,
+                             levels = (df %>%
+                                           filter(variable == levels(df$variable) %>%
                                                       head(1)) %>% arrange(rank))$level
         )
 
-    noLevels <- length(levels(stat$level))
-    stat$rank <- factor(stat$rank, levels = 1:noLevels)
-    g <- stat %>% ggplot(aes(x = variable, y = rank, col = level, group = level, label = level)) +
-        geom_line() +
-        geom_text(data = subset(stat,
-                                variable == levels(stat$variable) %>% tail(1)),
+    noLevels <- length(levels(df$level))
+    df$rank <- factor(df$rank, levels = 1:noLevels)
+
+    switch(color,
+           "cluster" = {
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+                                      by = c("level" = "orig"))
+               g <- df %>% ggplot(aes(x = variable, y = rank,
+                                      colour = pred, group = group, label = group))
+           },
+           g <- df %>% ggplot(aes(x = variable, y = rank,
+                                  col = group, group = group, label = group)) +
+               scale_color_manual(values = colorRamps::magenta2green(noLevels))
+           )
+
+    g <- g + geom_line() +
+        geom_text(data = subset(df,
+                                variable == levels(df$variable) %>% tail(1)),
                   aes(x = variable),
                   size = 3.5, hjust = 0.8,  nudge_x = 0.1) +
-        theme_minimal() + theme(legend.position = "none") +
-        scale_color_manual(values = colorRamps::magenta2green(noLevels)) +
+        theme_minimal() + theme(legend.position = "none")  +
         ylab("") +
         labs(title = "Profile plot", subtitle = "Variable means ranks")
     class(g) <- append(class(g), "profilePlot")
@@ -615,7 +626,7 @@ plotHeatmap <- function(factorMerger) {
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs
 #' @importFrom dplyr group_by summarize left_join
-plotBoxplot <- function(factorMerger, color) {
+plotBoxplot <- function(factorMerger, color = "none") {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- data.frame(x = factorMerger$factor, y = factorMerger$response)
@@ -700,20 +711,36 @@ plotMeansAndStds <- function(factorMerger, color = "none") {
 #'
 #' @export
 #' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
-#' @importFrom dplyr group_by summarize left_join
-plotProportion <- function(factorMerger) {
+#' @importFrom dplyr group_by summarize left_join summarise
+plotProportion <- function(factorMerger, color = "none") {
     levels <- getFinalOrderVec(factorMerger)
     responseLevels <- factorMerger$response %>% as.factor() %>% levels()
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
-    data <- data.frame(x = factorMerger$factor, y = factorMerger$response)
-    data %>% ggplot() + geom_bar(aes(x = x, fill = as.factor(y)), position = "fill") +
-        scale_y_continuous(label = scales::percent, name = "") +
+    df <- data.frame(x = factorMerger$factor, y = factorMerger$response)
+    switch(color,
+           "summary" = {
+               df <- df %>% group_by(x) %>% summarise(mean = mean(y == 1))
+               g <- df %>% ggplot() +
+                   geom_bar(aes(x = x, y = mean, fill = as.factor(x)), stat = "identity")
+           },
+           "cluster" = {
+               df <- df %>% group_by(x) %>% summarise(mean = mean(y == 1))
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+                                      by = c("x" = "orig"))
+               g <- df %>% ggplot() +
+                   geom_bar(aes(x = x, y = mean, fill = pred), stat = "identity")
+           },
+           "none" = {
+               g <- df %>% ggplot() + geom_bar(aes(x = x, fill = as.factor(y)), position = "fill") +
+                   scale_fill_manual(values = customPaletteValues[c(2, length(customPaletteValues) - 1)])
+           }
+           )
+     g + scale_y_continuous(label = scales::percent, name = "") +
         coord_flip() + treeTheme(NULL) +
-        scale_fill_manual(values = customPaletteValues[c(2, length(customPaletteValues) - 1)]) +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
         labs(title = "Group success proportion",
              subtitle = paste0("Success: ", responseLevels[2],
-                               " (green), failure: ", responseLevels[1], " (violet)"))
+                               ", failure: ", responseLevels[1]))
 }
 
 #' Survival plot (survival)
