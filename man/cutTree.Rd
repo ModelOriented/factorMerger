@@ -4,7 +4,7 @@
 \alias{cutTree}
 \title{Cut a Factor Merger Tree}
 \usage{
-cutTree(factorMerger, stat = "GIC", threshold = NULL)
+cutTree(factorMerger, stat = "GIC", value = 2)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}
@@ -12,7 +12,7 @@ cutTree(factorMerger, stat = "GIC", threshold = NULL)
 \item{stat}{statistic used in the bottom-up search. Available statistics are:
 \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.}
 
-\item{threshold}{cut threshold}
+\item{value}{cut threshold or penalty (for GIC)}
 }
 \value{
 Returns a factor vector - each observation is given a new cluster label.

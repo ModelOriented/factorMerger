@@ -113,7 +113,7 @@ groupsStats <- function(factorMerger) {
 #' mergingHistory(fm, showStats = TRUE)
 #'
 #' @importFrom dplyr rename
-mergingHistory <- function(factorMerger, showStats = FALSE) {
+mergingHistory <- function(factorMerger, showStats = FALSE, round = TRUE) {
     mergingList <- sapply(factorMerger$mergingList,
                         function(x) { x$merged })
     mergingDf <- do.call(rbind, mergingList) %>%
@@ -122,7 +122,10 @@ mergingHistory <- function(factorMerger, showStats = FALSE) {
 
     rownames(mergingDf) <- NULL
     if (showStats) {
-        st <- round(stats(factorMerger), 4)
+        st <- stats(factorMerger)
+        if (round) {
+            st <- round(stats(factorMerger), 4)
+        }
         mergingDf <- mergingDf[complete.cases(mergingDf), ]
         mergingDf <- rbind(c("", ""), mergingDf)
         mergingDf <- data.frame(mergingDf, st)

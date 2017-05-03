@@ -4,7 +4,7 @@
 \alias{getOptimalPartitionDf}
 \title{Get optimal partition (clusters dictionary)}
 \usage{
-getOptimalPartitionDf(factorMerger, stat = "GIC", threshold = NULL)
+getOptimalPartitionDf(factorMerger, stat = "GIC", value = 2)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}
@@ -12,7 +12,7 @@ getOptimalPartitionDf(factorMerger, stat = "GIC", threshold = NULL)
 \item{stat}{statistic used in the bottom-up search. Available statistics are:
 \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.}
 
-\item{threshold}{cut threshold}
+\item{value}{cut threshold / GIC penalty}
 }
 \value{
 Returns a dictionary in a data frame format.

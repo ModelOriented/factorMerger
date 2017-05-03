@@ -4,7 +4,7 @@
 \alias{getOptimalPartition}
 \title{Get optimal partition (final clusters names)}
 \usage{
-getOptimalPartition(factorMerger, stat = "GIC", threshold = NULL)
+getOptimalPartition(factorMerger, stat = "GIC", value = 2)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}
@@ -12,7 +12,7 @@ getOptimalPartition(factorMerger, stat = "GIC", threshold = NULL)
 \item{stat}{statistic used in the bottom-up search. Available statistics are:
 \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.}
 
-\item{threshold}{cut threshold}
+\item{value}{cut threshold / GIC penalty}
 }
 \value{
 Returns a vector with the final cluster names from the \code{factorMerger} object.

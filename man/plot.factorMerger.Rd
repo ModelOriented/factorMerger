@@ -6,7 +6,8 @@
 \usage{
 \method{plot}{factorMerger}(factorMerger, panel = "all",
   show = "loglikelihood", nodesSpacing = "equidistant", summary = NULL,
-  color = "null", showDiagnostics = TRUE, alpha = 0.05)
+  color = "none", clusterSplit = list(stat = "GIC", value = 2),
+  markBestModel = TRUE, markStars = TRUE, alpha = 0.05, palette = NULL)
 }
 \arguments{
 \item{panel}{\code{c("all", "response", "GIC", "merging")}}
@@ -15,9 +16,15 @@
 
 \item{nodesSpacing}{\code{c("equidistant", "effects", "modelSpecific")} # TODO: Change names}
 
-\item{color}{\code{c("null", "cluster", "summary")}}
+\item{color}{\code{c("none", "cluster", "summary")}}
+
+\item{alpha}{significance interval}
+
+\item{palette}{color palette}
 
 \item{showDiagnostics}{Boolean}
+
+\item{penalty}{GIC penalty}
 }
 \description{
 Plot Factor Merger

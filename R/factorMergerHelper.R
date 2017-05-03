@@ -246,7 +246,7 @@ getFinalOrderVec <- function(factorMerger) {
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
 #' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
-#' @param threshold cut threshold
+#' @param value cut threshold or penalty (for GIC)
 #'
 #' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
 #'
@@ -255,13 +255,13 @@ getFinalOrderVec <- function(factorMerger) {
 #' @export
 cutTree <- function(factorMerger,
                     stat = "GIC",
-                    threshold = NULL) {
-    stopifnot(!is.null(threshold) | stat == "GIC")
+                    value = 2) {
+    stopifnot(!is.null(value) | stat == "GIC")
     mH <- mergingHistory(factorMerger, T)
     stopifnot(stat %in% c("loglikelihood", "p-value", "GIC"))
-    if (is.null(threshold)) {
-        stat <- "GIC"
-        threshold <- min(mH$GIC)
+    if (stat == "GIC") {
+        mH$GIC <- -2 * mH$model + as.numeric(value) * nrow(mH):1
+        value <- min(mH$GIC)
     }
     statColname <- getStatNameInTable(stat)
 
@@ -272,13 +272,13 @@ cutTree <- function(factorMerger,
     }
 
     for (i in 2:nMerges) {
-        if (mH[i, statColname] >= threshold) {
+        if (mH[i, statColname] >= value) {
             factor <- mergeLevels(factor, mH$groupA[i], mH$groupB[i])
         }
         else {
             return(factor)
         }
-        if (stat == "GIC" && mH[i, stat] == threshold) {
+        if (stat == "GIC" && mH[i, stat] == value) {
             return(factor)
         }
     }
@@ -294,7 +294,7 @@ cutTree <- function(factorMerger,
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
 #' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
-#' @param threshold cut threshold
+#' @param value cut threshold / GIC penalty
 #'
 #' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
 #'
@@ -304,9 +304,9 @@ cutTree <- function(factorMerger,
 #' @export
 getOptimalPartitionDf <- function(factorMerger,
                                   stat = "GIC",
-                                  threshold = NULL) {
+                                  value = 2) {
     return(data.frame(orig = factorMerger$factor,
-                      pred = cutTree(factorMerger, stat, threshold),
+                      pred = cutTree(factorMerger, stat, value),
                       stringsAsFactors = FALSE) %>% unique())
 }
 
@@ -319,7 +319,7 @@ getOptimalPartitionDf <- function(factorMerger,
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
 #' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
-#' @param threshold cut threshold
+#' @param value cut threshold / GIC penalty
 #'
 #' @details By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
 #'
@@ -328,7 +328,7 @@ getOptimalPartitionDf <- function(factorMerger,
 #' @export
 getOptimalPartition <- function(factorMerger,
                                 stat = "GIC",
-                                threshold = NULL) {
-    factor <- cutTree(factorMerger, stat, threshold)
+                                value = 2) {
+    factor <- cutTree(factorMerger, stat, value)
     return(levels(factor))
 }
