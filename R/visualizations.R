@@ -30,7 +30,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
     stopifnot(color %in% c("none", "cluster", "summary"))
 
     summary <- checkSummary(factorMerger, summary)
-    responsePlot <- plotResponse(factorMerger, summary, color, responsePalette)
+    responsePlot <- plotResponse(factorMerger, summary, color, clusterSplit)
     if(!is.null(responsePalette)) {
         responsePlot <- ggpubr::ggpar(responsePlot, palette = responsePalette)
     }
@@ -292,25 +292,25 @@ warnIfUnexpectedSummary <- function(summarySet, summary) {
     return(summary)
 }
 
-plotResponse <- function(factorMerger, summary, color, palette) {
+plotResponse <- function(factorMerger, summary, color, clusterSplit) {
     switch(summary,
            "heatmap" = {
-               return(plotHeatmap(factorMerger, color))
+               return(plotHeatmap(factorMerger, color, clusterSplit))
            },
            "profile" = {
-               return(plotProfile(factorMerger, color))
+               return(plotProfile(factorMerger, color, clusterSplit))
            },
            "boxplot" = {
-               return(plotBoxplot(factorMerger, color))
+               return(plotBoxplot(factorMerger, color, clusterSplit))
            },
            "means" = {
-               return(plotMeansAndStds(factorMerger, color))
+               return(plotMeansAndStds(factorMerger, color, clusterSplit))
            },
            "survival" = {
-               return(plotSurvival(factorMerger, color))
+               return(plotSurvival(factorMerger, color, clusterSplit))
            },
            "proportion" = {
-               return(plotProportion(factorMerger, color))
+               return(plotProportion(factorMerger, color, clusterSplit))
            })
 }
 
@@ -344,7 +344,7 @@ findSimilarities <- function(factorMerger) {
 #' @importFrom magrittr %>%
 #' @importFrom reshape2 melt
 #' @importFrom dplyr filter arrange
-plotHeatmap <- function(factorMerger, color) {
+plotHeatmap <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- findSimilarities(factorMerger)
@@ -375,7 +375,7 @@ plotHeatmap <- function(factorMerger, color) {
 #'
 #' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual labs
 #' @export
-plotProfile <- function(factorMerger, color) {
+plotProfile <- function(factorMerger, color, clusterSplit) {
     df <- findSimilarities(factorMerger)
 
     df$group <- factor(df$level,
@@ -389,7 +389,9 @@ plotProfile <- function(factorMerger, color) {
 
     switch(color,
            "cluster" = {
-               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
+                                                            clusterSplit[[1]],
+                                                            clusterSplit[[2]]),
                                       by = c("level" = "orig"))
                g <- df %>% ggplot(aes(x = variable, y = rank,
                                       colour = pred, group = group, label = group))
@@ -423,14 +425,16 @@ plotProfile <- function(factorMerger, color) {
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs ylab xlab
 #' @importFrom dplyr group_by summarize left_join
-plotBoxplot <- function(factorMerger, color = "none") {
+plotBoxplot <- function(factorMerger, color = "none", clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- data.frame(group = factorMerger$factor, y = factorMerger$response)
     df <- calculateBoxPlotMoments(df)
     switch(color,
            "cluster" = {
-               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
+                                                            clusterSplit[[1]],
+                                                            clusterSplit[[2]]),
                                       by = c("group" = "orig"))
                g <- df %>% ggplot(aes(y = y, x = group, group = group, fill = pred))
            },
@@ -458,13 +462,15 @@ plotBoxplot <- function(factorMerger, color = "none") {
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
 #' @importFrom dplyr group_by summarize left_join
-plotMeansAndStds <- function(factorMerger, color = "none") {
+plotMeansAndStds <- function(factorMerger, color = "none", clusterSplit) {
     factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
     df <- getMeansAndStds(factorMerger, factor)
 
     switch(color,
            "cluster" = {
-               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
+                                                            clusterSplit[[1]],
+                                                            clusterSplit[[2]]),
                                       by = c("group" = "orig"))
                g <- df %>% ggplot(aes(colour = pred, fill = pred,
                                       x = as.factor(group),
@@ -489,7 +495,73 @@ plotMeansAndStds <- function(factorMerger, color = "none") {
         labs(title = "Summary statistics",
              subtitle = "Means and standard deviations of coefficients' estimators") +
         ylab("")
+}
 
+#' Proportion plot (binomial)
+#'
+#' @description Plots proportion of success for each factor level.
+#'
+#' @export
+#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
+#' @importFrom dplyr group_by summarize left_join summarise
+plotProportion <- function(factorMerger, color = "none", clusterSplit) {
+    levels <- getFinalOrderVec(factorMerger)
+    responseLevels <- factorMerger$response %>% as.factor() %>% levels()
+    factorMerger$factor <- factor(factorMerger$factor, levels = levels)
+    df <- data.frame(group = factorMerger$factor, y = factorMerger$response)
+    switch(color,
+           "summary" = {
+               df <- df %>% group_by(group) %>% summarise(mean = mean(y == 1))
+               g <- df %>% ggplot() +
+                   geom_bar(aes(x = group, y = mean, fill = as.factor(group)),
+                            stat = "identity")
+           },
+           "cluster" = {
+               df <- df %>% group_by(group) %>% summarise(mean = mean(y == 1))
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
+                                                            clusterSplit[[1]],
+                                                            clusterSplit[[2]]),
+                                      by = c("group" = "orig"))
+               g <- df %>% ggplot() +
+                   geom_bar(aes(x = group, y = mean, fill = pred), stat = "identity")
+           },
+           "none" = {
+               g <- df %>% ggplot() + geom_bar(aes(x = group, fill = as.factor(y)), position = "fill")
+           }
+    )
+    g + scale_y_continuous(label = scales::percent, name = "") +
+        coord_flip() + treeTheme() +
+        theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
+        labs(title = "Group success proportion",
+             subtitle = "")
+}
+
+#' Survival plot (survival)
+#'
+#' @description Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
+#'
+#' @importFrom ggplot2 labs
+#'
+#' @export
+plotSurvival <- function(factorMerger, color, clusterSplit) {
+    levels <- getFinalOrderVec(factorMerger)
+    df <- data.frame(group = (factor(factorMerger$factor, levels = levels) %>%
+                         as.character()))
+
+    if (color == "cluster") {
+        df$group <- cutTree(factorMerger, clusterSplit[[1]], clusterSplit[[2]])
+    }
+
+    model <- calculateModel(factorMerger, df$group)
+
+    g <- survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
+                                        individual.curves = TRUE,
+                                        variable = df$group,
+                                        curve.size = 1) +
+        treeTheme() + labs(title = "Survival plot",
+                           subtitle = "Adjusted survival curves for coxph model")
+    class(g) <- append(class(g), "survPlot")
+    return(g)
 }
 
 

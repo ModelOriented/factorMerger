@@ -96,7 +96,7 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
         segment$df[segment$df$x1 < bestModel, ]$x1 <- bestModel
     }
     segment <- lapply(segment, function(x)
-        x %>% filter(x1 >= bestModel %>% round(4)))
+        x %>% filter(x1 %>% round(4) >= bestModel %>% round(4)))
     map <- getOptimalPartitionDf(factorMerger, clusterSplit[[1]], clusterSplit[[2]])
     map$pred <- as.character(map$pred)
     map$orig <- as.character(map$orig)
