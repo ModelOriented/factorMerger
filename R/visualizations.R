@@ -110,6 +110,20 @@ plotTree <- function(factorMerger, show, nodesSpacing,
 plotSimpleTree <- function(factorMerger, show, clusterSplit,
                            markBestModel, markStars,
                            alpha, color, colorsDf, palette) {
+    nodesPosition <- getFinalOrder(factorMerger) %>% data.frame()
+    mH <- mergingHistory(factorMerger)
+    noStep <- nrow(mH)
+
+    for (step in 1:noStep) {
+        newLine <- mean(nodesPosition[rownames(nodesPosition) %in% mH[step, ],])
+        nodesPosition <- rbind(nodesPosition, newLine)
+        rownames(nodesPosition)[nrow(nodesPosition)] <-
+            paste(mH[step, ], collapse = "")
+    }
+    return(plotCustomizedTree(factorMerger, show, clusterSplit,
+                              "equidistance", markBestModel, markStars,
+                              alpha, color, colorsDf, palette,
+                              nodesPosition))
 
 }
 
@@ -120,9 +134,12 @@ plotSimpleTree <- function(factorMerger, show, clusterSplit,
 #' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous labs
 plotCustomizedTree <- function(factorMerger, show, clusterSplit,
                                nodesSpacing, markBestModel, markStars,
-                               alpha, color, colorsDf, palette) {
+                               alpha, color, colorsDf, palette,
+                               nodesPosition = NULL) {
     statisticColname <- getStatNameInTable(show)
-    nodesPosition <- groupsStats(factorMerger)
+    if (is.null(nodesPosition)) {
+        nodesPosition <- groupsStats(factorMerger)
+    }
     if (nodesSpacing == "modelSpecific") {
         nodesPosition <- applyModelTransformation(factorMerger, nodesPosition)
     }
@@ -146,7 +163,9 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
     g <- g + xlab(show) +
         labs(title = "Merging path plot",
              subtitle = paste0("Optimal GIC partition: ",
-                               paste(getOptimalPartition(factorMerger),
+                               paste(getOptimalPartition(factorMerger,
+                                                         clusterSplit[[1]],
+                                                         clusterSplit[[2]]),
                                      collapse = ":"))) + treeTheme()
 
     if (color == "cluster") {
@@ -173,27 +192,11 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
     }
 
     if (markBestModel) {
-        optimalNSteps <- optimalNumberOfMerges(factorMerger,
-                                               clusterSplit[[1]],
-                                               clusterSplit[[2]])
-        mH <- mergingHistory(factorMerger, T, F)
-        intercept <- mH[optimalNSteps + 1, statisticColname]
-        if (show == "p-value") {
-            label <- paste0("alpha = ", intercept)
-            labelIntercept <- log10(intercept)
-        }
-        if (show == "loglikelihood") {
-            label <- paste0("loglikelihood = ", intercept)
-            labelIntercept <- intercept
-        }
-        if (clusterSplit[[1]] == "GIC") {
-            label <- paste0("min GIC")
-        }
-        g <- g + geom_vline(xintercept = intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = labelIntercept, y = getLimits(labelsDf, showY)[1],
-                       label = label, alpha = 0.5, col = "mediumorchid3",
-                       angle = 90,
-                       size = 3, fontface = "italic")
+        mark <- markOptimalModel(factorMerger, clusterSplit, show)
+        g <- g + geom_vline(xintercept = mark$intercept, col = "mediumorchid3", linetype = "dotted") +
+            geom_label(x = mark$labelIntercept, y = getLimits(labelsDf, showY)[1],
+                       label = mark$label, alpha = 0.5, col = "mediumorchid3",
+                       angle = 90, size = 3, fontface = "italic")
     }
 
     if (markStars) {
@@ -203,6 +206,30 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
     }
 
     return(g)
+}
+
+markOptimalModel <- function(factorMerger, clusterSplit, show) {
+    optimalNSteps <- optimalNumberOfMerges(factorMerger,
+                                           clusterSplit[[1]],
+                                           clusterSplit[[2]])
+    mH <- mergingHistory(factorMerger, T, F)
+    intercept <- mH[optimalNSteps + 1, getStatNameInTable(show)]
+    if (show == "p-value") {
+        label <- paste0("alpha = ", intercept)
+        labelIntercept <- log10(intercept)
+    }
+    if (show == "loglikelihood") {
+        label <- paste0("loglikelihood = ", intercept)
+        labelIntercept <- intercept
+    }
+    if (clusterSplit[[1]] == "GIC") {
+        label <- paste0("min GIC")
+    }
+    return(list(
+        label = label,
+        intercept = intercept,
+        labelIntercept = labelIntercept
+    ))
 }
 
 applyModelTransformation <- function(object, nodesPosition) {
