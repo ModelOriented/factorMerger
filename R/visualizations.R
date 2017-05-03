@@ -2,14 +2,23 @@
 #'
 #' @param panel \code{c("all", "response", "GIC", "merging")}
 #' @param show \code{c("loglikelihood", "p-value")}
-#' @param nodesSpacing \code{c("equidistant", "effects", "modelSpecific")} # TODO: Change names
-#' @param summary
-#' @param color \code{c("none", "cluster", "summary")}
-#' @param showDiagnostics Boolean
+#' @param nodesSpacing \code{c("equidistant", "effects", "modelSpecific")}
+#' # TODO: Maybe different names? Implement "modelSpecific".
+#' @param summary \code{c("heatmap", "profile", "means", "boxplot", "proportion", "survival")}
+#' @param clusterSplit list of a length 2:
+#' \itemize{
+#' \item \code{stat} - statistic used in the bottom-up search. Available statistics are:
+#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' \item \code{value} cut threshold / GIC penalty
+#' }
+#' @param color \code{c("none", "cluster")}
+#' @param markBestModel Boolean
+#' @param markSignificanceStars Boolean
 #' @param alpha significance interval
-#' @param penalty GIC penalty
-#' @param palette color palette
-#'
+#' @param penalty GIC penalty for the GIC plot
+#' @param mergingPalette color palette
+#' @param responsePalette color palette
+#' @param GICcolor color used with the GIC plot
 #' @importFrom gridExtra grid.arrange
 #'
 #' @export
@@ -18,7 +27,8 @@ plot.factorMerger <- function(factorMerger, panel = "all",
                               nodesSpacing = "equidistant",
                               summary = NULL, color = "none",
                               clusterSplit = list(stat = "GIC", value = 2),
-                              markBestModel = TRUE, markStars = TRUE,
+                              markBestModel = TRUE,
+                              markSignificanceStars = TRUE,
                               alpha = 0.05, penalty = 2,
                               mergingPalette = NULL,
                               responsePalette = NULL,
@@ -27,7 +37,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
     stopifnot(panel %in% c("all", "response", "GIC", "merging"))
     stopifnot(show %in% c("loglikelihood", "p-value"))
     stopifnot(nodesSpacing %in% c("equidistant", "effects", "modelSpecific"))
-    stopifnot(color %in% c("none", "cluster", "summary"))
+    stopifnot(color %in% c("none", "cluster"))
 
     summary <- checkSummary(factorMerger, summary)
     responsePlot <- plotResponse(factorMerger, summary, color, clusterSplit)
@@ -44,14 +54,12 @@ plot.factorMerger <- function(factorMerger, panel = "all",
         colorsDf <- getOptimalPartitionDf(factorMerger,
                                           clusterSplit[[1]],
                                           clusterSplit[[2]])
-    } else if (color == "summary") {
-        colorsDf <- getColorsFromResponseDf(responsePlot)
     } else {
         colorsDf <- NULL
     }
 
     mergingPathPlot <- plotTree(factorMerger, show, nodesSpacing,
-                                clusterSplit, markBestModel, markStars,
+                                clusterSplit, markBestModel, markSignificanceStars,
                                 alpha, color, colorsDf, mergingPalette)
 
     if (!is.null(mergingPalette)) {
@@ -63,7 +71,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
            },
            "all" = {
                return(grid.arrange(mergingPathPlot, responsePlot,
-                                   plotGIC(factorMerger), ncol = 2,
+                                   plotGIC(factorMerger, GICcolor, penalty, show), ncol = 2,
                                    widths = c(7.5, 2.5), heights = c(7.5, 2.5)))
            },
            "response" = {
@@ -72,10 +80,14 @@ plot.factorMerger <- function(factorMerger, panel = "all",
                                    widths = c(7.5, 2.5)))
            },
            "GIC" = {
-               return(grid.arrange(mergingPathPlot, plotGIC(factorMerger),
+               return(grid.arrange(mergingPathPlot, plotGIC(factorMerger, GICcolor, penalty, show),
                                    ncol = 1,
                                    heights = c(7.5, 2.5)))
            })
+}
+
+getColorsFromResponseDf <- function(responsePlot) {
+
 }
 
 # -------------------
@@ -177,7 +189,7 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
     g <- scaleAxis(g, show, alpha)
 
     if (markBestModel) {
-        mark <- markOptimalModel(factorMerger, clusterSplit, show)
+        mark <- markOptimalModel(factorMerger, clusterSplit, show, alpha)
         g <- g + geom_vline(xintercept = mark$intercept, col = "mediumorchid3", linetype = "dotted") +
             geom_label(x = mark$labelIntercept, y = getLimits(labelsDf, showY)[1],
                        label = mark$label, alpha = 0.5, col = "mediumorchid3",
@@ -222,14 +234,14 @@ scaleAxis <- function(plot, show, alpha) {
     return(plot)
 }
 
-markOptimalModel <- function(factorMerger, clusterSplit, show) {
+markOptimalModel <- function(factorMerger, clusterSplit, show, alpha) {
     optimalNSteps <- optimalNumberOfMerges(factorMerger,
                                            clusterSplit[[1]],
                                            clusterSplit[[2]])
     mH <- mergingHistory(factorMerger, T, F)
     intercept <- mH[optimalNSteps + 1, getStatNameInTable(show)]
     if (show == "p-value") {
-        label <- paste0("alpha = ", intercept)
+        label <- paste0("alpha = ", alpha)
         labelIntercept <- log10(intercept)
     }
     if (show == "loglikelihood") {
@@ -396,10 +408,6 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
                g <- df %>% ggplot(aes(x = variable, y = rank,
                                       colour = pred, group = group, label = group))
            },
-           "summary" = {
-               g <- df %>% ggplot(aes(x = variable, y = rank,
-                                      col = group, group = group, label = group))
-           },
            "none" = {
                g <- df %>% ggplot(aes(x = variable, y = rank,
                                       col = group, group = group, label = group)) +
@@ -438,9 +446,6 @@ plotBoxplot <- function(factorMerger, color = "none", clusterSplit) {
                                       by = c("group" = "orig"))
                g <- df %>% ggplot(aes(y = y, x = group, group = group, fill = pred))
            },
-           "summary" = {
-               g <- df %>% ggplot(aes(y = y, x = group, group = group, fill = group))
-           },
            "none" = {
                g <- df %>% ggplot(aes(y = y, x = group, group = group))
            })
@@ -476,11 +481,6 @@ plotMeansAndStds <- function(factorMerger, color = "none", clusterSplit) {
                                       x = as.factor(group),
                                       y = mean, group = as.factor(group)))
            },
-           "summary" = {
-               g <- df %>% ggplot(aes(colour = as.factor(group), fill = as.factor(group),
-                                      x = as.factor(group),
-                                      y = mean, group = as.factor(group)))
-           },
            "none" = {
                g <- df %>% ggplot(aes(x = as.factor(group), colour = as.factor(group),
                                       y = mean, group = as.factor(group)))
@@ -510,12 +510,6 @@ plotProportion <- function(factorMerger, color = "none", clusterSplit) {
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- data.frame(group = factorMerger$factor, y = factorMerger$response)
     switch(color,
-           "summary" = {
-               df <- df %>% group_by(group) %>% summarise(mean = mean(y == 1))
-               g <- df %>% ggplot() +
-                   geom_bar(aes(x = group, y = mean, fill = as.factor(group)),
-                            stat = "identity")
-           },
            "cluster" = {
                df <- df %>% group_by(group) %>% summarise(mean = mean(y == 1))
                df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
@@ -532,7 +526,7 @@ plotProportion <- function(factorMerger, color = "none", clusterSplit) {
     g + scale_y_continuous(label = scales::percent, name = "") +
         coord_flip() + treeTheme() +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
-        labs(title = "Group success proportion",
+        labs(title = "Success ratio",
              subtitle = "")
 }
 
@@ -560,7 +554,40 @@ plotSurvival <- function(factorMerger, color, clusterSplit) {
                                         curve.size = 1) +
         treeTheme() + labs(title = "Survival plot",
                            subtitle = "Adjusted survival curves for coxph model")
-    class(g) <- append(class(g), "survPlot")
+    return(g)
+}
+
+# -------------------
+# GIC plot - bottom left plot
+
+#' GIC plot
+#'
+#' @description Plots Generalized Information Criterion for models on the Merging Path Plot.
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_line aes theme element_blank scale_y_continuous labs geom_point geom_ribbon
+#'
+#' @export
+plotGIC <- function(factorMerger, color, penalty = 2, show) {
+    if (is.null(color)) {
+        color <- "#762A83"
+    }
+    mH <- mergingHistory(factorMerger, T, F)
+    mH$GIC <- -2 * mH$model + penalty * nrow(mH):1
+    minGIC <- min(mH$GIC)
+    yBreaks <- c(mH$GIC[1], minGIC, mH$GIC[length(mH$GIC)]) %>% unique() %>% round()
+    minModel <- mH$model[which.min(mH$GIC)]
+    g <- mH %>% ggplot(aes_string(x = getStatNameInTable(show), y = "GIC")) +
+        geom_line(col = color, size = 1) +
+        geom_point(col = color, size = 1.5) +
+        geom_point(x = minModel, y = minGIC, col = color, size = 2.5) +
+        geom_ribbon(aes(x = model, ymin = minGIC, ymax = GIC),
+                    fill = color, alpha = 0.2) +
+        treeTheme() +
+        theme(axis.text.x = element_blank(),
+              axis.title.x = element_blank(),
+              axis.title.y = element_text(),
+              panel.grid.major = element_blank()) +
+        scale_y_continuous(position = "right", breaks = yBreaks)
     return(g)
 }
 

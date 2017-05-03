@@ -7,25 +7,42 @@
 \method{plot}{factorMerger}(factorMerger, panel = "all",
   show = "loglikelihood", nodesSpacing = "equidistant", summary = NULL,
   color = "none", clusterSplit = list(stat = "GIC", value = 2),
-  markBestModel = TRUE, markStars = TRUE, alpha = 0.05, penalty = 2,
-  mergingPalette = NULL, responsePalette = NULL, GICcolor = NULL)
+  markBestModel = TRUE, markSignificanceStars = TRUE, alpha = 0.05,
+  penalty = 2, mergingPalette = NULL, responsePalette = NULL,
+  GICcolor = NULL)
 }
 \arguments{
 \item{panel}{\code{c("all", "response", "GIC", "merging")}}
 
 \item{show}{\code{c("loglikelihood", "p-value")}}
 
-\item{nodesSpacing}{\code{c("equidistant", "effects", "modelSpecific")} # TODO: Change names}
+\item{nodesSpacing}{\code{c("equidistant", "effects", "modelSpecific")}
+# TODO: Maybe different names? Implement "modelSpecific".}
 
-\item{color}{\code{c("none", "cluster", "summary")}}
+\item{summary}{\code{c("heatmap", "profile", "means", "boxplot", "proportion", "survival")}}
+
+\item{color}{\code{c("none", "cluster")}}
+
+\item{clusterSplit}{list of a length 2:
+\itemize{
+\item \code{stat} - statistic used in the bottom-up search. Available statistics are:
+\code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+\item \code{value} cut threshold / GIC penalty
+}}
+
+\item{markBestModel}{Boolean}
+
+\item{markSignificanceStars}{Boolean}
 
 \item{alpha}{significance interval}
 
-\item{penalty}{GIC penalty}
+\item{penalty}{GIC penalty for the GIC plot}
 
-\item{showDiagnostics}{Boolean}
+\item{mergingPalette}{color palette}
 
-\item{palette}{color palette}
+\item{responsePalette}{color palette}
+
+\item{GICcolor}{color used with the GIC plot}
 }
 \description{
 Plot Factor Merger

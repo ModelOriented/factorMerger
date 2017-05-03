@@ -4,7 +4,7 @@
 \alias{plotHeatmap}
 \title{Heatmap (multi-dimensional gaussian)}
 \usage{
-plotHeatmap(factorMerger, color)
+plotHeatmap(factorMerger, color, clusterSplit)
 }
 \description{
 Plots heatmap for each dimension of the response variable. Vector of means of factor levels for a given

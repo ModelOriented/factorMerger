@@ -4,7 +4,7 @@
 \alias{plotMeansAndStds}
 \title{Means and standard deviation plot (single-dimensional gaussian)}
 \usage{
-plotMeansAndStds(factorMerger, color = "none")
+plotMeansAndStds(factorMerger, color = "none", clusterSplit)
 }
 \description{
 For each factor level plots its mean and interval of the length equal to its standard deviation.

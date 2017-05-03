@@ -70,12 +70,12 @@ optimalNumberOfMerges <- function(factorMerger, stat = "GIC", value = 2) {
         nSteps <- which.min(mH$GIC) - 1
     } else {
         statColname <- getStatNameInTable(stat)
-        nSteps <- 0
+        nSteps <- 1
         while (nSteps < nrow(mH) & mH[nSteps + 1, statColname] >= value) {
             nSteps <- nSteps + 1
         }
     }
-    return(nSteps)
+    return(nSteps - 1)
 }
 
 # Divides part of a segment plot into clusters
@@ -84,7 +84,6 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
     nSteps <- optimalNumberOfMerges(factorMerger,
                                     clusterSplit[[1]],
                                     clusterSplit[[2]])
-
     mH <- mergingHistory(factorMerger, T, F)
     bestModel <- mH[nSteps + 1, getStatNameInTable(stat)]
     segment <- lapply(segment, function(x)
