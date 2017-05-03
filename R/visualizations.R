@@ -156,10 +156,9 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
     showY <- nodesSpacing != "equidistant"
 
     g <- df %>% ggplot() +
-        geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), size = 0.75) +
-        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75)
-
-    g <- g + scale_y_continuous(limits = getLimits(labelsDf, showY),
+        geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), size = 0.5) +
+        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75)+
+        scale_y_continuous(limits = getLimits(labelsDf, showY),
                                 position = "right",
                                 breaks = labelsDf$y1,
                                 labels = getLabels(labelsDf, factorMerger)) +
@@ -415,6 +414,82 @@ plotProfile <- function(factorMerger, color) {
               plot.title = element_text(size = 18),
               plot.subtitle = element_text(size = 12))
     return(g)
+}
+
+#' Boxplot (single-dimensional gaussian)
+#'
+#' @description Plots boxplot with mean as a summary statistic groupping observation by factor levels.
+#'
+#' @export
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs ylab xlab
+#' @importFrom dplyr group_by summarize left_join
+plotBoxplot <- function(factorMerger, color = "none") {
+    levels <- getFinalOrderVec(factorMerger)
+    factorMerger$factor <- factor(factorMerger$factor, levels = levels)
+    df <- data.frame(group = factorMerger$factor, y = factorMerger$response)
+    df <- calculateBoxPlotMoments(df)
+    switch(color,
+           "cluster" = {
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+                                      by = c("group" = "orig"))
+               g <- df %>% ggplot(aes(y = y, x = group, group = group, fill = pred))
+           },
+           "summary" = {
+               g <- df %>% ggplot(aes(y = y, x = group, group = group, fill = group))
+           },
+           "none" = {
+               g <- df %>% ggplot(aes(y = y, x = group, group = group))
+           })
+
+    g + geom_boxplot(aes(ymin = y0,
+                         lower = y25,
+                         middle = y50,
+                         upper = y75,
+                         ymax = y100), stat = "identity") +
+        coord_flip() + treeTheme() + xlab("") + ylab("") +
+        theme(axis.text.y = element_blank()) +
+        labs(title = "Boxplot", subtitle = "Summary statistic: mean")
+}
+
+#' Means and standard deviation plot (single-dimensional gaussian)
+#'
+#' @description For each factor level plots its mean and interval of the length equal to its standard deviation.
+#'
+#' @export
+#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
+#' @importFrom dplyr group_by summarize left_join
+plotMeansAndStds <- function(factorMerger, color = "none") {
+    factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
+    df <- getMeansAndStds(factorMerger, factor)
+
+    switch(color,
+           "cluster" = {
+               df <- df %>% left_join(getOptimalPartitionDf(factorMerger),
+                                      by = c("group" = "orig"))
+               g <- df %>% ggplot(aes(colour = pred, fill = pred,
+                                      x = as.factor(group),
+                                      y = mean, group = as.factor(group)))
+           },
+           "summary" = {
+               g <- df %>% ggplot(aes(colour = as.factor(group), fill = as.factor(group),
+                                      x = as.factor(group),
+                                      y = mean, group = as.factor(group)))
+           },
+           "none" = {
+               g <- df %>% ggplot(aes(x = as.factor(group), colour = as.factor(group),
+                                      y = mean, group = as.factor(group)))
+           })
+
+    g + geom_errorbar(aes(ymin = left, ymax = right),
+                      width = .5,
+                      position = position_dodge(.5)) + treeTheme() +
+        geom_point(size = 2) + coord_flip() +
+        theme(axis.title.x = element_text(),
+              axis.text.y = element_blank()) +
+        labs(title = "Summary statistics",
+             subtitle = "Means and standard deviations of coefficients' estimators") +
+        ylab("")
+
 }
 
 

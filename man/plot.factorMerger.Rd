@@ -8,7 +8,7 @@
   show = "loglikelihood", nodesSpacing = "equidistant", summary = NULL,
   color = "none", clusterSplit = list(stat = "GIC", value = 2),
   markBestModel = TRUE, markStars = TRUE, alpha = 0.05, penalty = 2,
-  palette = NULL)
+  mergingPalette = NULL, responsePalette = NULL, GICcolor = NULL)
 }
 \arguments{
 \item{panel}{\code{c("all", "response", "GIC", "merging")}}
@@ -23,9 +23,9 @@
 
 \item{penalty}{GIC penalty}
 
-\item{palette}{color palette}
-
 \item{showDiagnostics}{Boolean}
+
+\item{palette}{color palette}
 }
 \description{
 Plot Factor Merger

@@ -4,7 +4,7 @@
 \alias{plotProfile}
 \title{Profile plot (multi-dimensional gaussian)}
 \usage{
-plotProfile(factorMerger, color, palette)
+plotProfile(factorMerger, color)
 }
 \description{
 Plots rank plot - one series is a single factor level and one group

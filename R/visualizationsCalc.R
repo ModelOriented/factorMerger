@@ -189,3 +189,26 @@ getChisqBreaks <- function(plotData, alpha) {
         )
     )
 }
+
+calculateBoxPlotMoments <- function(df) {
+    return(
+        df %>% left_join(
+            df %>% group_by(group) %>% summarize(y0 = min(y),
+                                             y25 = quantile(y, 0.25),
+                                             y50 = mean(y),
+                                             y75 = quantile(y, 0.75),
+                                             y100 = max(y)), by = "group")
+    )
+
+}
+
+getMeansAndStds <- function(factorMerger, factor) {
+    model <- lm(factorMerger$response ~ factor - 1)
+    df <- data.frame(group = levels(factor))
+    sumModel <- summary(model)
+    df$mean <- sumModel$coefficients[, 1]
+    df$left <- df$mean - sumModel$coefficients[, 2]
+    df$right <- df$mean + sumModel$coefficients[, 2]
+    df$group <- factor(df$group, levels = df$group)
+    return(df)
+}
