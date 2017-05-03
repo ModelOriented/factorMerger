@@ -7,7 +7,8 @@
 \method{plot}{factorMerger}(factorMerger, panel = "all",
   show = "loglikelihood", nodesSpacing = "equidistant", summary = NULL,
   color = "none", clusterSplit = list(stat = "GIC", value = 2),
-  markBestModel = TRUE, markStars = TRUE, alpha = 0.05, palette = NULL)
+  markBestModel = TRUE, markStars = TRUE, alpha = 0.05, penalty = 2,
+  palette = NULL)
 }
 \arguments{
 \item{panel}{\code{c("all", "response", "GIC", "merging")}}
@@ -20,11 +21,11 @@
 
 \item{alpha}{significance interval}
 
+\item{penalty}{GIC penalty}
+
 \item{palette}{color palette}
 
 \item{showDiagnostics}{Boolean}
-
-\item{penalty}{GIC penalty}
 }
 \description{
 Plot Factor Merger
