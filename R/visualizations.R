@@ -103,7 +103,7 @@ plotTree <- function(factorMerger, show, nodesSpacing,
     return(
         plotCustomizedTree(factorMerger, show, clusterSplit,
                            nodesSpacing, markBestModel, markStars,
-                           alpha, color, colorsDf, palette)
+                           alpha, color, colorsDf, palette, groupsStats(factorMerger))
     )
 }
 
@@ -137,9 +137,6 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
                                alpha, color, colorsDf, palette,
                                nodesPosition = NULL) {
     statisticColname <- getStatNameInTable(show)
-    if (is.null(nodesPosition)) {
-        nodesPosition <- groupsStats(factorMerger)
-    }
     if (nodesSpacing == "modelSpecific") {
         nodesPosition <- applyModelTransformation(factorMerger, nodesPosition)
     }
@@ -157,10 +154,7 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
                                 position = "right",
                                 breaks = labelsDf$y1,
                                 labels = getLabels(labelsDf, factorMerger)) +
-        ylab(getStatisticName(factorMerger))
-
-    upperBreaks <- df$x1 %>% unique() %>% sort
-    g <- g + xlab(show) +
+        ylab(getStatisticName(factorMerger)) + xlab(show) +
         labs(title = "Merging path plot",
              subtitle = paste0("Optimal GIC partition: ",
                                paste(getOptimalPartition(factorMerger,
@@ -169,27 +163,10 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
                                      collapse = ":"))) + treeTheme()
 
     if (color == "cluster") {
-        segmentColoured <- getClustersColors(segment, factorMerger, clusterSplit, show)
-        g <- g +
-            geom_segment(data = segmentColoured$df,
-                         aes(x = x1, y = y1, xend = x2, yend = y2, col = pred)) +
-            geom_point(data = segmentColoured$pointsDf,
-                       aes(x = x1, y = y1, col = pred), size = 0.75)
-        nGroups <- length(unique(segmentColoured$labelsDf$pred))
-        clusterColors <- factor(segmentColoured$labelsDf$pred, labels = hue_pal()(nGroups)) %>%
-            as.character()
-        g <- g + theme(axis.text.y = element_text(color = clusterColors[length(clusterColors):1]))
+        g <- colorCluster(g, segment, factorMerger, clusterSplit, show, palette)
     }
 
-    if (show == "p-value") {
-        g <- g + scale_x_log10()
-    }
-
-    if (show == "loglikelihood") {
-        labBr <- getChisqBreaks(g$data, alpha)
-        g <- g +
-            scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
-    }
+    g <- scaleAxis(g, show, alpha)
 
     if (markBestModel) {
         mark <- markOptimalModel(factorMerger, clusterSplit, show)
@@ -206,6 +183,33 @@ plotCustomizedTree <- function(factorMerger, show, clusterSplit,
     }
 
     return(g)
+}
+
+colorCluster <- function(plot, segment, factorMerger, clusterSplit, show, palette) {
+    segmentColoured <- getClustersColors(segment, factorMerger, clusterSplit, show)
+    plot <- plot +
+        geom_segment(data = segmentColoured$df,
+                     aes(x = x1, y = y1, xend = x2, yend = y2, col = pred)) +
+        geom_point(data = segmentColoured$pointsDf,
+                   aes(x = x1, y = y1, col = pred), size = 0.75)
+    nGroups <- length(unique(segmentColoured$labelsDf$pred))
+    clusterColors <- factor(segmentColoured$labelsDf$pred, labels = hue_pal()(nGroups)) %>%
+        as.character()
+    plot <- plot + theme(axis.text.y = element_text(color = clusterColors[length(clusterColors):1]))
+    return(plot)
+}
+
+scaleAxis <- function(plot, show, alpha) {
+    if (show == "p-value") {
+        plot <- plot + scale_x_log10()
+    }
+
+    if (show == "loglikelihood") {
+        labBr <- getChisqBreaks(plot$data, alpha)
+        plot <- plot +
+            scale_x_continuous(breaks = labBr$breaks, labels = labBr$labels)
+    }
+    return(plot)
 }
 
 markOptimalModel <- function(factorMerger, clusterSplit, show) {
