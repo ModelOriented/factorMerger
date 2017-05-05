@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{plotMeansAndStds}
 \alias{plotMeansAndStds}
-\title{Means and standard deviation plot (single-dimensional gaussian)}
+\title{Means and standard deviation plot (single-dimensional Gaussian)}
 \usage{
 plotMeansAndStds(factorMerger, color = "none", clusterSplit)
 }

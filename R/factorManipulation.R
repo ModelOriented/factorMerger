@@ -1,4 +1,3 @@
-#'
 getIncreasingFactor <- function(factorMerger) {
     stats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
     colnames(stats)[2] <- "stat"

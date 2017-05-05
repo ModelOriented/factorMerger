@@ -12,37 +12,69 @@
   GICcolor = NULL)
 }
 \arguments{
-\item{panel}{\code{c("all", "response", "GIC", "merging")}}
+\item{panel}{Type of panels to be plot. Possible values are \code{c("all", "response", "GIC", "merging")}.
+All types of plots include the Merging Path Plot. Apart from the Merging Path Plot there are
+also two possible panels: the Response Plot (response summary, specific to the model family),
+the GIC Plot (GIC vs. loglikelihood/p-value).
+\itemize{
+\item \code{"merging"} plots the Merging Path Plot only,
+\item \code{"response"} plots the Merging Path Plot and the Response Plot,
+\item \code{"GIC"} plots the Merging Path Plot and the GIC Plot,
+\item \code{"all"} plots all panels and a short summary of the full model.
+}}
 
-\item{show}{\code{c("loglikelihood", "p-value")}}
+\item{show}{Statistic to be displayed on the OX axis. Possible values are \code{c("loglikelihood", "p-value")}.
+If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot on the OX axis.}
 
-\item{nodesSpacing}{\code{c("equidistant", "effects", "modelSpecific")}
+\item{nodesSpacing}{Type of nodes vertical spacing. May be chosen from
+ \code{c("equidistant", "effects", "modelSpecific")}. \code{"effects"} arranges nodes according to
+ the model coefficients estimatiors (e.g. in Gaussian case on the OY axis group means are plotted).
+
 # TODO: Maybe different names? Implement "modelSpecific".}
 
-\item{summary}{\code{c("heatmap", "profile", "means", "boxplot", "proportion", "survival")}}
+\item{summary}{Response panel type -- accepts the following values dependent on the model family:
+\itemize{
+\item multi dimensional Gaussian: \code{c("heatmap", "profile")},
+\item single dimensional Gaussian: \code{c("means", "boxplot")},
+\item binomial: \code{c("proportion")},
+\item survival: \code{c("survival")}
+}}
 
-\item{color}{\code{c("none", "cluster")}}
+\item{color}{Specifies how the Merging Path Plot should be colored. Possible values are \code{c("none", "cluster")}.
+If \code{color = "cluster"} colors obtained tree according to the \code{clusterSplit}.}
 
-\item{clusterSplit}{list of a length 2:
+\item{clusterSplit}{List of a length two:
 \itemize{
 \item \code{stat} - statistic used in the bottom-up search. Available statistics are:
 \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
 \item \code{value} cut threshold / GIC penalty
-}}
+}
+This parameter is considered only with \code{color = "cluster"}.
+If \code{stat} is \code{"loglikelihood"} or \code{"pvalue"} performs bottom-up search through models
+on the merging path until spots a model scored worse than the given \code{value}. If \code{stat = "GIC"}
+treats \code{value} as GIC penalty and returns optimal GIC partition.}
 
-\item{markBestModel}{Boolean}
+\item{markBestModel}{Boolean. If \code{TRUE}, the default, plots vertical line crossing the optimal model
+according to the \code{clusterSplit}.}
 
-\item{markSignificanceStars}{Boolean}
+\item{markSignificanceStars}{Boolean. If \code{TRUE}, the default, marks models that are significantly
+worse than their predecessors on the Merging Path Plot (uses the Likelihood Ratio Test).
 
-\item{alpha}{significance interval}
+Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
 
-\item{penalty}{GIC penalty for the GIC plot}
+\item{alpha}{Significance level. If \code{show = "likelihood"} each interval on
+the OX axis of the Merging Path Plot corresponds to the 1 - \code{alpha} quantile of chi-square distribution.}
 
-\item{mergingPalette}{color palette}
+\item{penalty}{GIC penalty used in the GIC plot. If \code{clusterSplit$stat = "GIC"} it is
+recommended to use \code{clusterSplit$value} as \code{penalty}.
 
-\item{responsePalette}{color palette}
+TODO: Is it a good idea?}
 
-\item{GICcolor}{color used with the GIC plot}
+\item{mergingPalette}{Color palette used in the Merging Path Plot.}
+
+\item{responsePalette}{Color palette used in the Response Plot.}
+
+\item{GICcolor}{Color used in the GIC plot.}
 }
 \description{
 Plot Factor Merger

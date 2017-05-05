@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{plotProfile}
 \alias{plotProfile}
-\title{Profile plot (multi-dimensional gaussian)}
+\title{Profile plot (multi-dimensional Gaussian)}
 \usage{
 plotProfile(factorMerger, color, clusterSplit)
 }

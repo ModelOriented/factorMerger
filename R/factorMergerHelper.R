@@ -240,8 +240,9 @@ getFinalOrderVec <- function(factorMerger) {
 #' Cut a Factor Merger Tree
 #'
 #' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
-#' If a metric and a threshold is specified then performs bottom-up search through models
-#' on the merging path until spots a model scored worse than the given threshold.
+#' If a \code{stat} is \code{"loglikelihood"} or {"p-value"} then performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given threshold (\code{value}).
+#' If \code{stat = "GIC"}, \code{value} is interpreted as GIC penalty and optimal GIC model is returned..
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
@@ -288,8 +289,9 @@ cutTree <- function(factorMerger,
 #' Get optimal partition (clusters dictionary)
 #'
 #' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
-#' If a metric and a threshold is specified then performs bottom-up search through models
-#' on the merging path until spots a model scored worse than the given threshold.
+#' If a \code{stat} is \code{"loglikelihood"} or {"p-value"} then performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given threshold (\code{value}).
+#' If \code{stat = "GIC"}, \code{value} is interpreted as GIC penalty and optimal GIC model is returned..
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
@@ -313,8 +315,9 @@ getOptimalPartitionDf <- function(factorMerger,
 #' Get optimal partition (final clusters names)
 #'
 #' @description Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
-#' If a metric and a threshold is specified then performs bottom-up search through models
-#' on the merging path until spots a model scored worse than the given threshold.
+#' If a \code{stat} is \code{"loglikelihood"} or {"p-value"} then performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given threshold (\code{value}).
+#' If \code{stat = "GIC"}, \code{value} is interpreted as GIC penalty and optimal GIC model is returned..
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:

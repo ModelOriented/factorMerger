@@ -1,24 +1,56 @@
 #' Plot Factor Merger
 #'
-#' @param panel \code{c("all", "response", "GIC", "merging")}
-#' @param show \code{c("loglikelihood", "p-value")}
-#' @param nodesSpacing \code{c("equidistant", "effects", "modelSpecific")}
+#' @param panel Type of panels to be plot. Possible values are \code{c("all", "response", "GIC", "merging")}.
+#' All types of plots include the Merging Path Plot. Apart from the Merging Path Plot there are
+#' also two possible panels: the Response Plot (response summary, specific to the model family),
+#' the GIC Plot (GIC vs. loglikelihood/p-value).
+#' \itemize{
+#' \item \code{"merging"} plots the Merging Path Plot only,
+#' \item \code{"response"} plots the Merging Path Plot and the Response Plot,
+#' \item \code{"GIC"} plots the Merging Path Plot and the GIC Plot,
+#' \item \code{"all"} plots all panels and a short summary of the full model.
+#' }
+#' @param show Statistic to be displayed on the OX axis. Possible values are \code{c("loglikelihood", "p-value")}.
+#' If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot on the OX axis.
+#' @param nodesSpacing Type of nodes vertical spacing. May be chosen from
+#'  \code{c("equidistant", "effects", "modelSpecific")}. \code{"effects"} arranges nodes according to
+#'  the model coefficients estimatiors (e.g. in Gaussian case on the OY axis group means are plotted).
+#'
 #' # TODO: Maybe different names? Implement "modelSpecific".
-#' @param summary \code{c("heatmap", "profile", "means", "boxplot", "proportion", "survival")}
-#' @param clusterSplit list of a length 2:
+#' @param summary Response panel type -- accepts the following values dependent on the model family:
+#' \itemize{
+#' \item multi dimensional Gaussian: \code{c("heatmap", "profile")},
+#' \item single dimensional Gaussian: \code{c("means", "boxplot")},
+#' \item binomial: \code{c("proportion")},
+#' \item survival: \code{c("survival")}
+#' }
+#' @param clusterSplit List of a length two:
 #' \itemize{
 #' \item \code{stat} - statistic used in the bottom-up search. Available statistics are:
 #' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
 #' \item \code{value} cut threshold / GIC penalty
 #' }
-#' @param color \code{c("none", "cluster")}
-#' @param markBestModel Boolean
-#' @param markSignificanceStars Boolean
-#' @param alpha significance interval
-#' @param penalty GIC penalty for the GIC plot
-#' @param mergingPalette color palette
-#' @param responsePalette color palette
-#' @param GICcolor color used with the GIC plot
+#' This parameter is considered only with \code{color = "cluster"}.
+#' If \code{stat} is \code{"loglikelihood"} or \code{"pvalue"} performs bottom-up search through models
+#' on the merging path until spots a model scored worse than the given \code{value}. If \code{stat = "GIC"}
+#' treats \code{value} as GIC penalty and returns optimal GIC partition.
+#' @param color Specifies how the Merging Path Plot should be colored. Possible values are \code{c("none", "cluster")}.
+#' If \code{color = "cluster"} colors obtained tree according to the \code{clusterSplit}.
+#' @param markBestModel Boolean. If \code{TRUE}, the default, plots vertical line crossing the optimal model
+#' according to the \code{clusterSplit}.
+#' @param markSignificanceStars Boolean. If \code{TRUE}, the default, marks models that are significantly
+#' worse than their predecessors on the Merging Path Plot (uses the Likelihood Ratio Test).
+#'
+#' Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.
+#' @param alpha Significance level. If \code{show = "likelihood"} each interval on
+#'  the OX axis of the Merging Path Plot corresponds to the 1 - \code{alpha} quantile of chi-square distribution.
+#' @param penalty GIC penalty used in the GIC plot. If \code{clusterSplit$stat = "GIC"} it is
+#' recommended to use \code{clusterSplit$value} as \code{penalty}.
+#'
+#' TODO: Is it a good idea?
+#' @param mergingPalette Color palette used in the Merging Path Plot.
+#' @param responsePalette Color palette used in the Response Plot.
+#' @param GICcolor Color used in the GIC plot.
 #' @importFrom gridExtra grid.arrange
 #'
 #' @export
@@ -241,11 +273,11 @@ markOptimalModel <- function(factorMerger, clusterSplit, show, alpha) {
     mH <- mergingHistory(factorMerger, T, F)
     intercept <- mH[optimalNSteps + 1, getStatNameInTable(show)]
     if (show == "p-value") {
-        label <- paste0("alpha = ", alpha)
+        label <- paste0("alpha = ", round(intercept, 2))
         labelIntercept <- log10(intercept)
     }
     if (show == "loglikelihood") {
-        label <- paste0("loglikelihood = ", intercept)
+        label <- paste0("loglikelihood = ", round(intercept))
         labelIntercept <- intercept
     }
     if (clusterSplit[[1]] == "GIC") {
@@ -345,7 +377,7 @@ findSimilarities <- function(factorMerger) {
 
 }
 
-#' Heatmap (multi-dimensional gaussian)
+#' Heatmap (multi-dimensional Gaussian)
 #'
 #' @description Plots heatmap for each dimension of the response variable. Vector of means of factor levels for a given
 #' dimension is scaled to have mean equal to zero and standard deviation equal to one.
@@ -379,7 +411,7 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
         labs(title = "Heatmap", subtitle = "Group means by variables")
 }
 
-#' Profile plot (multi-dimensional gaussian)
+#' Profile plot (multi-dimensional Gaussian)
 #'
 #' @description Plots rank plot - one series is a single factor level and one group
 #' on the OX axis is a single dimension of the response.
@@ -426,7 +458,7 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
     return(g)
 }
 
-#' Boxplot (single-dimensional gaussian)
+#' Boxplot (single-dimensional Gaussian)
 #'
 #' @description Plots boxplot with mean as a summary statistic groupping observation by factor levels.
 #'
@@ -460,7 +492,7 @@ plotBoxplot <- function(factorMerger, color = "none", clusterSplit) {
         labs(title = "Boxplot", subtitle = "Summary statistic: mean")
 }
 
-#' Means and standard deviation plot (single-dimensional gaussian)
+#' Means and standard deviation plot (single-dimensional Gaussian)
 #'
 #' @description For each factor level plots its mean and interval of the length equal to its standard deviation.
 #'

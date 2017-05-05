@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{plotHeatmap}
 \alias{plotHeatmap}
-\title{Heatmap (multi-dimensional gaussian)}
+\title{Heatmap (multi-dimensional Gaussian)}
 \usage{
 plotHeatmap(factorMerger, color, clusterSplit)
 }

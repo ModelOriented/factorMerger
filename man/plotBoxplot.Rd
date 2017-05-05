@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualizations.R
 \name{plotBoxplot}
 \alias{plotBoxplot}
-\title{Boxplot (single-dimensional gaussian)}
+\title{Boxplot (single-dimensional Gaussian)}
 \usage{
 plotBoxplot(factorMerger, color = "none", clusterSplit)
 }
