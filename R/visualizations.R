@@ -152,6 +152,7 @@ treeTheme <- function() {
               panel.grid.minor.x = element_blank(),
               axis.title.y = element_blank(),
               axis.text.y = element_text(size = 12),
+              axis.text.x = element_text(size = 12),
               plot.title = element_text(size = 18),
               plot.subtitle = element_text(size = 12),
               legend.position = "none")
@@ -418,11 +419,13 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
               panel.border = element_blank(),
               panel.background = element_blank(),
               axis.title.y = element_blank(),
+              axis.text.x = element_text(size = 12),
               axis.ticks.y = element_blank(),
               axis.text.y = element_blank(),
               plot.title = element_text(size = 18),
               plot.subtitle = element_text(size = 12),
               legend.position = "none") +
+        xlab("") +
         scale_fill_distiller(palette = "Greys") +
         labs(title = "Heatmap", subtitle = "Group means by variables")
 }
@@ -464,10 +467,12 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
         geom_text(data = subset(df,
                                 variable == levels(df$variable) %>% tail(1)),
                   aes(x = variable),
-                  size = 5.5, hjust = 0.8,  nudge_x = 0.5) +
-        ylab("") + labs(title = "Profile plot", subtitle = "Variable means ranks") +
+                  size = 4, hjust = 0.8,  nudge_x = 0.5) +
+        ylab("") + xlab("") +
+        labs(title = "Profile plot", subtitle = "Variable means ranks") +
         theme_minimal() + theme(legend.position = "none",
               plot.title = element_text(size = 18),
+              axis.text = element_text(size = 12),
               plot.subtitle = element_text(size = 12))
     return(g)
 }
@@ -616,7 +621,8 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     mH <- mergingHistory(factorMerger, T, F)
     mH$GIC <- -2 * mH$model + penalty * nrow(mH):1
     minGIC <- min(mH$GIC)
-    yBreaks <- c(mH$GIC[1], minGIC, mH$GIC[length(mH$GIC)]) %>% unique() %>% round()
+    yBreaks <- c(mH$GIC[1], minGIC, mH$GIC[length(mH$GIC)]) %>%
+        unique() %>% round()
     minModel <- mH$model[which.min(mH$GIC)]
     g <- mH %>% ggplot(aes_string(x = getStatNameInTable(statistic), y = "GIC")) +
         geom_line(col = color, size = 1) +
