@@ -4,7 +4,7 @@
 \alias{plotBoxplot}
 \title{Boxplot (single-dimensional Gaussian)}
 \usage{
-plotBoxplot(factorMerger, color = "none", clusterSplit)
+plotBoxplot(factorMerger, color, clusterSplit)
 }
 \description{
 Plots boxplot with mean as a summary statistic groupping observation by factor levels.

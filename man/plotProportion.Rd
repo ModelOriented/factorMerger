@@ -4,7 +4,7 @@
 \alias{plotProportion}
 \title{Proportion plot (binomial)}
 \usage{
-plotProportion(factorMerger, color = "none", clusterSplit)
+plotProportion(factorMerger, color, clusterSplit)
 }
 \description{
 Plots proportion of success for each factor level.

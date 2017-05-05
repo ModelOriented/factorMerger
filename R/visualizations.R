@@ -326,20 +326,20 @@ checkResponsePanel <- function(object, responsePanel) {
 
 checkResponsePanel.gaussianFactorMerger <- function(factorMerger, responsePanel) {
     if (NCOL(factorMerger$response) > 1) {
-        responsePanelSet <-  c("heatmap", "profile")
+        responsePanelSet <-  c("heatmap", "profile", "frequency")
     } else {
-        responsePanelSet <- c("means", "boxplot")
+        responsePanelSet <- c("means", "boxplot", "frequency")
     }
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
 
 checkResponsePanel.binomialFactorMerger <- function(factorMerger, responsePanel) {
-    responsePanelSet <- c("proportion")
+    responsePanelSet <- c("proportion", "frequency")
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
 
 checkResponsePanel.survivalFactorMerger <- function(factorMerger, responsePanel) {
-    responsePanelSet <- c("survival")
+    responsePanelSet <- c("survival", "frequency")
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
 
@@ -373,6 +373,9 @@ plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSpli
            },
            "proportion" = {
                return(plotProportion(factorMerger, colorClusters, clusterSplit))
+           },
+           "frequency" = {
+               return(plotFrequency(factorMerger, colorClusters, clusterSplit))
            })
 }
 
@@ -647,4 +650,38 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     return(g)
 }
 
+# -------------------
+# Frequency plot
 
+#' Frequency plot
+#'
+#' @description
+#'
+#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
+#' @importFrom dplyr count left_join
+#'
+#' @export
+plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
+    levels <- getFinalOrderVec(factorMerger)
+    factorMerger$factor <- factor(factorMerger$factor, levels = levels)
+    df <- data.frame(group = factorMerger$factor)
+    df <- df %>% count(group)
+
+    if (colorClusters) {
+        df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
+                                                     clusterSplit[[1]],
+                                                     clusterSplit[[2]]),
+                               by = c("group" = "orig"))
+        g <- df %>% ggplot() +
+            geom_bar(aes(x = group, y = n, fill = pred), stat = "identity")
+    } else {
+        g <- df %>% ggplot() +
+            geom_bar(aes(x = group, y = n), fill = "navy", stat = "identity")
+    }
+
+    g + scale_y_continuous(name = "") +
+        coord_flip() + treeTheme() +
+        theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
+        labs(title = "Groups frequencies",
+             subtitle = "")
+}
