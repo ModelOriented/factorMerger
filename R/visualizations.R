@@ -522,10 +522,11 @@ plotMeansAndStds <- function(factorMerger, color, clusterSplit) {
     df <- getMeansAndStds(factorMerger, factor)
 
     if (color) {
-        df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
-                                                     clusterSplit[[1]],
-                                                     clusterSplit[[2]]),
-                               by = c("group" = "orig"))
+        part <- getOptimalPartitionDf(factorMerger,
+                                      clusterSplit[[1]],
+                                      clusterSplit[[2]])
+        part$orig <- factor(part$orig, levels = getFinalOrderVec(factorMerger))
+        df <- df %>% left_join(part, by = c("group" = "orig"))
         g <- df %>% ggplot(aes(colour = pred, fill = pred,
                                x = as.factor(group),
                                y = mean, group = as.factor(group)))

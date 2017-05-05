@@ -218,7 +218,17 @@ getFinalOrder <- function(factorMerger) {
         names(pos)[names(pos) %in% merging[step, ]] <-
             paste(merging[step, ], collapse = "")
     }
-    names(pos) <- groups[length(groups):1]
+    # Sort (approximately) according to group means
+    stats <- groupsStats(factorMerger)
+    stats$group <- rownames(stats)
+    stats <- data.frame(group = groups, stringsAsFactors = F) %>%
+        left_join(stats, by = "group")
+
+    if (stats$mean[1] > stats$mean[nrow(stats)]) {
+        names(pos) <- groups[length(groups):1]
+    } else {
+        names(pos) <- groups
+    }
     return(pos)
 }
 
