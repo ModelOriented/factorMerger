@@ -4,7 +4,7 @@
 \alias{plotSurvival}
 \title{Survival plot (survival)}
 \usage{
-plotSurvival(factorMerger)
+plotSurvival(factorMerger, color, clusterSplit)
 }
 \description{
 Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.

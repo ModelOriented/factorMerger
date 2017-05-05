@@ -2,9 +2,9 @@
 % Please edit documentation in R/visualizations.R
 \name{plotBoxplot}
 \alias{plotBoxplot}
-\title{Boxplot (single-dimensional gaussian)}
+\title{Boxplot (single-dimensional Gaussian)}
 \usage{
-plotBoxplot(factorMerger)
+plotBoxplot(factorMerger, color = "none", clusterSplit)
 }
 \description{
 Plots boxplot with mean as a summary statistic groupping observation by factor levels.
