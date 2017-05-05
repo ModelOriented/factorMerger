@@ -587,17 +587,20 @@ plotProportion <- function(factorMerger, color, clusterSplit) {
 #' @export
 plotSurvival <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
-    df <- data.frame(group = (factor(factorMerger$factor, levels = levels) %>%
-                         as.character()))
+    factorMerger$factor <- factor(factorMerger$factor,
+                                  levels = levels)
+    df <- data.frame(group = factorMerger$factor)
 
     if (color) {
-        df$group <- cutTree(factorMerger, clusterSplit[[1]], clusterSplit[[2]])
+        df$group <- cutTree(factorMerger,
+                            clusterSplit[[1]],
+                            clusterSplit[[2]])
     }
 
-    model <- calculateModel(factorMerger, df$group)
+    model <- calculateModel(factorMerger, factorMerger$factor)
 
-    g <- survminer::ggcoxadjustedcurves(model, data = data.frame(factorMerger$factor),
-                                        individual.curves = TRUE,
+    g <- survminer::ggcoxadjustedcurves(model,
+                                        data = df,
                                         variable = df$group,
                                         curve.size = 1) +
         treeTheme() + labs(title = "Survival plot",

@@ -224,7 +224,7 @@ getFinalOrder <- function(factorMerger) {
     stats <- data.frame(group = groups, stringsAsFactors = F) %>%
         left_join(stats, by = "group")
 
-    if (stats$mean[1] > stats$mean[nrow(stats)]) {
+    if (stats[1, 1] > stats[nrow(stats), 1]) {
         names(pos) <- groups[length(groups):1]
     } else {
         names(pos) <- groups
@@ -268,6 +268,7 @@ cutTree <- function(factorMerger,
                     stat = "GIC",
                     value = 2) {
     stopifnot(!is.null(value) | stat == "GIC")
+    stopifnot(stat != "GIC" | value > 0)
     mH <- mergingHistory(factorMerger, T)
     stopifnot(stat %in% c("loglikelihood", "p-value", "GIC"))
     if (stat == "GIC") {
