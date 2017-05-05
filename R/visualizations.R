@@ -73,6 +73,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
     stopifnot(panel %in% c("all", "response", "GIC", "tree"))
     stopifnot(statistic %in% c("loglikelihood", "p-value"))
     stopifnot(nodesSpacing %in% c("equidistant", "effects", "modelSpecific"))
+    stopifnot(splitStatistic == "GIC" | !is.null(splitThreshold))
 
     clusterSplit <- getClusterSplit(splitStatistic, splitThreshold, penalty)
 

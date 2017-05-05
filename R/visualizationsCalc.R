@@ -75,7 +75,7 @@ optimalNumberOfMerges <- function(factorMerger, stat = "GIC", value = 2) {
             nSteps <- nSteps + 1
         }
     }
-    return(nSteps - 1)
+    return(nSteps)
 }
 
 # Divides part of a segment plot into clusters
