@@ -6,11 +6,10 @@
 \usage{
 \method{plot}{factorMerger}(factorMerger, panel = "all",
   statistic = "loglikelihood", nodesSpacing = "equidistant",
-  responsePanel = NULL, color = "none", clusterSplit = list(stat = "GIC",
-  value = 2), markBestModel = TRUE, markSignificanceStars = TRUE,
-  alpha = 0.05, penalty = ifelse(clusterSplit$stat == "GIC",
-  clusterSplit$value, 2), mergingPalette = NULL, responsePalette = NULL,
-  GICcolor = NULL)
+  colorClusters = TRUE, splitStatistic = "GIC", splitThreshold = NULL,
+  penalty = 2, showSplit = FALSE, showSignificance = TRUE,
+  chisqQuantile = 0.05, palette = NULL, responsePanel = NULL,
+  responsePanelPalette = NULL, gicPanelColor = NULL)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}.}
@@ -26,14 +25,43 @@ the GIC Plot (GIC vs. loglikelihood/p-value).
 \item \code{"tree"} plots the Factor Merger Tree only.
 }}
 
-\item{statistic}{Statistic to be displayed on the OX axis. Possible values are \code{c("loglikelihood", "p-value")}.
+\item{statistic}{Statistic to be displayed on the OX axis of the Factor Merger Tree.
+Possible values are \code{c("loglikelihood", "p-value")}.
 If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot on the OX axis.}
 
-\item{nodesSpacing}{Type of nodes vertical spacing. May be chosen from
+\item{nodesSpacing}{Type of vertical nodes spacing in the Factor Merger Tree). May be chosen from
  \code{c("equidistant", "effects", "modelSpecific")}. \code{"effects"} arranges nodes according to
  the model coefficients estimatiors (e.g. in Gaussian case on the OY axis group means are plotted).
 
-# TODO: Maybe different names? Implement "modelSpecific".}
+# TODO: Implement "modelSpecific".}
+
+\item{colorClusters}{Boolean. If \code{TRUE}, the default, the Factor Merger Tree is colored according
+to the optimal factor split (defined by \code{splitStatistic} and \code{splitThreshold} or
+\code{splitStatistic} and \code{penalty}).}
+
+\item{splitStatistic}{Statistic used in the optimal split definition. Possible values are:
+\code{c("GIC", "loglikelihood", "p-value")}. If \code{"GIC"} is chosen, factor is split to minimize GIC
+with the penalty \code{penalty}. Otherwise, chooses the very last partition whose corresponding statistic
+(model loglikelihood or p-value for the LRT test) is not lower than \code{splitThreshold}.}
+
+\item{splitThreshold}{Threshold used in the optimal split definition. Used only with
+\code{splitStatistic = c("loglikelihood", "p-value")}.}
+
+\item{penalty}{GIC penalty used for defining the optimal partition with \code{splitStatistic = "GIC"}.
+The same penalty is used in the GIC plot.}
+
+\item{showSplit}{Boolean. If \code{TRUE} plots vertical line crossing the optimal split.}
+
+\item{showSignificance}{Boolean. If \code{TRUE}, the default, marks partitions
+that are significantly worse than their predecessors on the Factor Merger Tree (uses the Likelihood Ratio Test).
+
+Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
+
+\item{chisqQuantile}{Significance level. If \code{statistic = "likelihood"} each interval on
+the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile}
+quantile of chi-square distribution.}
+
+\item{palette}{Color palette used in the Factor Merger Tree and the Response Plot.}
 
 \item{responsePanel}{Response panel type -- accepts the following values dependent on the model family:
 \itemize{
@@ -43,41 +71,10 @@ If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the 
 \item survival: \code{c("survival")}
 }}
 
-\item{color}{Specifies how the Factor Merger Tree should be colored. Possible values are \code{c("none", "cluster")}.
-If \code{color = "cluster"} colors obtained tree according to the \code{clusterSplit}.}
+\item{responsePanelPalette}{Additional color palette used in the Response Plot if
+palettes for the Factor Merger Tree and the Response Plot are to be different.}
 
-\item{clusterSplit}{List of a length two:
-\itemize{
-\item \code{stat} - statistic used in the bottom-up search. Available statistics are:
-\code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
-\item \code{value} cut threshold / GIC penalty
-}
-This parameter is considered only with \code{color = "cluster"}.
-If \code{stat} is \code{"loglikelihood"} or \code{"pvalue"} performs bottom-up search through models
-on the merging path until spots a model scored worse than the given \code{value}. If \code{stat = "GIC"}
-treats \code{value} as GIC penalty and returns optimal GIC partition.}
-
-\item{markBestModel}{Boolean. If \code{TRUE}, the default, plots vertical line crossing the optimal model
-according to the \code{clusterSplit}.}
-
-\item{markSignificanceStars}{Boolean. If \code{TRUE}, the default, marks models that are significantly
-worse than their predecessors on the Factor Merger Tree (uses the Likelihood Ratio Test).
-
-Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
-
-\item{alpha}{Significance level. If \code{statistic = "likelihood"} each interval on
-the OX axis of the Factor Merger Tree corresponds to the 1 - \code{alpha} quantile of chi-square distribution.}
-
-\item{penalty}{GIC penalty used in the GIC plot. If \code{clusterSplit$stat = "GIC"} it is
-recommended to use \code{clusterSplit$value} as \code{penalty}.
-
-TODO: Is it a good idea?}
-
-\item{mergingPalette}{Color palette used in the Factor Merger Tree.}
-
-\item{responsePalette}{Color palette used in the Response Plot.}
-
-\item{GICcolor}{Color used in the GIC plot.}
+\item{gicPanelColor}{Color used in the GIC plot.}
 }
 \description{
 Plot Factor Merger
