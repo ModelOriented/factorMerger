@@ -218,7 +218,7 @@ getFinalOrder <- function(factorMerger) {
         names(pos)[names(pos) %in% merging[step, ]] <-
             paste(merging[step, ], collapse = "")
     }
-    names(pos) <- groups
+    names(pos) <- groups[length(groups):1]
     return(pos)
 }
 
