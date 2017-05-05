@@ -2,9 +2,9 @@
 % Please edit documentation in R/visualizations.R
 \name{plotHeatmap}
 \alias{plotHeatmap}
-\title{Heatmap (multi-dimensional gaussian)}
+\title{Heatmap (multi-dimensional Gaussian)}
 \usage{
-plotHeatmap(factorMerger)
+plotHeatmap(factorMerger, color, clusterSplit)
 }
 \description{
 Plots heatmap for each dimension of the response variable. Vector of means of factor levels for a given

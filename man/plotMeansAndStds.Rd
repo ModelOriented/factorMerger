@@ -2,9 +2,9 @@
 % Please edit documentation in R/visualizations.R
 \name{plotMeansAndStds}
 \alias{plotMeansAndStds}
-\title{Means and standard deviation plot (single-dimensional gaussian)}
+\title{Means and standard deviation plot (single-dimensional Gaussian)}
 \usage{
-plotMeansAndStds(factorMerger)
+plotMeansAndStds(factorMerger, color = "none", clusterSplit)
 }
 \description{
 For each factor level plots its mean and interval of the length equal to its standard deviation.

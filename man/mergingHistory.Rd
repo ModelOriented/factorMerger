@@ -4,7 +4,7 @@
 \alias{mergingHistory}
 \title{Merging history}
 \usage{
-mergingHistory(factorMerger, showStats = FALSE)
+mergingHistory(factorMerger, showStats = FALSE, round = TRUE)
 }
 \arguments{
 \item{factorMerger}{Object of a class \code{factorMerger}}

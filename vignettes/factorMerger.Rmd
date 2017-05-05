@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output: 
     html_document:
         toc: true
+        toc_depth: 3
         toc_float: 
             collapsed: false
         theme: united
@@ -19,7 +20,7 @@ bibliography: ../materials/factorMerger.bib
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE,
-                      fig.height = 5, fig.width = 7)
+                      fig.height = 5, fig.width = 10)
 ```
 
 # Introduction
@@ -74,6 +75,8 @@ By default (with argument `abbreviate = TRUE`) factor levels are abbreviated and
 ## Multi-dimensional Gaussian model
 
 
+### Computations
+
 ```{r}
 fmAll <- mergeFactors(randSample$response, randSample$factor)
 ```
@@ -87,60 +90,88 @@ mergingHistory(fmAll, showStats = TRUE) %>%
 
 Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns *model* and *GIC* gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the *Likelihood Ratio Test* -- against the full model (*pvalVsFull*) and against the previous one (*pvalVsPrevious*).
 
+If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Next, in each step only groups whose means are closed are compared.
 
 ```{r}
-plotTree(fmAll, colorCluster = TRUE)
-```
+fm <- mergeFactors(randSample$response, randSample$factor, 
+                   successive = TRUE, 
+                   method = "hclust")
 
-If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Then, in each step only groups whose means are closed are compared.
-
-```{r}
-fm <- mergeFactors(randSample$response, randSample$factor, successive = TRUE, method = "hclust")
 mergingHistory(fm, showStats = TRUE) %>% 
     kable()
 ```
 
+### Final clusters
 
-We may plot results using functions `plotTree`. `plotTree` enables to specify what should be displayed on x axis (either column 'model' or logarithm of 'pval').
+Algorithms implemented in the **factorMerger** package enable to create unequivocal partition of a factor. Below we present how to extract the partition from the `mergeFactor` output.
 
-```{r, fig.height = 5, fig.width = 7}
-plotTree(fm, stat = "model")
+ - predict new labels for observations
+ 
+```{r}
+cutTree(fm)
 ```
-
-```{r, fig.height = 5, fig.width = 7}
-plotTree(fmAll, "pval", alpha = 0.5)
-```
-
-It also takes logical argument `simplify`, which controls how x axis is displayed. If `simplify = FALSE` then each node is connected the mean/mean of isoMDS projection/proportion of observations respresented by the node. Otherwise nodes are plotted using equal intervals on the x axis. As default we use `simplify = TRUE`. 
+By default, `cutTree` returns a factor split for the optimal GIC (with penalty = 2) model. However, we can specify different metrics (`stat = c("loglikelihood", "p-value", "GIC"`) we would like to use in cutting. If `loglikelihood` or `p-value` is chosen an exact threshold must be given as a `value` parameter. Then `cutTree` returns factor for the smallest model whose statistic is higher than the threshold. If we choose `GIC` then `value` is interpreted as GIC penalty.
 
 ```{r}
-plotTree(fm, simplify = FALSE, colorCluster = TRUE)
+mH <- mergingHistory(fm, T)
+thres <- mH$model[nrow(mH) / 2]
+cutTree(fm, stat = "loglikelihood", value = thres)
 ```
+In this example data partition is created for the last model from the merging path whose loglikelihood is greater than `r thres`.
 
-
-
-We may also want to visualize dependent variables together with created tree. `factorMergers` introduces two functions for this purpose:
-
- - `plotProfile` (resulting in rank plot),
- - `plotHeatmap`.
+ - get final clusters and clusters dictionary
  
-```{r, fig.height = 5, fig.width = 7}
-appendToTree(fm, plotProfile(fm))
+```{r}
+getOptimalPartition(fm)
 ```
 
-In the above plots colours are connected with the group. The plot on the right shows means rankings for all variables included in the algorithm. 
+Function `getOptimalPartition` returns a vector with the final cluster names from the factorMerger object. 
 
-```{r, fig.height = 5, fig.width = 7}
-appendToTree(fm, plotHeatmap(fm))
+```{r}
+getOptimalPartitionDf(fm)
+```
+
+Function `getOptimalPartitionDf` returns a dictionary in a data frame format. Each row gives an original label of a factor level and its new (cluster) label.
+
+
+Similarly to `cutTree`, functions `getOptimalPartition` and `getOptimalPartitionDf` take arguments `stat` and `threshold`.
+
+### Visualizations
+
+We may plot results using function `plot`. 
+
+
+```{r, fig.height = 5, fig.width = 10}
+plot(fm, panel = "all", nodesSpacing = "equidistant", color = "cluster")
+```
+
+```{r, fig.height = 5, fig.width = 10}
+plot(fmAll, panel = "merging", show = "p-value", 
+     nodesSpacing = "effects", color = "cluster", 
+     clusterSplit = list(stat = "p-value", alpha = 0.5),
+     alpha = 0.5)
+```
+
+```{r}
+plot(fm, color = "cluster", panel = "response")
 ```
 
 The heatmap on the right shows means of all variables taken into analysis by groups.
 
 
+
+```{r, fig.height = 5, fig.width = 10}
+plot(fm, color = "cluster", panel = "response", summary = "profile")
+```
+
+In the above plots colours are connected with the group. The plot on the right shows means rankings for all variables included in the algorithm. 
+
+
 It is also possible to plot *GIC* together with the merging path plot.
 
-```{r}
-appendToTree(fm, plotGIC(fm))
+```{r, fig.width = 5}
+plot(fm, panel = "GIC", penalty = 5, 
+     clusterSplit = list(stat = "GIC", value = 5))
 ```
 
 Model with the lowest GIC is marked.
@@ -151,20 +182,17 @@ Model with the lowest GIC is marked.
 oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
-oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, method = "hclust")
+oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, 
+                         method = "hclust")
 mergingHistory(oneDimFm, showStats = TRUE) %>% 
     kable()
 ```
 ```{r}
-plotTree(oneDimFm, simplify = FALSE)
+plot(oneDimFm, responsePalette = "Reds")
 ```
 
 ```{r}
-appendToTree(oneDimFm, plotBoxplot(oneDimFm))
-```
-
-```{r}
-appendToTree(oneDimFm, plotMeansAndStds(oneDimFm))
+plot(oneDimFm, summary = "boxplot", color = "cluster")
 ```
 
 ## Binomial model
@@ -188,15 +216,16 @@ mergingHistory(binomFm, showStats = TRUE) %>%
 ```
 
 ```{r}
-plotTree(binomFm, colorCluster = TRUE)
+plot(binomFm, color = "cluster", GICcolor = "red")
 ```
 
 ```{r}
-plotTree(binomFm, simplify = FALSE, colorCluster = TRUE)
+plot(binomFm, color = "cluster", 
+     clusterSplit = list(stat = "GIC", penalty = 7), penalty = 7)
 ```
 
 ```{r}
-appendToTree(binomFm, plotProportion(binomFm))
+plot(binomFm, GICcolor = "red")
 ```
 
 
@@ -221,15 +250,11 @@ mergingHistory(survivalFm, showStats = TRUE) %>%
 
 
 ```{r}
-plotTree(survivalFm, "model", colorCluster = TRUE)
+plot(survivalFm)
 ```
 
 ```{r}
-plotTree(survivalFm, "pval", simplify = FALSE, colorCluster = TRUE)
-```
-
-```{r}
-appendToTree(survivalFm, plotSurvival(survivalFm))
+plot(survivalFm, nodesSpacing = "effects", color = "cluster")
 ```
 
 #Bibliography

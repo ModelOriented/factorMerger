@@ -2,9 +2,9 @@
 % Please edit documentation in R/visualizations.R
 \name{plotProfile}
 \alias{plotProfile}
-\title{Profile plot (multi-dimensional gaussian)}
+\title{Profile plot (multi-dimensional Gaussian)}
 \usage{
-plotProfile(factorMerger)
+plotProfile(factorMerger, color, clusterSplit)
 }
 \description{
 Plots rank plot - one series is a single factor level and one group
