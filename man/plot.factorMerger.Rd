@@ -5,25 +5,28 @@
 \title{Plot Factor Merger}
 \usage{
 \method{plot}{factorMerger}(factorMerger, panel = "all",
-  show = "loglikelihood", nodesSpacing = "equidistant", summary = NULL,
-  color = "none", clusterSplit = list(stat = "GIC", value = 2),
-  markBestModel = TRUE, markSignificanceStars = TRUE, alpha = 0.05,
-  penalty = 2, mergingPalette = NULL, responsePalette = NULL,
+  statistic = "loglikelihood", nodesSpacing = "equidistant",
+  responsePanel = NULL, color = "none", clusterSplit = list(stat = "GIC",
+  value = 2), markBestModel = TRUE, markSignificanceStars = TRUE,
+  alpha = 0.05, penalty = ifelse(clusterSplit$stat == "GIC",
+  clusterSplit$value, 2), mergingPalette = NULL, responsePalette = NULL,
   GICcolor = NULL)
 }
 \arguments{
-\item{panel}{Type of panels to be plot. Possible values are \code{c("all", "response", "GIC", "merging")}.
-All types of plots include the Merging Path Plot. Apart from the Merging Path Plot there are
+\item{factorMerger}{object of a class \code{factorMerger}.}
+
+\item{panel}{Type of panels to be plot. Possible values are \code{c("all", "response", "GIC", "tree")}.
+All types of plots include the Factor Merger Tree. Apart from the Factor Merger Tree there are
 also two possible panels: the Response Plot (response summary, specific to the model family),
 the GIC Plot (GIC vs. loglikelihood/p-value).
 \itemize{
-\item \code{"merging"} plots the Merging Path Plot only,
-\item \code{"response"} plots the Merging Path Plot and the Response Plot,
-\item \code{"GIC"} plots the Merging Path Plot and the GIC Plot,
-\item \code{"all"} plots all panels and a short summary of the full model.
+\item \code{"all"} plots all panels and a short summary of the full model,
+\item \code{"response"} plots the Factor Merger Tree and the Response Plot,
+\item \code{"GIC"} plots the Factor Merger Tree and the GIC Plot,
+\item \code{"tree"} plots the Factor Merger Tree only.
 }}
 
-\item{show}{Statistic to be displayed on the OX axis. Possible values are \code{c("loglikelihood", "p-value")}.
+\item{statistic}{Statistic to be displayed on the OX axis. Possible values are \code{c("loglikelihood", "p-value")}.
 If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot on the OX axis.}
 
 \item{nodesSpacing}{Type of nodes vertical spacing. May be chosen from
@@ -32,7 +35,7 @@ If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the 
 
 # TODO: Maybe different names? Implement "modelSpecific".}
 
-\item{summary}{Response panel type -- accepts the following values dependent on the model family:
+\item{responsePanel}{Response panel type -- accepts the following values dependent on the model family:
 \itemize{
 \item multi dimensional Gaussian: \code{c("heatmap", "profile")},
 \item single dimensional Gaussian: \code{c("means", "boxplot")},
@@ -40,7 +43,7 @@ If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the 
 \item survival: \code{c("survival")}
 }}
 
-\item{color}{Specifies how the Merging Path Plot should be colored. Possible values are \code{c("none", "cluster")}.
+\item{color}{Specifies how the Factor Merger Tree should be colored. Possible values are \code{c("none", "cluster")}.
 If \code{color = "cluster"} colors obtained tree according to the \code{clusterSplit}.}
 
 \item{clusterSplit}{List of a length two:
@@ -58,19 +61,19 @@ treats \code{value} as GIC penalty and returns optimal GIC partition.}
 according to the \code{clusterSplit}.}
 
 \item{markSignificanceStars}{Boolean. If \code{TRUE}, the default, marks models that are significantly
-worse than their predecessors on the Merging Path Plot (uses the Likelihood Ratio Test).
+worse than their predecessors on the Factor Merger Tree (uses the Likelihood Ratio Test).
 
 Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
 
-\item{alpha}{Significance level. If \code{show = "likelihood"} each interval on
-the OX axis of the Merging Path Plot corresponds to the 1 - \code{alpha} quantile of chi-square distribution.}
+\item{alpha}{Significance level. If \code{statistic = "likelihood"} each interval on
+the OX axis of the Factor Merger Tree corresponds to the 1 - \code{alpha} quantile of chi-square distribution.}
 
 \item{penalty}{GIC penalty used in the GIC plot. If \code{clusterSplit$stat = "GIC"} it is
 recommended to use \code{clusterSplit$value} as \code{penalty}.
 
 TODO: Is it a good idea?}
 
-\item{mergingPalette}{Color palette used in the Merging Path Plot.}
+\item{mergingPalette}{Color palette used in the Factor Merger Tree.}
 
 \item{responsePalette}{Color palette used in the Response Plot.}
 
