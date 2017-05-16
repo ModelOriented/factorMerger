@@ -2,7 +2,7 @@ appendProjection <- function(factorMerger) {
     UseMethod("appendProjection", factorMerger)
 }
 
-appendProjection.factorMerger <- function(factorMerger) {
+appendProjection.default <- function(factorMerger) {
     return(factorMerger)
 }
 
@@ -13,10 +13,11 @@ appendProjection.gaussianFactorMerger <- function(factorMerger) {
         tmpResponse <- MASS::isoMDS(dist(groupMeans), k = 1, trace = FALSE)$points[, 1] %>%
             as.data.frame()
         tmpResponse$factor <- groupMeans$level
-        tmpResponse <- tmpResponse %>% left_join(data.frame(factor = factorMerger$factor,
-                                             stringsAsFactors = FALSE),
-                                             by = "factor")
-        factorMerger$projectedResponse <- tmpResponse[1, ]
+        tmpResponse <- tmpResponse %>%
+            left_join(data.frame(factor = factorMerger$factor,
+                                 stringsAsFactors = FALSE),
+                      by = "factor")
+        factorMerger$projectedResponse <- tmpResponse[, 1]
     }
     return(factorMerger)
 }
@@ -43,19 +44,23 @@ convertToDistanceMatrix <- function(modelsPvals, successive, labels) {
 #' @importFrom MASS isoMDS
 startMerging <- function(factorMerger, successive, method, penalty) {
 
+    factorMerger <- appendProjection(factorMerger)
     if (successive) {
         factorMerger$factor <- getIncreasingFactor(factorMerger)
     }
-    factorMerger <- appendProjection(factorMerger)
+
     factor <- factorMerger$factor
     factorMerger$mergingList[[1]]$groupStats <-
         calculateGroupStatistic(factorMerger, factor)
     factorMerger$mergingList[[1]]$groups <- levels(factor)
     model <- calculateModel(factorMerger, factor)
     initStat <- calculateModelStatistic(model)
+    factorMerger$initialModel <- model
+    cat("Calculated initial model.\n")
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = initStat,
-        GIC = calculateGIC(model, length(levels(factor)), penalty),
+        GIC = calculateGIC(model, length(levels(factor)),
+                           penalty),
         pvalVsFull = 1,
         pvalVsPrevious = 1)
 
@@ -71,6 +76,7 @@ startMerging <- function(factorMerger, successive, method, penalty) {
 
     # method == "hclust"
     pairs <- getPairList(levels(factorMerger$factor), successive)
+    cat("Calculating LRT stats.\n")
     modelsPvals <- sapply(pairs, function(x) {
         if (x[1] == x[2]) {
             return(1)
@@ -80,8 +86,10 @@ startMerging <- function(factorMerger, successive, method, penalty) {
         return(2 * initStat - 2 * calculateModelStatistic(tmpModel))
     })
 
+    cat("Calculating distance matrix.\n")
     factorMerger$dist <- convertToDistanceMatrix(modelsPvals,
                                                  successive, levels(factorMerger$factor))
+    cat("Distance matrix calculated.\n")
 
     return(factorMerger)
 }
@@ -145,6 +153,7 @@ recodeClustering <- function(merge, levels, factor) {
 
 mergePairHClust <- function(factorMerger, factor, penalty) {
     step <- length(factorMerger$mergingList)
+    cat(step, "\n")
     merged <-  factorMerger$mergingHistory[step, ]
     factorMerger$mergingList <- c(factorMerger$mergingList,
                                   tmp = "tmp")
@@ -164,7 +173,7 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    GIC = calculateGIC(model, length(levels(factor)), penalty),
-                   pvalVsFull = compareModels(calculateModel(factorMerger, factorMerger$factor), model),
+                   pvalVsFull = compareModels(factorMerger$initialModel, model),
                    pvalVsPrevious = compareModels(prevModel, model))
 
     return(
@@ -201,8 +210,7 @@ mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    GIC = calculateGIC(model, length(levels(factor)), penalty),
-                   pvalVsFull = compareModels(calculateModel(factorMerger,
-                                                       factorMerger$factor), model),
+                   pvalVsFull = compareModels(factorMerger$initialModel, model),
                    pvalVsPrevious = pval)
 
     return(
@@ -286,11 +294,12 @@ cutTree <- function(factorMerger,
 
     factor <- factorMerger$factor
     nMerges <- nrow(mH)
-    if (nMerges < 2) {
+    if (nMerges < 2 | mH[1, statColname] == value) {
         return(factor)
     }
 
     for (i in 2:nMerges) {
+        print(i)
         if (mH[i, statColname] >= value) {
             factor <- mergeLevels(factor, mH$groupA[i], mH$groupB[i])
         }

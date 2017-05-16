@@ -95,7 +95,7 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
         segment$df[segment$df$x1 < bestModel, ]$x1 <- bestModel
     }
     segment <- lapply(segment, function(x)
-        x %>% filter(x1 %>% round(4) >= bestModel %>% round(4)))
+    x %>% filter(x1 %>% round(4) >= bestModel %>% round(4)))
     map <- getOptimalPartitionDf(factorMerger, clusterSplit[[1]], clusterSplit[[2]])
     map$pred <- as.character(map$pred)
     map$orig <- as.character(map$orig)
@@ -104,12 +104,14 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
     segment$pointsDf$pred <- NA
     segment$pointsDf[1:nrow(segment$labelsDf), "pred"] <- segment$labelsDf$pred
 
-    for (i in 1:nSteps) {
-        pair <- mH[i + 1, 1:2]
-        prediction <- (map$pred[map$orig %in% pair] %>% unique())
-        segment$df[segment$df$step == i, "pred"] <- prediction
-        segment$pointsDf[segment$pointsDf$step == i, "pred"] <- prediction
-        map$orig[map$orig %in% pair] <- paste0(pair[1], pair[2])
+    if (nSteps >= 1) {
+        for (i in 1:nSteps) {
+            pair <- mH[i + 1, 1:2]
+            prediction <- (map$pred[map$orig %in% pair] %>% unique())
+            segment$df[segment$df$step == i, "pred"] <- prediction
+            segment$pointsDf[segment$pointsDf$step == i, "pred"] <- prediction
+            map$orig[map$orig %in% pair] <- paste0(pair[1], pair[2])
+        }
     }
 
     segment$labelsDf <- segment$labelsDf %>% arrange(y1)
