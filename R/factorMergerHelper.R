@@ -6,10 +6,17 @@ appendProjection.factorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
+#' @importFrom dplyr left_join
 appendProjection.gaussianFactorMerger <- function(factorMerger) {
     if (NCOL(factorMerger$response) > 1) {
-        tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
-        factorMerger$projectedResponse <- tmpResponse
+        groupMeans <- calculateMeans(factorMerger$response, factorMerger$factor)
+        tmpResponse <- MASS::isoMDS(dist(groupMeans), k = 1, trace = FALSE)$points[, 1] %>%
+            as.data.frame()
+        tmpResponse$factor <- groupMeans$level
+        tmpResponse <- tmpResponse %>% left_join(data.frame(factor = factorMerger$factor,
+                                             stringsAsFactors = FALSE),
+                                             by = "factor")
+        factorMerger$projectedResponse <- tmpResponse[1, ]
     }
     return(factorMerger)
 }
