@@ -225,12 +225,13 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                                 breaks = labelsDf$y1,
                                 labels = getLabels(labelsDf, factorMerger)) +
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
-        labs(title = "Factor Merger Tree",
-             subtitle = paste0("Optimal GIC partition: ",
-                               paste(getOptimalPartition(factorMerger,
-                                                         clusterSplit[[1]],
-                                                         clusterSplit[[2]]),
-                                     collapse = ":"))) + treeTheme()
+        labs(title = "Factor Merger Tree"
+             # subtitle = paste0("Optimal GIC partition: ",
+             #                   paste(getOptimalPartition(factorMerger,
+             #                                             clusterSplit[[1]],
+             #                                             clusterSplit[[2]]),
+             #                         collapse = ":"))
+             ) + treeTheme()
 
     if (color) {
         g <- addClustersColors(g, segment, factorMerger, clusterSplit, statistic, palette)
