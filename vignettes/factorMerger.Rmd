@@ -142,18 +142,16 @@ We may plot results using function `plot`.
 
 
 ```{r, fig.height = 5, fig.width = 10}
-plot(fm, panel = "all", nodesSpacing = "equidistant", color = "cluster")
+plot(fm, panel = "all", nodesSpacing = "equidistant", colorCluster = TRUE)
 ```
 
 ```{r, fig.height = 5, fig.width = 10}
-plot(fmAll, panel = "merging", show = "p-value", 
-     nodesSpacing = "effects", color = "cluster", 
-     clusterSplit = list(stat = "p-value", alpha = 0.5),
-     alpha = 0.5)
+plot(fmAll, panel = "tree", statistic = "p-value", 
+     nodesSpacing = "effects", colorCluster = TRUE)
 ```
 
 ```{r}
-plot(fm, color = "cluster", panel = "response")
+plot(fm, colorCluster = TRUE, panel = "response")
 ```
 
 The heatmap on the right shows means of all variables taken into analysis by groups.
@@ -161,7 +159,7 @@ The heatmap on the right shows means of all variables taken into analysis by gro
 
 
 ```{r, fig.height = 5, fig.width = 10}
-plot(fm, color = "cluster", panel = "response", summary = "profile")
+plot(fm, colorCluster = TRUE, panel = "response", responsePanel = "profile")
 ```
 
 In the above plots colours are connected with the group. The plot on the right shows means rankings for all variables included in the algorithm. 
@@ -170,8 +168,7 @@ In the above plots colours are connected with the group. The plot on the right s
 It is also possible to plot *GIC* together with the merging path plot.
 
 ```{r, fig.width = 5}
-plot(fm, panel = "GIC", penalty = 5, 
-     clusterSplit = list(stat = "GIC", value = 5))
+plot(fm, panel = "GIC", penalty = 5)
 ```
 
 Model with the lowest GIC is marked.
@@ -188,11 +185,11 @@ mergingHistory(oneDimFm, showStats = TRUE) %>%
     kable()
 ```
 ```{r}
-plot(oneDimFm, responsePalette = "Reds")
+plot(oneDimFm, palette = "Reds")
 ```
 
 ```{r}
-plot(oneDimFm, summary = "boxplot", color = "cluster")
+plot(oneDimFm, responsePanel = "boxplot", colorCluster = TRUE)
 ```
 
 ## Binomial model
@@ -216,16 +213,15 @@ mergingHistory(binomFm, showStats = TRUE) %>%
 ```
 
 ```{r}
-plot(binomFm, color = "cluster", GICcolor = "red")
+plot(binomFm, colorCluster = TRUE, gicPanelColor = "red")
 ```
 
 ```{r}
-plot(binomFm, color = "cluster", 
-     clusterSplit = list(stat = "GIC", penalty = 7), penalty = 7)
+plot(binomFm, colorCluster = TRUE, penalty = 7)
 ```
 
 ```{r}
-plot(binomFm, GICcolor = "red")
+plot(binomFm, gicPanelColor = "red")
 ```
 
 
@@ -254,7 +250,7 @@ plot(survivalFm)
 ```
 
 ```{r}
-plot(survivalFm, nodesSpacing = "effects", color = "cluster")
+plot(survivalFm, nodesSpacing = "effects", colorCluster = TRUE)
 ```
 
 #Bibliography
