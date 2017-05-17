@@ -389,6 +389,7 @@ findSimilarities <- function(factorMerger) {
                               timevar = "variable",
                               direction = "wide")
     distances <- dist(varsToBePloted[, -1] %>% t(), method = "manhattan")
+    distances[distances == 0] <- 1e-4
     iso <- MASS::isoMDS(distances, k = 1, trace = FALSE)$points[, 1]
     iso <- data.frame(var = stats$variable %>% unique(), proj = iso) %>%
         arrange(proj)
