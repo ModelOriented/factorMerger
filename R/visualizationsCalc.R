@@ -193,11 +193,11 @@ getChisqBreaks <- function(plotData, alpha) {
 calculateBoxPlotMoments <- function(df) {
     return(
         df %>% left_join(
-            df %>% group_by(group) %>% summarize(y0 = min(y),
-                                             y25 = quantile(y, 0.25),
-                                             y50 = mean(y),
-                                             y75 = quantile(y, 0.75),
-                                             y100 = max(y)), by = "group")
+            df %>% group_by(group) %>% summarize(y0 = min(y, na.rm = TRUE),
+                                             y25 = quantile(y, 0.25, na.rm = TRUE),
+                                             y50 = mean(y, na.rm = TRUE),
+                                             y75 = quantile(y, 0.75, na.rm = TRUE),
+                                             y100 = max(y, na.rm = TRUE)), by = "group")
     )
 
 }

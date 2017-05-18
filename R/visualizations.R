@@ -626,7 +626,7 @@ plotSurvival <- function(factorMerger, color, clusterSplit) {
 #'
 #' @description Plots Generalized Information Criterion for models on the Factor Merger Tree.
 #'
-#' @importFrom ggplot2 ggplot aes_string geom_line aes theme element_blank scale_y_continuous labs geom_point geom_ribbon
+#' @importFrom ggplot2 ggplot annotate aes_string geom_line aes theme element_blank scale_y_continuous labs geom_point geom_ribbon
 #'
 #' @export
 plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
@@ -652,6 +652,16 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
               axis.title.y = element_text(),
               panel.grid.major = element_blank()) +
         scale_y_continuous(position = "right", breaks = yBreaks)
+
+    annotation <- data.frame(xpos = max(mH[, getStatNameInTable(statistic)]),
+                             ypos = max(mH[, "GIC"]),
+                             text = paste0("GIC penalty = ", round(penalty, 1)),
+                             hjust = 1, vjust = 1)
+
+    g <- g + geom_label(data = annotation, aes(x = xpos, y = ypos, hjust = hjust,
+                                              vjust = vjust, label = text)) +
+        ylab("")
+
     if (statistic == "p-value") {
         g <- g + scale_x_log10()
     }
