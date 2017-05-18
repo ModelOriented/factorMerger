@@ -1,0 +1,179 @@
+---
+title: "PISA 2012 - multi dimensional Gaussian merging"
+author: "Agnieszka Sitko"
+date: "`r Sys.Date()`"
+output: 
+    html_document:
+        toc: true
+        toc_depth: 3
+        toc_float: 
+            collapsed: false
+        theme: united
+        highlight: tango    
+        collapsed: false
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: ../materials/factorMerger.bib
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message = FALSE,
+                      fig.height = 5, fig.width = 10)
+```
+
+# Libraries
+
+```{r}
+library(factorMerger)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+```
+
+
+# Load data
+```{r}
+data("pisa2012")
+```
+
+# Explore
+
+```{r}
+pisa2012 %>% ggplot(aes(x = CNT)) + geom_bar() + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+meltedPisa <- pisa2012 %>% melt(na.rm = TRUE)
+pisaResultsBySubject <-  meltedPisa %>% 
+    ggplot(aes(x = reorder(CNT, value, FUN = median), y = value)) + geom_boxplot() + 
+    facet_wrap(~variable) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    xlab("Country") 
+
+pisaResultsBySubject
+```
+
+```{r}
+pisaResultsBySubject + 
+    geom_hline(data = meltedPisa %>% group_by(variable) %>% summarise(mean = mean(value)), 
+               aes(yintercept = mean, group = variable), col = "red")
+```
+
+TODO: Find countries significantly better, worse and not significantly different from global averages. Cluster countries into three groups.
+
+
+# Run MANOVA
+
+```{r}
+manova(cbind(PV1MATH, PV1READ, PV1SCIE) ~ CNT, pisa2012) %>% summary()
+```
+
+It seems that there exist some differences among countries included in PISA. Let's find them!
+
+# Factor Merger
+
+```{r}
+pisaIdxSubset <- sample(1:nrow(pisa2012), size = 5000)
+pisaFM <- mergeFactors(pisa2012[pisaIdxSubset, 2:4],
+                       factor(pisa2012$CNT[pisaIdxSubset]))
+
+pisaFM
+plot(pisaFM, responsePanel = "profile")
+```
+
+```{r}
+save(pisaFM, file = "pisaLRT.RData")
+```
+
+```{r}
+pisaFMHClust <- mergeFactors(pisa2012[, 2],
+                       factor(pisa2012$CNT),
+                       method = "hclust",
+                       successive = TRUE) 
+
+plot(pisaFMHClust)
+save(pisaFMHClust, file = "pisaHClustThreeDim.RData")
+pisaFMHClust <- mergeFactors(pisa2012[, 2:4],
+                       factor(pisa2012$CNT),
+                       method = "hclust",
+                       successive = FALSE) 
+```
+
+
+```{r}
+
+pisaEuropean <- filter(pisa2012, CNT %in% c(
+    "Austria", "Belgium",
+    "Bulgaria",
+                                            "Czech Republic", "Germany", "Denmark",
+                                            "Spain", "Estonia", "Finland",
+                                            "France", "Hungary", "Ireland",
+                                            "Italy", "Netherlands", "Norway",
+                                            "Poland", "Portugal",
+                                            "Russian Federation", "Slovak Republic",
+                                            "Slovenia"))
+
+
+pisaEuropean <- filter(pisa2012, CNT %in% c(
+    "Belgium", "Germany", "Poland", "China-Shanghai",
+    "Singapore", "Chile", "Colombia"
+    ))
+
+# means <- apply(pisaEuropean[, 2:4], 2, mean)
+# stds <- apply(pisaEuropean[, 2:4], 2, sd)
+# 
+# pisa <- sweep(pisaEuropean[, 2:4], 2, means)
+# pisa <- sweep(pisa, 2, stds, "/")
+
+pisaFMHClustEurope <- mergeFactors(pisaEuropean[,2:4],
+                       factor(pisaEuropean$CNT),
+                       method = "hclust",
+                       successive = TRUE) 
+
+plot(pisaFMHClustEurope)
+
+pisaEuropeanFM <- mergeFactors(pisa[,1:2],
+                       factor(pisaEuropean$CNT),
+                       successive = TRUE) 
+plot(pisaEuropean)
+```
+
+```{r}
+load("../computerStudent2012.rda")
+computerStudents2012 %>% colnames
+computerStudent2012$OCOD1 %>% unique
+computerStudent2012 <- computerStudent2012[, c("OCOD1", "OCOD2", "PV1MATH", "PV1SCIE", "PV1READ")]
+
+computerStudent2012 <- computerStudent2012 %>% filter(!OCOD1 %in% c("Do not know", "Missing", "N/A"))
+```
+
+```{r}
+
+
+which <- (ocod$code %>% substr(0,2)) %in% (table(ocod$code %>% substr(0,2)) 
+                                           %>% as.data.frame() %>% filter(Freq > 1000))$Var1
+
+parentsJobFM <- mergeFactors(
+    pisa2012[which, 
+                        c("PV1MATH", "PV1SCIE", "PV1READ")],
+    factor(ocod$code[which] %>% substr(0, 2)),
+    method = "hclust",
+    successive = TRUE)
+
+plot(parentsJobFM, responsePanel = "profile", panel = "response", penalty = 10)
+
+save(parentsJobFM, file = "./parentsByOcupCode.RData")
+factorMerger:::calculateMeansAndRanks(parentsJobFM$response, parentsJobFM$factor)
+
+parentsJobFM1 <- mergeFactors(
+    pisa2012[which, 
+                        2],
+    factor(ocod$code[which] %>% substr(0, 2)),
+    method = "hclust",
+    successive = TRUE)
+
+```
+

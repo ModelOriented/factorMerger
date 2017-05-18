@@ -81,8 +81,9 @@ calculateMeansAndRanks <- function(response, factor) {
     })
 
     means <- lapply(means, function(x) {
-        df <- x %>% arrange(x)
+        df <- x %>% arrange(-x)
         df$rank <- ave(df$x, FUN = rank)
+        df$rank <- nrow(df) - df$rank + 1
         df
     })
 

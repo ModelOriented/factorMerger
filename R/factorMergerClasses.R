@@ -4,6 +4,7 @@
 #' base class of the factorMerger package. \code{factorMerger} stores information about
 #' response, initial factor, its levels and their abbreviated names (field \code{map}).
 #' \code{factorMerger} creates its own structure of inheritance connected with model family.
+#' @importFrom magrittr "%>%"
 #'
 merger <- function(response, factor,
                    family = "gaussian",
@@ -242,7 +243,6 @@ mergeHClust <- function(factorMerger, successive, penalty) {
     factorMerger$mergingHistory <- recodeClustering(clust$merge,
                                                     clust$labels,
                                                     getIncreasingFactor(factorMerger))
-
     factor <- factorMerger$factor
     for (i in 1:nrow(factorMerger$mergingHistory)) {
         fm <- mergePairHClust(factorMerger, factor, penalty)

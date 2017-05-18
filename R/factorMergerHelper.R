@@ -2,14 +2,37 @@ appendProjection <- function(factorMerger) {
     UseMethod("appendProjection", factorMerger)
 }
 
-appendProjection.factorMerger <- function(factorMerger) {
+appendProjection.default <- function(factorMerger) {
     return(factorMerger)
 }
 
+#' @importFrom dplyr filter left_join
+reverseOrder <- function(factorMerger, isoMDSproj) {
+    sim <- findSimilarities(factorMerger)
+    colnames(isoMDSproj)[1] <- "proj"
+    sim <- sim %>% filter(variable == levels(variable)[1]) %>%
+        left_join(isoMDSproj, by = c("level" = "factor"))
+    meansIncreasing <- sim[1, "mean"] < sim[nrow(sim), "mean"]
+    projIncreasing <- sim[1, "proj"] < sim[nrow(sim), "proj"]
+    if (xor(meansIncreasing, projIncreasing)) {
+        return(-isoMDSproj$proj)
+    }
+    return(isoMDSproj$proj)
+}
+
+#' @importFrom dplyr left_join
 appendProjection.gaussianFactorMerger <- function(factorMerger) {
     if (NCOL(factorMerger$response) > 1) {
-        tmpResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
-        factorMerger$projectedResponse <- tmpResponse
+        groupMeans <- calculateMeans(factorMerger$response, factorMerger$factor)
+        tmpResponse <- MASS::isoMDS(dist(groupMeans[, -1]), k = 1, trace = FALSE)$points[, 1] %>%
+            as.data.frame()
+        tmpResponse$factor <- groupMeans$level
+        tmpResponse[, 1] <- reverseOrder(factorMerger, tmpResponse)
+        tmpResponse <- data.frame(factor = factorMerger$factor,
+                                  stringsAsFactors = FALSE) %>%
+            left_join(tmpResponse,
+                      by = "factor")
+        factorMerger$projectedResponse <- tmpResponse[, 2]
     }
     return(factorMerger)
 }
@@ -36,19 +59,19 @@ convertToDistanceMatrix <- function(modelsPvals, successive, labels) {
 #' @importFrom MASS isoMDS
 startMerging <- function(factorMerger, successive, method, penalty) {
 
-    if (successive) {
-        factorMerger$factor <- getIncreasingFactor(factorMerger)
-    }
     factorMerger <- appendProjection(factorMerger)
+    factorMerger$factor <- getIncreasingFactor(factorMerger)
     factor <- factorMerger$factor
     factorMerger$mergingList[[1]]$groupStats <-
         calculateGroupStatistic(factorMerger, factor)
     factorMerger$mergingList[[1]]$groups <- levels(factor)
     model <- calculateModel(factorMerger, factor)
     initStat <- calculateModelStatistic(model)
+    factorMerger$initialModel <- model
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = initStat,
-        GIC = calculateGIC(model, length(levels(factor)), penalty),
+        GIC = calculateGIC(model, length(levels(factor)),
+                           penalty),
         pvalVsFull = 1,
         pvalVsPrevious = 1)
 
@@ -157,7 +180,7 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    GIC = calculateGIC(model, length(levels(factor)), penalty),
-                   pvalVsFull = compareModels(calculateModel(factorMerger, factorMerger$factor), model),
+                   pvalVsFull = compareModels(factorMerger$initialModel, model),
                    pvalVsPrevious = compareModels(prevModel, model))
 
     return(
@@ -194,8 +217,7 @@ mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
                    GIC = calculateGIC(model, length(levels(factor)), penalty),
-                   pvalVsFull = compareModels(calculateModel(factorMerger,
-                                                       factorMerger$factor), model),
+                   pvalVsFull = compareModels(factorMerger$initialModel, model),
                    pvalVsPrevious = pval)
 
     return(
@@ -205,7 +227,8 @@ mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
     )
 }
 
-getFinalOrder <- function(factorMerger) {
+# if reverse == TRUE, a group with the highest statistic will be the last one
+getFinalOrder <- function(factorMerger, reverse = FALSE) {
     groups <- levels(factorMerger$factor)
     merging <- mergingHistory(factorMerger)
     noSteps <- nrow(merging)
@@ -218,7 +241,22 @@ getFinalOrder <- function(factorMerger) {
         names(pos)[names(pos) %in% merging[step, ]] <-
             paste(merging[step, ], collapse = "")
     }
-    names(pos) <- groups
+    # Sort (approximately) according to group means
+    stats <- groupsStats(factorMerger)
+    stats$group <- rownames(stats)
+    stats <- data.frame(group = groups, stringsAsFactors = F) %>%
+        left_join(stats, by = "group")
+
+    if (stats[1, 2] > stats[nrow(stats), 2] && reverse) {
+        names(pos) <- groups[length(groups):1]
+    } else {
+        names(pos) <- groups
+    }
+
+    # if (reverse) {
+    #     names(pos) <- names(pos)[length(groups):1]
+    # }
+
     return(pos)
 }
 
@@ -258,6 +296,7 @@ cutTree <- function(factorMerger,
                     stat = "GIC",
                     value = 2) {
     stopifnot(!is.null(value) | stat == "GIC")
+    stopifnot(stat != "GIC" | value > 0)
     mH <- mergingHistory(factorMerger, T)
     stopifnot(stat %in% c("loglikelihood", "p-value", "GIC"))
     if (stat == "GIC") {
@@ -268,7 +307,7 @@ cutTree <- function(factorMerger,
 
     factor <- factorMerger$factor
     nMerges <- nrow(mH)
-    if (nMerges < 2) {
+    if (nMerges < 2 | mH[1, statColname] == value) {
         return(factor)
     }
 

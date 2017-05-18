@@ -16,11 +16,9 @@ calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
 #' @importFrom survival Surv coxph coxph.control
 calculateModel.survivalFactorMerger <- function(factorMerger, factor) {
     if (length(unique(factor)) > 1) {
-        return(coxph(factorMerger$response ~ factor,
-                     control = coxph.control(iter.max = 50)))
+        return(coxph(factorMerger$response ~ factor))
     }
-    return(coxph(factorMerger$response ~ 1,
-                 control = coxph.control(iter.max = 50)))
+    return(coxph(factorMerger$response ~ 1))
 }
 
 calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
@@ -45,15 +43,15 @@ calculateModelStatistic.default <- function(model) {
     return(logLik(model))
 }
 
-# http://r.789695.n4.nabble.com/Multiple-regression-information-criterion-td4689113.html
+# https://rdrr.io/rforge/Atools/src/R/logLik.mlm.R
+#' @importFrom mvtnorm dmvnorm
 calculateModelStatistic.mlm <- function(obj) {
-    E <- obj$residuals
-    S <- cov(matrix(E, nrow = NROW(E)))
-    Sinv <- solve(S)
-    n <- NROW(E)
-    p <- NCOL(E)
-    return(- n * p / 2 * log(2 * pi) - n / 2 * log(det(S)) -
-               1/2 * sum(diag(E %*% Sinv %*% t(E))))
+
+    resids <- residuals(obj)
+    n <- nrow(resids)
+    Sigma_ML <- crossprod(resids) /n
+    ans <- sum(dmvnorm(resids, sigma = Sigma_ML, log = T))
+    return(ans %>% as.numeric())
 }
 
 calculateModelStatistic.coxph <- function(model) {

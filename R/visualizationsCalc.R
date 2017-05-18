@@ -75,7 +75,7 @@ optimalNumberOfMerges <- function(factorMerger, stat = "GIC", value = 2) {
             nSteps <- nSteps + 1
         }
     }
-    return(nSteps - 1)
+    return(nSteps)
 }
 
 # Divides part of a segment plot into clusters
@@ -94,8 +94,7 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
     if (length(segment$df[segment$df$x2 < bestModel, ]$x2) > 0) {
         segment$df[segment$df$x1 < bestModel, ]$x1 <- bestModel
     }
-    segment <- lapply(segment, function(x)
-        x %>% filter(x1 %>% round(4) >= bestModel %>% round(4)))
+    # segment <- lapply(segment, function(x)x %>% filter(x1 >= bestModel))
     map <- getOptimalPartitionDf(factorMerger, clusterSplit[[1]], clusterSplit[[2]])
     map$pred <- as.character(map$pred)
     map$orig <- as.character(map$orig)
@@ -104,12 +103,14 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
     segment$pointsDf$pred <- NA
     segment$pointsDf[1:nrow(segment$labelsDf), "pred"] <- segment$labelsDf$pred
 
-    for (i in 1:nSteps) {
-        pair <- mH[i + 1, 1:2]
-        prediction <- (map$pred[map$orig %in% pair] %>% unique())
-        segment$df[segment$df$step == i, "pred"] <- prediction
-        segment$pointsDf[segment$pointsDf$step == i, "pred"] <- prediction
-        map$orig[map$orig %in% pair] <- paste0(pair[1], pair[2])
+    if (nSteps >= 1) {
+        for (i in 1:nSteps) {
+            pair <- mH[i + 1, 1:2]
+            prediction <- (map$pred[map$orig %in% pair] %>% unique())
+            segment$df[segment$df$step == i, "pred"] <- prediction
+            segment$pointsDf[segment$pointsDf$step == i, "pred"] <- prediction
+            map$orig[map$orig %in% pair] <- paste0(pair[1], pair[2])
+        }
     }
 
     segment$labelsDf <- segment$labelsDf %>% arrange(y1)
@@ -159,7 +160,6 @@ getStatisticName.binomialFactorMerger <- function(factorMerger) {
 getStatisticName.survivalFactorMerger <- function(factorMerger) {
     return("Initial survival model coefficient")
 }
-
 #' @importFrom dplyr left_join
 getLabels <- function(labelsDf, factorMerger) {
     stats <- groupsStats(factorMerger)
@@ -192,11 +192,11 @@ getChisqBreaks <- function(plotData, alpha) {
 calculateBoxPlotMoments <- function(df) {
     return(
         df %>% left_join(
-            df %>% group_by(group) %>% summarize(y0 = min(y),
-                                             y25 = quantile(y, 0.25),
-                                             y50 = mean(y),
-                                             y75 = quantile(y, 0.75),
-                                             y100 = max(y)), by = "group")
+            df %>% group_by(group) %>% summarize(y0 = min(y, na.rm = TRUE),
+                                             y25 = quantile(y, 0.25, na.rm = TRUE),
+                                             y50 = mean(y, na.rm = TRUE),
+                                             y75 = quantile(y, 0.75, na.rm = TRUE),
+                                             y100 = max(y, na.rm = TRUE)), by = "group")
     )
 
 }
