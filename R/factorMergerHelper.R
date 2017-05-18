@@ -6,6 +6,20 @@ appendProjection.default <- function(factorMerger) {
     return(factorMerger)
 }
 
+#' @importFrom dplyr filter left_join
+reverseOrder <- function(factorMerger, isoMDSproj) {
+    sim <- findSimilarities(factorMerger)
+    colnames(isoMDSproj)[1] <- "proj"
+    sim <- sim %>% filter(variable == levels(variable)[1]) %>%
+        left_join(isoMDSproj, by = c("level" = "factor"))
+    meansIncreasing <- sim[1, "mean"] < sim[nrow(sim), "mean"]
+    projIncreasing <- sim[1, "proj"] < sim[nrow(sim), "proj"]
+    if (xor(meansIncreasing, projIncreasing)) {
+        return(-isoMDSproj$proj)
+    }
+    return(isoMDSproj$proj)
+}
+
 #' @importFrom dplyr left_join
 appendProjection.gaussianFactorMerger <- function(factorMerger) {
     if (NCOL(factorMerger$response) > 1) {
@@ -13,6 +27,7 @@ appendProjection.gaussianFactorMerger <- function(factorMerger) {
         tmpResponse <- MASS::isoMDS(dist(groupMeans[, -1]), k = 1, trace = FALSE)$points[, 1] %>%
             as.data.frame()
         tmpResponse$factor <- groupMeans$level
+        tmpResponse[, 1] <- reverseOrder(factorMerger, tmpResponse)
         tmpResponse <- data.frame(factor = factorMerger$factor,
                                   stringsAsFactors = FALSE) %>%
             left_join(tmpResponse,
@@ -220,7 +235,8 @@ mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
     )
 }
 
-getFinalOrder <- function(factorMerger) {
+# if reverse == TRUE, a group with the highest statistic will be the last one
+getFinalOrder <- function(factorMerger, reverse = FALSE) {
     groups <- levels(factorMerger$factor)
     merging <- mergingHistory(factorMerger)
     noSteps <- nrow(merging)
@@ -239,11 +255,16 @@ getFinalOrder <- function(factorMerger) {
     stats <- data.frame(group = groups, stringsAsFactors = F) %>%
         left_join(stats, by = "group")
 
-    if (stats[1, 1] > stats[nrow(stats), 1]) {
+    if (stats[1, 2] > stats[nrow(stats), 2] && reverse) {
         names(pos) <- groups[length(groups):1]
     } else {
         names(pos) <- groups
     }
+
+    # if (reverse) {
+    #     names(pos) <- names(pos)[length(groups):1]
+    # }
+
     return(pos)
 }
 

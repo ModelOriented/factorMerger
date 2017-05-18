@@ -84,7 +84,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
         responsePanelPalette <- palette
     }
 
-    if(!is.null(responsePanelPalette)) {
+    if (!is.null(responsePanelPalette)) {
         responsePlot <- ggpubr::ggpar(responsePlot, palette = responsePanelPalette)
     }
 
@@ -104,14 +104,18 @@ plot.factorMerger <- function(factorMerger, panel = "all",
     if (!is.null(palette)) {
         mergingPathPlot <- ggpubr::ggpar(mergingPathPlot, palette = palette)
     }
+
+    # frequencyPlot <- plotFrequency(factorMerger, FALSE, clusterSplit)
+
     switch(panel,
            "tree" = {
                return(mergingPathPlot)
            },
            "all" = {
                return(grid.arrange(mergingPathPlot, responsePlot,
-                                   plotGIC(factorMerger, gicPanelColor, penalty, statistic), ncol = 2,
-                                   widths = c(7.5, 2.5), heights = c(7.5, 2.5)))
+                                   plotGIC(factorMerger, gicPanelColor, penalty, statistic),
+                                   ncol = 2,
+                                   widths = c(6.5, 2.5), heights = c(6.5, 2.5)))
            },
            "response" = {
                return(grid.arrange(mergingPathPlot, responsePlot,
@@ -180,7 +184,8 @@ plotTree <- function(factorMerger, statistic, nodesSpacing,
 plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
                            markBestModel, markStars,
                            alpha, color, colorsDf, palette) {
-    nodesPosition <- getFinalOrder(factorMerger) %>% data.frame()
+    # We want to have reverse order of variables! TODO
+    nodesPosition <- getFinalOrder(factorMerger, TRUE) %>% data.frame()
     mH <- mergingHistory(factorMerger)
     noStep <- nrow(mH)
 
@@ -225,7 +230,8 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                                 breaks = labelsDf$y1,
                                 labels = getLabels(labelsDf, factorMerger)) +
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
-        labs(title = "Factor Merger Tree"
+        labs(title = "Factor Merger Tree",
+             subtitle = ""
              # subtitle = paste0("Optimal GIC partition: ",
              #                   paste(getOptimalPartition(factorMerger,
              #                                             clusterSplit[[1]],
@@ -376,7 +382,7 @@ plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSpli
                return(plotProportion(factorMerger, colorClusters, clusterSplit))
            },
            "frequency" = {
-               return(plotFrequency(factorMerger, colorClusters, clusterSplit))
+               return(plotFrequency(factorMerger, FALSE, clusterSplit))
            })
 }
 
@@ -453,7 +459,7 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
     )
 
     noLevels <- length(levels(df$level))
-    df$rank <- factor(df$rank, levels = 1:noLevels)
+    df$rank <- factor(df$rank, levels = noLevels:1)
 
     if (color) {
         df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
@@ -682,8 +688,11 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
     }
 
     g + scale_y_continuous(name = "") +
-        coord_flip() + treeTheme() +
-        theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
+        coord_flip() +
+        treeTheme() +
+        theme(panel.grid.major.x = element_blank(),
+            axis.title.y = element_blank(), axis.text.y = element_blank()) +
+        xlab(" ") +
         labs(title = "Groups frequencies",
              subtitle = "")
 }

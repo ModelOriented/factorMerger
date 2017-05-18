@@ -161,7 +161,6 @@ getStatisticName.binomialFactorMerger <- function(factorMerger) {
 getStatisticName.survivalFactorMerger <- function(factorMerger) {
     return("Initial survival model coefficient")
 }
-
 #' @importFrom dplyr left_join
 getLabels <- function(labelsDf, factorMerger) {
     stats <- groupsStats(factorMerger)
