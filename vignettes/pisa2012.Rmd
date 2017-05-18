@@ -83,31 +83,27 @@ pisaFM <- mergeFactors(pisa2012[pisaIdxSubset, 2:4],
 pisaFM
 plot(pisaFM, responsePanel = "profile")
 ```
-
+It's faster to use 'hclust' method on a big dataset.
 ```{r}
-save(pisaFM, file = "pisaLRT.RData")
-```
-
-```{r}
-pisaFMHClust <- mergeFactors(pisa2012[, 2],
+pisaFMHClustMath <- mergeFactors(pisa2012[, 2],
                        factor(pisa2012$CNT),
                        method = "hclust",
                        successive = TRUE) 
 
-plot(pisaFMHClust)
-save(pisaFMHClust, file = "pisaHClustThreeDim.RData")
+plot(pisaFMHClustMath)
+
 pisaFMHClust <- mergeFactors(pisa2012[, 2:4],
                        factor(pisa2012$CNT),
                        method = "hclust",
                        successive = FALSE) 
+                       
+plot(pisaFMHClust)
 ```
-
+Let's now have a try using European countries only.
 
 ```{r}
 
-pisaEuropean <- filter(pisa2012, CNT %in% c(
-    "Austria", "Belgium",
-    "Bulgaria",
+pisaEuropean <- filter(pisa2012, CNT %in% c("Austria", "Belgium", "Bulgaria",
                                             "Czech Republic", "Germany", "Denmark",
                                             "Spain", "Estonia", "Finland",
                                             "France", "Hungary", "Ireland",
@@ -117,17 +113,6 @@ pisaEuropean <- filter(pisa2012, CNT %in% c(
                                             "Slovenia"))
 
 
-pisaEuropean <- filter(pisa2012, CNT %in% c(
-    "Belgium", "Germany", "Poland", "China-Shanghai",
-    "Singapore", "Chile", "Colombia"
-    ))
-
-# means <- apply(pisaEuropean[, 2:4], 2, mean)
-# stds <- apply(pisaEuropean[, 2:4], 2, sd)
-# 
-# pisa <- sweep(pisaEuropean[, 2:4], 2, means)
-# pisa <- sweep(pisa, 2, stds, "/")
-
 pisaFMHClustEurope <- mergeFactors(pisaEuropean[,2:4],
                        factor(pisaEuropean$CNT),
                        method = "hclust",
@@ -135,42 +120,24 @@ pisaFMHClustEurope <- mergeFactors(pisaEuropean[,2:4],
 
 plot(pisaFMHClustEurope)
 
-pisaEuropeanFM <- mergeFactors(pisa[,1:2],
-                       factor(pisaEuropean$CNT),
-                       successive = TRUE) 
-plot(pisaEuropean)
 ```
 
-```{r}
-load("../computerStudent2012.rda")
-computerStudents2012 %>% colnames
-computerStudent2012$OCOD1 %>% unique
-computerStudent2012 <- computerStudent2012[, c("OCOD1", "OCOD2", "PV1MATH", "PV1SCIE", "PV1READ")]
-
-computerStudent2012 <- computerStudent2012 %>% filter(!OCOD1 %in% c("Do not know", "Missing", "N/A"))
-```
+# Another factor - parent occupation
 
 ```{r}
-
-
 which <- (ocod$code %>% substr(0,2)) %in% (table(ocod$code %>% substr(0,2)) 
                                            %>% as.data.frame() %>% filter(Freq > 1000))$Var1
 
 parentsJobFM <- mergeFactors(
-    pisa2012[which, 
-                        c("PV1MATH", "PV1SCIE", "PV1READ")],
+    pisa2012[which, c("PV1MATH", "PV1SCIE", "PV1READ")],
     factor(ocod$code[which] %>% substr(0, 2)),
     method = "hclust",
     successive = TRUE)
 
 plot(parentsJobFM, responsePanel = "profile", panel = "response", penalty = 10)
 
-save(parentsJobFM, file = "./parentsByOcupCode.RData")
-factorMerger:::calculateMeansAndRanks(parentsJobFM$response, parentsJobFM$factor)
-
 parentsJobFM1 <- mergeFactors(
-    pisa2012[which, 
-                        2],
+    pisa2012[which, 2],
     factor(ocod$code[which] %>% substr(0, 2)),
     method = "hclust",
     successive = TRUE)
