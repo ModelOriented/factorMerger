@@ -226,12 +226,13 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), size = 0.5) +
         geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75)+
         scale_y_continuous(limits = getLimits(labelsDf, showY),
-                                position = "right",
-                                breaks = labelsDf$y1,
-                                labels = getLabels(labelsDf, factorMerger)) +
+                           position = "right",
+                           breaks = labelsDf$y1,
+                           labels = getLabels(labelsDf, factorMerger),
+                           expand = c(0, 0)) +
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
         labs(title = "Factor Merger Tree",
-             subtitle = ""
+             subtitle = " "
              # subtitle = paste0("Optimal GIC partition: ",
              #                   paste(getOptimalPartition(factorMerger,
              #                                             clusterSplit[[1]],
@@ -413,7 +414,7 @@ findSimilarities <- function(factorMerger) {
 #'
 #' @export
 #' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
-#' @importFrom ggplot2 coord_flip element_line element_blank scale_fill_distiller labs guides
+#' @importFrom ggplot2 coord_flip scale_y_continuous element_line element_blank scale_fill_distiller labs guides
 #' @importFrom reshape2 melt
 #' @importFrom dplyr filter arrange
 plotHeatmap <- function(factorMerger, color, clusterSplit) {
@@ -436,9 +437,9 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
               plot.title = element_text(size = 18),
               plot.subtitle = element_text(size = 12),
               legend.position = "none") +
-        xlab("") +
+        xlab("") + scale_y_discrete(expand = c(0, 0)) +
         scale_fill_distiller(palette = "Greys") +
-        labs(title = "Heatmap", subtitle = "Group means by variables")
+        labs(title = "Heatmap", subtitle = "Group means by variable")
 }
 
 #' Profile plot (multi-dimensional Gaussian)
@@ -484,7 +485,8 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
         theme_minimal() + theme(legend.position = "none",
               plot.title = element_text(size = 18),
               axis.text = element_text(size = 12),
-              plot.subtitle = element_text(size = 12))
+              plot.subtitle = element_text(size = 12)) +
+        scale_y_discrete(expand = c(1 / (2 * nrow(df)), 1 / (2 * nrow(df))))
     return(g)
 }
 

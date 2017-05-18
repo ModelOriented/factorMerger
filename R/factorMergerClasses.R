@@ -238,17 +238,12 @@ mergeLRT <- function(factorMerger, successive, penalty) {
 
 
 mergeHClust <- function(factorMerger, successive, penalty) {
-    cat("Merging started.\n")
     factorMerger <- startMerging(factorMerger, successive, "hclust", penalty)
-    cat("Merging initialized.\n")
     clust <- clusterFactors(factorMerger$dist, successive)
-    cat("Clustering performed.\n")
     factorMerger$mergingHistory <- recodeClustering(clust$merge,
                                                     clust$labels,
                                                     getIncreasingFactor(factorMerger))
-    cat("Clusters recoded.\n")
     factor <- factorMerger$factor
-    cat("Calculating models statistics.")
     for (i in 1:nrow(factorMerger$mergingHistory)) {
         fm <- mergePairHClust(factorMerger, factor, penalty)
         factorMerger <- fm$factorMerger
