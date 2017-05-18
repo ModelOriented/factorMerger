@@ -66,6 +66,12 @@ drugNameFM <- mergeFactors(brcaSurv[!is.na(drugName)],
 plot(drugNameFM, nodesSpacing = "effects", gicPanelColor = "grey2")
 ```
 
+```{r}
+anova(coxph(brcaSurv[!is.na(drugName)]~drugName[!is.na(drugName)]))
+anova(coxph(brcaSurv[!is.na(drugName)]~cutTree(drugNameFM)))
+```
+
+
 ## Cancer subtype
 
 ```{r}
@@ -89,5 +95,10 @@ patCatFM <- mergeFactors(brcaSurv[!is.na(patCat)],
                          family = "survival")
 
 plot(patCatFM, responsePanel = "frequency", gicPanelColor = "red")
+```
+
+```{r}
+anova(coxph(brcaSurv[!is.na(patCat)]~patCat[!is.na(patCat)]))
+anova(coxph(brcaSurv[!is.na(subtype)]~cutTree(subtypeFM)))
 ```
 
