@@ -60,10 +60,7 @@ convertToDistanceMatrix <- function(modelsPvals, successive, labels) {
 startMerging <- function(factorMerger, successive, method, penalty) {
 
     factorMerger <- appendProjection(factorMerger)
-    if (successive) {
-        factorMerger$factor <- getIncreasingFactor(factorMerger)
-    }
-
+    factorMerger$factor <- getIncreasingFactor(factorMerger)
     factor <- factorMerger$factor
     factorMerger$mergingList[[1]]$groupStats <-
         calculateGroupStatistic(factorMerger, factor)

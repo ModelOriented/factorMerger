@@ -621,6 +621,11 @@ plotSurvival <- function(factorMerger, color, clusterSplit) {
     return(g)
 }
 
+getGICBreaks <- function(mH) {
+    return(c(mH$GIC[1], min(mH$GIC), mH$GIC[length(mH$GIC)]) %>%
+        unique() %>% round())
+}
+
 # -------------------
 # GIC plot - bottom left plot
 
@@ -638,8 +643,7 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     mH <- mergingHistory(factorMerger, T, F)
     mH$GIC <- -2 * mH$model + penalty * nrow(mH):1
     minGIC <- min(mH$GIC)
-    yBreaks <- c(mH$GIC[1], minGIC, mH$GIC[length(mH$GIC)]) %>%
-        unique() %>% round()
+    yBreaks <- getGICBreaks(mH)
     minModel <- mH$model[which.min(mH$GIC)]
     g <- mH %>% ggplot(aes_string(x = getStatNameInTable(statistic), y = "GIC")) +
         geom_line(col = color, size = 1) +
@@ -653,7 +657,8 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
               axis.title.x = element_blank(),
               axis.title.y = element_text(),
               panel.grid.major = element_blank()) +
-        scale_y_continuous(position = "right", breaks = yBreaks)
+        scale_y_continuous(position = "right",
+                           breaks = yBreaks)
 
     annotation <- data.frame(xpos = max(mH[, getStatNameInTable(statistic)]),
                              ypos = max(mH[, "GIC"]),
@@ -677,7 +682,7 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
 #'
 #' @description
 #'
-#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
+#' @importFrom ggplot2 ggplot scale_x_discrete geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
 #' @importFrom dplyr count left_join
 #'
 #' @export
@@ -700,11 +705,15 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
     }
 
     g + scale_y_continuous(name = "") +
+        scale_x_discrete(expand = c(0, 0)) +
         coord_flip() +
         treeTheme() +
         theme(panel.grid.major.x = element_blank(),
-            axis.title.y = element_blank(), axis.text.y = element_blank()) +
+            axis.title.y = element_blank(),
+            axis.text.y = element_blank(),
+            axis.title.x = element_blank(),
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank()) +
         xlab(" ") +
-        labs(title = "Groups frequencies",
-             subtitle = "")
+        labs(title = "Groups frequencies")
 }
