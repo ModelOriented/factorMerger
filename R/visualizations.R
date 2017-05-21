@@ -52,6 +52,9 @@
 #' @param responsePanelPalette Additional color palette used in the Response Plot if
 #' palettes for the Factor Merger Tree and the Response Plot are to be different.
 #' @param gicPanelColor Color used in the GIC plot.
+#' @param title Factor Merger Tree plot's title.
+#' @param subtitle Factor Merger Tree plot's subtitle.
+#'
 #' @importFrom gridExtra grid.arrange
 #'
 #' @export
@@ -65,6 +68,8 @@ plot.factorMerger <- function(factorMerger, panel = "all",
                               showSplit = FALSE,
                               showSignificance = TRUE,
                               chisqQuantile = 0.05,
+                              title = "Factor Merger Tree",
+                              subtitle = " ",
                               palette = NULL,
                               responsePanel = NULL,
                               responsePanelPalette = NULL,
@@ -78,7 +83,8 @@ plot.factorMerger <- function(factorMerger, panel = "all",
     clusterSplit <- getClusterSplit(splitStatistic, splitThreshold, penalty)
 
     responsePanel <- checkResponsePanel(factorMerger, responsePanel)
-    responsePlot <- plotResponse(factorMerger, responsePanel, colorClusters, clusterSplit)
+    responsePlot <- plotResponse(factorMerger, responsePanel,
+                                 colorClusters, clusterSplit)
 
     if (is.null(responsePanelPalette) && !is.null(palette)) {
         responsePanelPalette <- palette
@@ -99,7 +105,8 @@ plot.factorMerger <- function(factorMerger, panel = "all",
 
     mergingPathPlot <- plotTree(factorMerger, statistic, nodesSpacing,
                                 clusterSplit, showSplit, showSignificance,
-                                chisqQuantile, colorClusters, colorsDf, palette)
+                                chisqQuantile, colorClusters, colorsDf, palette,
+                                title, subtitle)
 
     if (!is.null(palette)) {
         mergingPathPlot <- ggpubr::ggpar(mergingPathPlot, palette = palette)
@@ -165,25 +172,28 @@ treeTheme <- function() {
 
 plotTree <- function(factorMerger, statistic, nodesSpacing,
                      clusterSplit, markBestModel, markStars,
-                     alpha, color, colorsDf, palette) {
+                     alpha, color, colorsDf,
+                     palette, title, subtitle) {
     stopifnot(statistic %in% c("loglikelihood", "p-value"))
     if (nodesSpacing == "equidistant") {
         return(
             plotSimpleTree(factorMerger, statistic, clusterSplit,
                            markBestModel, markStars,
-                           alpha, color, colorsDf, palette)
+                           alpha, color, colorsDf, palette, title, subtitle)
         )
     }
     return(
         plotCustomizedTree(factorMerger, statistic, clusterSplit,
                            nodesSpacing, markBestModel, markStars,
-                           alpha, color, colorsDf, palette, groupsStats(factorMerger))
+                           alpha, color, colorsDf, palette,
+                           groupsStats(factorMerger), title, subtitle)
     )
 }
 
 plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
                            markBestModel, markStars,
-                           alpha, color, colorsDf, palette) {
+                           alpha, color, colorsDf, palette,
+                           title, subtitle) {
     # We want to have reverse order of variables! TODO
     nodesPosition <- getFinalOrder(factorMerger, TRUE) %>% data.frame()
     mH <- mergingHistory(factorMerger)
@@ -198,7 +208,7 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
     return(plotCustomizedTree(factorMerger, statistic, clusterSplit,
                               "equidistant", markBestModel, markStars,
                               alpha, color, colorsDf, palette,
-                              nodesPosition))
+                              nodesPosition, title, subtitle))
 
 }
 
@@ -210,7 +220,7 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
 plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                                nodesSpacing, markBestModel, markStars,
                                alpha, color, colorsDf, palette,
-                               nodesPosition = NULL) {
+                               nodesPosition = NULL, title, subtitle) {
     statisticColname <- getStatNameInTable(statistic)
     if (nodesSpacing == "modelSpecific") {
         nodesPosition <- applyModelTransformation(factorMerger, nodesPosition)
@@ -231,14 +241,8 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                            labels = getLabels(labelsDf, factorMerger),
                            expand = c(0, 0)) +
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
-        labs(title = "Factor Merger Tree",
-             subtitle = " "
-             # subtitle = paste0("Optimal GIC partition: ",
-             #                   paste(getOptimalPartition(factorMerger,
-             #                                             clusterSplit[[1]],
-             #                                             clusterSplit[[2]]),
-             #                         collapse = ":"))
-             ) + treeTheme()
+        labs(title = title,
+             subtitle = subtitle) + treeTheme()
 
     if (color) {
         g <- addClustersColors(g, segment, factorMerger, clusterSplit, statistic, palette)
@@ -672,6 +676,7 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     if (statistic == "p-value") {
         g <- g + scale_x_log10()
     }
+
     return(g)
 }
 
