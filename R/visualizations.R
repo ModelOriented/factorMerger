@@ -123,6 +123,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
            "all" = {
                return(grid.arrange(mergingPathPlot, responsePlot,
                                    plotGIC(factorMerger, gicPanelColor, penalty, statistic),
+                                   plotTable(calculateAnovaTable(factorMerger$initialModel)),
                                    ncol = 2,
                                    widths = c(6.5, 2.5), heights = c(6.5, 2.5)))
            },
@@ -596,6 +597,7 @@ plotProportion <- function(factorMerger, color, clusterSplit) {
     }
 
     g + scale_y_continuous(label = scales::percent, name = "") +
+        scale_x_discrete(expand = c(0,0)) +
         coord_flip() + treeTheme() +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
         labs(title = "Success ratio",
@@ -728,4 +730,41 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
             axis.ticks.x = element_blank()) +
         xlab(" ") +
         labs(title = "Groups frequencies")
+}
+
+
+plotTable <- function(tab) {
+    vecTab <- c("", rownames(tab))
+    for (i in 1:ncol(tab)) {
+        tab[, i] <- as.character(tab[, i])
+        vecTab <- c(vecTab, colnames(tab)[i], tab[, i])
+    }
+
+    tab[tab == "<NA>"] <- " "
+
+    h <- nrow(tab) + 1
+    w <- ncol(tab) + 1
+    tab1 <- data.frame(V0 = factor(rep(letters[h:1],  w)),
+                       V05 = rep(1:w, each = h),
+                       V1 = vecTab,
+                       stringsAsFactors = FALSE)
+
+    rectData <- data.frame(xmin = 1.5, xmax = w + 0.75, ymin = h - 0.5, ymax = h + 0.5)
+    tab1[is.na(tab1)] <- " "
+    ggplot(tab1, aes(x = V05, y = V0, label = format(V1, nsmall = 1))) +
+        geom_text(size = 5.5, hjust=0, vjust=0.5) + theme_bw() +
+        theme(panel.grid.major = element_blank(),
+              legend.position = "none",
+              panel.border = element_blank(),
+              axis.text.x = element_blank(),
+              axis.text.y = element_blank(),
+              axis.ticks = element_blank(),
+              plot.title = element_text(hjust = 0.9, size = 15),
+              plot.margin = unit(c(0,0,0,0), "lines")) +
+        labs(x="",y="") + ggtitle("ANOVA table") +
+        scale_x_continuous(limits = c(1, w + 0.75), expand = c(0, 0.25)) +
+        geom_rect(inherit.aes = FALSE,
+                  data = rectData, alpha = 0.1,
+                  mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax))
+
 }

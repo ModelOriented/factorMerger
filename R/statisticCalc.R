@@ -8,7 +8,7 @@ calculateModel <- function(factorMerger, factor) {
 
 calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
     if (length(unique(factor)) > 1) {
-        return(lm(factorMerger$response ~ factor))
+        return(lm(factorMerger$response ~ factor - 1))
     }
     return(lm(factorMerger$response ~ 1))
 }
@@ -75,4 +75,45 @@ compareModels.coxph <- function(model1, model2) {
 
 compareModels.binomglm <- function(model1, model2) {
     return(anova(model1, model2, test = "Chisq")$`Pr(>Chi)`[2])
+}
+
+calculateAnovaTable <- function(model) {
+    UseMethod("calculateAnovaTable", model)
+}
+
+calculateAnovaTable.lm <- function(model) {
+    anTable <- anova(model) %>% data.frame()
+    anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
+    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable <- anTable[, c("Df", "F.value", "Pr..F.")]
+    colnames(anTable)[2:3] <- c("F", "p-value")
+    rownames(anTable)[2] <- "Res"
+    return(anTable)
+}
+
+calculateAnovaTable.mlm <- function(model) {
+    anTable <- anova(model) %>% data.frame()
+    anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
+    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable <- anTable[, -(4:5)]
+    colnames(anTable)[4] <- c("p-value")
+    rownames(anTable)[2] <- "Res"
+    return(anTable)
+}
+
+calculateAnovaTable.binomglm <- function(model) {
+    anTable <- anova(model, test = "Chisq") %>% data.frame()
+    anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
+    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable <- anTable[, -(2:3)]
+    colnames(anTable)[2:3] <- c("ResDev", "p-value")
+    return(anTable)
+}
+
+calculateAnovaTable.coxph <- function(model) {
+    anTable <- anova(model, test = "Chisq") %>% data.frame()
+    anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
+    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    colnames(anTable)[4] <- c("p-value")
+    return(anTable)
 }
