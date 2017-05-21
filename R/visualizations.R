@@ -44,9 +44,7 @@
 #' that are significantly worse than their predecessors on the Factor Merger Tree (uses the Likelihood Ratio Test).
 #'
 #' Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.
-#' @param chisqQuantile Significance level. If \code{statistic = "likelihood"} each interval on
-#'  the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile}
-#'  quantile of chi-square distribution.
+#' @param chisqQuantile Significance level used if \code{panelGrid = TRUE}.
 #'
 #' @param palette Color palette used in the Factor Merger Tree and the Response Plot.
 #' @param responsePanelPalette Additional color palette used in the Response Plot if
@@ -54,6 +52,9 @@
 #' @param gicPanelColor Color used in the GIC plot.
 #' @param title Factor Merger Tree plot's title.
 #' @param subtitle Factor Merger Tree plot's subtitle.
+#' @param panelGrid Boolean. If \code{TRUE}, each interval on
+#'  the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile}
+#'  quantile of chi-square distribution. Otherwise, panel is blank.
 #'
 #' @importFrom gridExtra grid.arrange
 #'
@@ -67,13 +68,14 @@ plot.factorMerger <- function(factorMerger, panel = "all",
                               penalty = 2,
                               showSplit = FALSE,
                               showSignificance = TRUE,
-                              chisqQuantile = 0.05,
                               title = "Factor Merger Tree",
                               subtitle = " ",
                               palette = NULL,
                               responsePanel = NULL,
                               responsePanelPalette = NULL,
-                              gicPanelColor = NULL) {
+                              gicPanelColor = NULL,
+                              panelGrid = TRUE,
+                              chisqQuantile = 0.05) {
 
     stopifnot(panel %in% c("all", "response", "GIC", "tree"))
     stopifnot(statistic %in% c("loglikelihood", "p-value"))
@@ -106,7 +108,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
     mergingPathPlot <- plotTree(factorMerger, statistic, nodesSpacing,
                                 clusterSplit, showSplit, showSignificance,
                                 chisqQuantile, colorClusters, colorsDf, palette,
-                                title, subtitle)
+                                title, subtitle, panelGrid)
 
     if (!is.null(palette)) {
         mergingPathPlot <- ggpubr::ggpar(mergingPathPlot, palette = palette)
@@ -154,7 +156,7 @@ getClusterSplit <- function(splitStatistic, splitThreshold, penalty) {
 # Factor Merger Tree
 
 #' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
-treeTheme <- function() {
+treeTheme <- function(panelGrid = TRUE) {
     myTheme <- theme_minimal() +
         theme(panel.grid.major.x = element_line(color = "lightgrey",
                                                 linetype = 2),
@@ -167,33 +169,38 @@ treeTheme <- function() {
               plot.title = element_text(size = 18),
               plot.subtitle = element_text(size = 12),
               legend.position = "none")
+    if (!panelGrid) {
+        myTheme <- myTheme + theme(panel.grid.major.x = element_blank())
+    }
     return(myTheme)
 }
 
 plotTree <- function(factorMerger, statistic, nodesSpacing,
                      clusterSplit, markBestModel, markStars,
                      alpha, color, colorsDf,
-                     palette, title, subtitle) {
+                     palette, title, subtitle, panelGrid) {
     stopifnot(statistic %in% c("loglikelihood", "p-value"))
     if (nodesSpacing == "equidistant") {
         return(
             plotSimpleTree(factorMerger, statistic, clusterSplit,
                            markBestModel, markStars,
-                           alpha, color, colorsDf, palette, title, subtitle)
+                           alpha, color, colorsDf, palette,
+                           title, subtitle, panelGrid)
         )
     }
     return(
         plotCustomizedTree(factorMerger, statistic, clusterSplit,
                            nodesSpacing, markBestModel, markStars,
                            alpha, color, colorsDf, palette,
-                           groupsStats(factorMerger), title, subtitle)
+                           groupsStats(factorMerger),
+                           title, subtitle, panelGrid)
     )
 }
 
 plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
                            markBestModel, markStars,
                            alpha, color, colorsDf, palette,
-                           title, subtitle) {
+                           title, subtitle, panelGrid) {
     # We want to have reverse order of variables! TODO
     nodesPosition <- getFinalOrder(factorMerger, TRUE) %>% data.frame()
     mH <- mergingHistory(factorMerger)
@@ -208,7 +215,7 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
     return(plotCustomizedTree(factorMerger, statistic, clusterSplit,
                               "equidistant", markBestModel, markStars,
                               alpha, color, colorsDf, palette,
-                              nodesPosition, title, subtitle))
+                              nodesPosition, title, subtitle, panelGrid))
 
 }
 
@@ -220,7 +227,7 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
 plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                                nodesSpacing, markBestModel, markStars,
                                alpha, color, colorsDf, palette,
-                               nodesPosition = NULL, title, subtitle) {
+                               nodesPosition = NULL, title, subtitle, panelGrid) {
     statisticColname <- getStatNameInTable(statistic)
     if (nodesSpacing == "modelSpecific") {
         nodesPosition <- applyModelTransformation(factorMerger, nodesPosition)
@@ -242,7 +249,7 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                            expand = c(0, 0)) +
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
         labs(title = title,
-             subtitle = subtitle) + treeTheme()
+             subtitle = subtitle) + treeTheme(panelGrid)
 
     if (color) {
         g <- addClustersColors(g, segment, factorMerger, clusterSplit, statistic, palette)
