@@ -113,7 +113,7 @@ pisaEuropean <- filter(pisa2012, CNT %in% c("Austria", "Belgium", "Bulgaria",
                                             "Slovenia"))
 
 
-pisaFMHClustEurope <- mergeFactors(pisaEuropean[,2:4],
+pisaFMHClustEurope <- mergeFactors(pisaEuropean[,1:3],
                        factor(pisaEuropean$CNT),
                        method = "hclust",
                        successive = TRUE) 

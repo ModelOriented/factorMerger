@@ -165,7 +165,7 @@ treeTheme <- function(panelGrid = TRUE) {
               panel.grid.minor.y = element_blank(),
               panel.grid.minor.x = element_blank(),
               axis.title.y = element_blank(),
-              axis.text.y = element_text(size = 12),
+              axis.text.y = element_text(size = 15),
               axis.text.x = element_text(size = 12),
               plot.title = element_text(size = 18),
               plot.subtitle = element_text(size = 12),
@@ -251,7 +251,6 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
         labs(title = title,
              subtitle = subtitle) + treeTheme(panelGrid)
-
     if (color) {
         g <- addClustersColors(g, segment, factorMerger, clusterSplit, statistic, palette)
     }
@@ -287,7 +286,7 @@ addClustersColors <- function(plot, segment, factorMerger, clusterSplit, statist
         as.character()
     plot <- plot + theme(axis.text.y = element_text(
         color = clusterColors[length(clusterColors):1],
-        size = 12))
+        size = 15))
     return(plot)
 }
 
@@ -570,7 +569,7 @@ plotMeansAndStds <- function(factorMerger, color, clusterSplit) {
         theme(axis.title.x = element_text(),
               axis.text.y = element_blank()) +
         labs(title = "Summary statistics",
-             subtitle = "Means and standard deviations of coefficients' estimators") +
+             subtitle = "Means and standard deviations") +
         ylab("")
 }
 
