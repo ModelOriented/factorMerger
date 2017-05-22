@@ -117,3 +117,28 @@ calculateAnovaTable.coxph <- function(model) {
     colnames(anTable)[4] <- c("p-value")
     return(anTable)
 }
+
+getTukeyGroups <- function(response, factor) {
+    aovData <- aov(response ~ factor)
+    hsd <- HSD.test(aovData, "factor")
+    realGroupNames <- hsd$means %>% rownames() %>% as.character %>% sort()
+    changedGroupNames <- hsd$groups$trt %>% as.character %>% sort()
+    namesDict <- data.frame(real = realGroupNames,
+                            changed = changedGroupNames,
+                            stringsAsFactors = FALSE)
+    hsd$groups$trt <- as.character(hsd$groups$trt)
+    namesDict <- hsd$groups %>% left_join(namesDict, by = c("trt" = "changed"))
+
+    groups <- data.frame(groups = hsd$groups$M)
+    groupList <- apply(groups, 1, function(x) substring(x, 1:nchar(x), 1:nchar(x)))
+    names(groupList) <- namesDict$real
+    maxChar <- max(sapply(groupList, max))
+    maxCharNum <- which(letters == maxChar)
+
+    lettersUsed <- data.frame(letters[1:maxCharNum], stringsAsFactors = FALSE)
+    lettersUsage <- apply(lettersUsed, 1, function(x) sapply(groupList, function(y) x %in% y)) %>%
+        data.frame(stringsAsFactors = FALSE)
+
+    colnames(lettersUsage) <- lettersUsed[,1]
+    return(lettersUsage)
+}

@@ -348,7 +348,7 @@ checkResponsePanel.gaussianFactorMerger <- function(factorMerger, responsePanel)
     if (NCOL(factorMerger$response) > 1) {
         responsePanelSet <-  c("heatmap", "profile", "frequency")
     } else {
-        responsePanelSet <- c("means", "boxplot", "frequency")
+        responsePanelSet <- c("means", "boxplot", "frequency", "tukey")
     }
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
@@ -396,6 +396,9 @@ plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSpli
            },
            "frequency" = {
                return(plotFrequency(factorMerger, FALSE, clusterSplit))
+           },
+           "tukey" = {
+               return(plotTukey(factorMerger))
            })
 }
 
@@ -689,6 +692,26 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     return(g)
 }
 
+plotTukey <- function(factorMerger) {
+    response <- factorMerger$response
+    factor <- factorMerger$factor
+    tukeyGroups <- getTukeyGroups(response, factor)
+    tukeyGroups$level <- rownames(tukeyGroups)
+    tukeyGroups[tukeyGroups == FALSE] <- NA
+    levelsOrder <- getFinalOrderVec(factorMerger)
+    tukeyGroups %>% melt(id.vars = "level") %>%
+        filter(!is.na(value)) %>%
+        ggplot(aes(variable, factor(level, levels = levelsOrder))) +
+        geom_tile(aes(fill = paste(value, variable), color = "#000000"),
+                  show.legend = FALSE, na.rm = TRUE) +
+        scale_color_manual(values = "#000000") +
+        scale_fill_brewer(direction = -1) +
+        scale_y_discrete(expand = c(0, 0)) +
+        ggtitle(label = "Tukey HSD test", subtitle = " ") +
+        xlab("") + treeTheme(FALSE) + theme(axis.text.y = element_blank())
+}
+
+
 # -------------------
 # Frequency plot
 
@@ -723,13 +746,10 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
         coord_flip() +
         treeTheme() +
         theme(panel.grid.major.x = element_blank(),
-            axis.title.y = element_blank(),
             axis.text.y = element_blank(),
-            axis.title.x = element_blank(),
-            axis.text.x = element_blank(),
             axis.ticks.x = element_blank()) +
-        xlab(" ") +
-        labs(title = "Groups frequencies")
+        xlab(" ") + ylab(" ") +
+        labs(title = "Groups frequencies", subtitle = " ")
 }
 
 
@@ -766,5 +786,4 @@ plotTable <- function(tab) {
         geom_rect(inherit.aes = FALSE,
                   data = rectData, alpha = 0.1,
                   mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax))
-
 }
