@@ -768,7 +768,7 @@ plotTable <- function(tab) {
                        V1 = vecTab,
                        stringsAsFactors = FALSE)
 
-    rectData <- data.frame(xmin = 1.5, xmax = w + 0.75, ymin = h - 0.5, ymax = h + 0.5)
+    rectData <- data.frame(xmin = 1.5, xmax = w + 1, ymin = h - 0.5, ymax = h + 0.5)
     tab1[is.na(tab1)] <- " "
     ggplot(tab1, aes(x = V05, y = V0, label = format(V1, nsmall = 1))) +
         geom_text(size = 5.5, hjust=0, vjust=0.5) + theme_bw() +
@@ -781,7 +781,8 @@ plotTable <- function(tab) {
               plot.title = element_text(hjust = 0.9, size = 15),
               plot.margin = unit(c(0,0,0,0), "lines")) +
         labs(x="",y="") + ggtitle("ANOVA table") +
-        scale_x_continuous(limits = c(1, w + 0.75), expand = c(0, 0.25)) +
+        scale_x_continuous(limits = c(1, w + 1), expand = c(0, 0.25)) +
+        # geom_hline(yintercept = c(h - 0.5, h + 0.5))
         geom_rect(inherit.aes = FALSE,
                   data = rectData, alpha = 0.1,
                   mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax))

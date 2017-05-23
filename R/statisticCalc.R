@@ -81,10 +81,29 @@ calculateAnovaTable <- function(model) {
     UseMethod("calculateAnovaTable", model)
 }
 
+formatSingleRow <- function(num) {
+    if (is.na(num)) {
+        return("")
+    }
+    if (num == 0) {
+        return("< 2.2e-16")
+    }
+    return(
+        ifelse(num < 0.1, format(num, scientific = T), format(num, scientific = F))
+    )
+}
+
+formatPvalue <- function(col) {
+    formatCol <- Vectorize(formatSingleRow)
+    return(
+        formatCol(col)
+    )
+}
+
 calculateAnovaTable.lm <- function(model) {
     anTable <- anova(model) %>% data.frame()
     anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
-    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable[, ncol(anTable)] <- formatPvalue(anTable[, ncol(anTable)])
     anTable <- anTable[, c("Df", "F.value", "Pr..F.")]
     colnames(anTable)[2:3] <- c("F", "p-value")
     rownames(anTable)[2] <- "Res"
@@ -94,7 +113,7 @@ calculateAnovaTable.lm <- function(model) {
 calculateAnovaTable.mlm <- function(model) {
     anTable <- anova(model) %>% data.frame()
     anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
-    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable[, ncol(anTable)] <- formatPvalue(anTable[, ncol(anTable)])
     anTable <- anTable[, -(4:5)]
     colnames(anTable)[4] <- c("p-value")
     rownames(anTable)[2] <- "Res"
@@ -104,7 +123,7 @@ calculateAnovaTable.mlm <- function(model) {
 calculateAnovaTable.binomglm <- function(model) {
     anTable <- anova(model, test = "Chisq") %>% data.frame()
     anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
-    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable[, ncol(anTable)] <- formatPvalue(anTable[, ncol(anTable)])
     anTable <- anTable[, -(2:3)]
     colnames(anTable)[2:3] <- c("ResDev", "p-value")
     return(anTable)
@@ -113,7 +132,7 @@ calculateAnovaTable.binomglm <- function(model) {
 calculateAnovaTable.coxph <- function(model) {
     anTable <- anova(model, test = "Chisq") %>% data.frame()
     anTable[, -ncol(anTable)] <- round(anTable[, -ncol(anTable)], 1)
-    anTable[, ncol(anTable)] <- round(anTable[, ncol(anTable)], 4)
+    anTable[, ncol(anTable)] <- formatPvalue(anTable[, ncol(anTable)])
     colnames(anTable)[4] <- c("p-value")
     return(anTable)
 }
