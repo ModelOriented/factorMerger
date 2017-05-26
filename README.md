@@ -1,4 +1,4 @@
-# FACTOR MERGER
+# Factor Merger 
 
 The aim of this project is to create hierarchical algorithm for post-hoc testing.
 
