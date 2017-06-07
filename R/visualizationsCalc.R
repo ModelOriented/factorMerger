@@ -206,8 +206,8 @@ getMeansAndStds <- function(factorMerger, factor) {
     df <- data.frame(group = levels(factor))
     sumModel <- summary(model)
     df$mean <- sumModel$coefficients[, 1]
-    df$left <- df$mean - sumModel$coefficients[, 2]
-    df$right <- df$mean + sumModel$coefficients[, 2]
+    df$left <- df$mean - 1.96 * sumModel$coefficients[, 2]
+    df$right <- df$mean + 1.96 * sumModel$coefficients[, 2]
     df$group <- factor(df$group, levels = df$group)
     return(df)
 }

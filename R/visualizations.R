@@ -385,7 +385,7 @@ plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSpli
                return(plotBoxplot(factorMerger, colorClusters, clusterSplit))
            },
            "means" = {
-               return(plotMeansAndStds(factorMerger, colorClusters, clusterSplit))
+               return(plotMeansAndConfInt(factorMerger, colorClusters, clusterSplit))
            },
            "survival" = {
                return(plotSurvival(factorMerger, colorClusters, clusterSplit))
@@ -544,7 +544,7 @@ plotBoxplot <- function(factorMerger, color, clusterSplit) {
 #' @export
 #' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
 #' @importFrom dplyr group_by summarize left_join
-plotMeansAndStds <- function(factorMerger, color, clusterSplit) {
+plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
     factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
     df <- getMeansAndStds(factorMerger, factor)
 
@@ -568,8 +568,8 @@ plotMeansAndStds <- function(factorMerger, color, clusterSplit) {
         geom_point(size = 2) + coord_flip() +
         theme(axis.title.x = element_text(),
               axis.text.y = element_blank()) +
-        labs(title = "Summary statistics",
-             subtitle = "Means and standard deviations") +
+        labs(title = "Group means",
+             subtitle = "with 95% confidence intervals") +
         ylab("")
 }
 
@@ -751,7 +751,9 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
         labs(title = "Groups frequencies", subtitle = " ")
 }
 
-
+#' Plot ANOVA table
+#'
+#' @importFrom ggplot2 ggplot element_blank geom_text element_text geom_rect aes unit ggtitle
 plotTable <- function(tab) {
     vecTab <- c("", rownames(tab))
     for (i in 1:ncol(tab)) {
