@@ -1,0 +1,217 @@
+% !TeX root = RJwrapper.tex
+\newcommand{\factorMergerTitle}{\href{https://github.com/geneticsMiNIng/factorMerger}{factorMerger}}
+\newcommand{\factorMerger}{\href{https://github.com/geneticsMiNIng/factorMerger}{factorMerger }}
+
+\title{\factorMergerTitle: A Set of Tools to Support Results From Post
+Hoc Testing}
+\author{by Agnieszka Sitko and Przemysław Biecek}
+
+\maketitle
+
+\abstract{
+\emph{ANOVA}-like statistical tests for differences among groups are available for almost a hundred years. However, for large number of groups the results from commonly used \emph{post-hoc} tests are often hard to interpret. To deal with this problem, the \factorMerger  package constructs and plots the hierarchical relation for the considered factor. Such a~hierarchical structure is derived based on the~\emph{Likelihood~Ratio~Test} and is presented with the~\emph{Factor~Merger~Tree} created with the~\textbf{ggplot2} package. The~current implementation handles one-dimensional and multi-dimensional Gaussian models as well as binomial and survival models. In this article the~methodological background is outlined and the~main functionalities of the packege are
+illustrated using real-data examples.
+}
+
+\section{Introduction}
+
+In this article we present the \factorMerger package that enriches results from \emph{ANOVA} tests.  The~\emph{ANOVA} method verifies the null hypothesis that the variable of interest $y$ has the same distribution in all groups that are being compared.
+If this null hypothesis is rejected a more detailed analysis of differences among categorical variable levels might be needed. The traditional approach is to perform \emph{pairwise post hoc tests} in order to verify which groups differ significantly. 
+
+One may find implementations of the traditional \emph{post hoc tests} in many \emph{R} packages. Package \textbf{agricolae} \citep{Agric} offers a wide range of them. It gives one of the most popular \emph{post hoc test}, Tukey HSD test (\code{HSD.test}), its less conservative version --- Student-Newman-Keuls test (\code{SNK.test}) or Scheffe test (\code{scheffe.test}) which is robust to factor imbalance. These parametric tests are based on Student's t-distribution, thus, are reduced to Gaussian models only. In contrasts, \textbf{multcomp} package \citep{Multcomp} can be used with generalized linear models (function \code{glht}) as it uses general linear hypothesis. Similarly to the \textbf{multcomp}, some implementations that accept \code{glm} objects are also given in \textbf{car} (\code{linearHypothesis}, \citealp{car}) and \textbf{lsmeans} \citep{lsmeans}.
+
+However, an undeniable disadvantage of single-step \emph{post hoc tests} is the inconsistency of their results. For a fixed significance level, it is possible that mean in group A does not differ significantly from the one in group B, similarly with groups B and C. At the same time the difference between group A and C is detected. Then data partition is unequivocal and, as a consequence, impossible to put through. 
+
+The problem of clustering categorical variable into non-overlapping groups has already been present in the literature. First, J. Tukey proposed an iterative procedure of merging factor levels based on the studentized range distribution \citep{Tukey}. However, statistical test used in this approach made it limited to Gaussian models. \emph{Collapse And Shrinkage in ANOVA} (\emph{CAS-ANOVA}, \citealp{Casanova}) is an algorithm that extends categorical variable partitioning for generalized linear models in testing. It is based on the Tibshirani's \emph{Fused LASSO} \citep{Tib} with the constraint taken on the pairwise differences within a factor, which yields to their smoothing.
+
+\emph{Delete or Merge Regressors} algorithm (\citealp{Proch}, p. 37) is also adjusted to generalized linear models. It directly uses the hierarchical clustering to gain hierarchical structure of a factor. At~the~beginning, \emph{DMR4glm} calculates the likelihood ratio test statistics for models arising from pairwise merging of factor levels or deleting factor levels against the full model (the one with all groups included). Then it performs agglomerative clustering taking LRT statistic as a distance --- each step of clustering is associated with a model with different factor structure. Experimental studies (\citealp{Proch}, p. 44--91) showed that the \emph{Delete or Merge Regressors}'s performance is better than \emph{CAS-ANOVA}'s when it comes to the model accuracy. \emph{Delete or Merge Regressors}'s implementation may be found in the \textbf{DMR} package \citep{DMR}.
+
+In this article we present a more direct approach to the problem of merging groups that are being compared. The \factorMerger package offers an algorithm of hierarchical clustering of factors based on a backward iterative procedure. In each step it chooses a model with the highest \emph{Likelihood~Ratio~Test} test p-value or, in other words, the highest likelihood. While this algorithm is more complex than \emph{DMR4glm}, it~maximizes the likelihood on the merging path\footnote{Although it may be shown that the \emph{DMR} algorithm is a consistent
+model selection method, its performance on smaller datasets is undefined. TODO....}. What is more, it is easily expandable for non-parametric models (using permutation tests instead of \emph{LRT}s). 
+
+In addition to the comprehensive algorithm which tries to merge all possible pairs of levels in a step, also a \emph{successive version} is provided. In the \emph{successive version} only levels which are relatively close can be merged (levels distance is dependent on the model chosen). While the basic approach (all vs. all comparisons) may result in a slightly better partition from the statistical point of view, proposed extension (all vs. subsequent comparisons) seems to be more graceful when it comes to the interpretation. Moreover, the former algorithm is more computationally expensive.
+
+Furthermore, the \factorMerger package gives an approximate implementation of \emph{DMR4glm} (skipping the deleting procedure) with its \emph{successive version}.
+
+More detailed description of all algorithms implemented in \factorMerger is given in the section \nameref{algs}.
+
+\section{Algorithms overview}\label{algs}
+
+The \factorMerger package gives a user the ability to perform analysis for the wide family of models and choose from the broad spectrum of merging approaches. 
+
+In the current version the package supports parametric models: 
+
+\begin{itemize}
+\item one-dimensional Gaussian (with the argument \code{family = "gaussian"}),
+\item multi dimensional Gaussian (with the argument \code{family = "gaussian"}),
+\item binomial (with the argument \code{family = "binomial"}),
+\item survival (with the argument \code{family = "survival"}).
+\end{itemize}
+Set of hypotheses that are tested during merging may be either comprehensive or limited. This gives two possibilities:
+
+\begin{itemize}
+\item \emph{all-to-all} (with the argument \code{successive = FALSE}),
+\item \emph{successive} (with the argument \code{successive = TRUE}).
+
+\end{itemize}
+
+
+The version \emph{all-to-all} considers all possible pairs of factor levels. In the \emph{successive} approach factor levels are preliminarily sorted and then only consecutive groups are tested for means equality.
+
+The \factorMerger package for each model family and merging strategy implements two types of a single iteration of the algorithm. They use one of the following:
+
+\begin{itemize}
+
+\item \emph{Likelihood Ratio Test} (with the argument \code{method = "LRT"}),
+\item \emph{agglomerative clustering with constant distance matrix} (based on the \emph{DMR4glm} algorithm, with the argument \code{method = "hclust"}). 
+
+\end{itemize}
+
+
+\subsection{The \emph{successive} merging}
+
+In the \emph{successive} version of the algorithm levels of a categorical variable are sorted. The order depends on the model chosen family chosen. 
+
+\begin{table}[H]
+\centering \begin{tabular}[t]{c|c}
+\hline \textbf{model} & \textbf{metric} \\
+\hline one-dimensional Gaussian & average \\
+\hline multi-dimensional Gaussian & average of isoMDS transformation \\
+\hline binomial & proportion of successes \\
+\hline survival & relative survival rate \\
+\hline 
+
+\end{tabular}
+\caption{\label{tab:}Factor ordering by model family}
+
+\end{table}
+
+For one-dimensional Gaussian and binomial models groups are sorted by means and proportions of success, respectively. In the survival case we estimate survival model, which takes all factor levels separately. Then beta coefficient approximations specify levels order (base level gets coefficient equal to zero). 
+
+Multi dimensional Gaussian model needs additional preprocessing. First, group means are computed. Then they are projected into one dimension with the use of the Kruskal's non-metric multidimensional scaling. The \factorMerger uses \code{isoMDS} implementation from the package \textbf{MASS} \citep{MASS}. 
+
+Having set the factor order, we may limit number of comparisons in each step.
+
+
+\subsection{The \emph{all-to-all} merging}
+
+Short description...
+
+\subsection{The Likelihood Ratio Test statistics}
+
+The substantial part of \factorMergerTitle 's algorithms is calculating the \emph{Likelihood Ratio Test} statistics. In this section we define \emph{LRT} statistic used in merging.
+
+Let us assume $y$ is a response variable and $C$ is a factor with $k$ levels ($C \in \{1, 2, ..., k \}$). We denote as $h$ some linear hypothesis on the levels of $C$, $M_0$ the initial model (taking all factor levels independently) and $M_h$ --- the model under $h$. Then, $LRT(M_h|M_0)$ statistic based on the \emph{Likelihood Ratio Test} is defined as below.
+
+$$ 
+LRT(M_h|M_0) = 2 \cdot l (M_0) - 2 \cdot l (M_h), 
+$$
+
+where $l(\cdot)$ is log-likelihood function.
+
+As $M_h$ is nested in $M_0$, the likelihood of $M_h$ is not greater than the $M_0$'s likelihood. Therefore, if $\mathcal{H}$ is a set of considered linear hypothesis, hypothesis 
+$$
+\mathrm{argmin}_{h \in \mathcal{H}} LRT(M_h|M_0) = \mathrm{argmax}_{h \in \mathcal{H}} l(M_h)
+$$
+
+will reduce likelihood the least.
+
+\subparagraph{Asymptotic behaviour of the \emph{LRT} statistic} 
+
+A convenient result by Samuel S. Wilks \citep{wilks1938large} shows that $LRT(M_h|M_0)$ tends asymptotically to chi-squared distribution with degrees of freedom equal to the difference in degrees of freedom between $M_0$ and $M_h$ as number of observations approaches infinity. This convergence will be used to evaluate model's 'statistical correctness'.
+
+
+
+
+\subsection{The \emph{Likelihood Ratio Test}-based merging}
+
+The \emph{Likelihood Ratio Test}-based approach minimizes likelihood reduction in the merging path. It may be summarized as follow.
+
+TODO: Rozwinąć... (Analogia do LRT testów, ale można uprościć do samego loglik)
+
+\begin{algorithm}[H]
+\caption{Merging with the $LRT$}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, successive$}
+\State{$pairsSet := generatePairs(response, factor, successive$)}
+\State{$M_0:=$ full model}
+\While{$levels(factor) > 1$}
+    \State{$toBeMerged := \mathrm{argmax}_{pair \in pairsSet} l(updateModel(M_0, pair))$}
+    
+    \State{$M_0 := updateModel(M_0, toBeMerged)$}
+    \State{$factor := mergeLevels(factor, pair)$}
+    \State{$pairsSet := pairsSet \setminus pair $}
+\EndWhile
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\break
+
+\subsection{The \emph{DMR4glm}-based merging}
+
+TODO: Wstępny opis
+
+\begin{algorithm}[H]
+\caption{Merging with agglomerative clustering}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, successive$}
+\State{$pairsSet := generatePairs(response, factor, successive$)}
+\State{$dist :=$ set of distances }
+\ForAll{$pair \in pairsSet$} 
+    \State{$h := \{\mu_{pair_1} = \mu_{pair_2}\}$ }
+    \Comment{hypothesis under which $pair$ is merged}
+    \State{$dist$[$pair$] $= LRT(M_h|M_0)$}
+\EndFor
+        
+\If{successive}
+\State{$hClust$($dist$, method = "single")}
+\Else 
+\State{$hClust$($dist$, method = "complete")}
+\EndIf
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{The \emph{R} package \factorMerger}
+
+The \factorMerger package provides easy-to-use functions for factor merging and visualizing obtained results. 
+
+TODO: Tutaj da się opis głównych funkcji - co robią i tabelki z opisem parametrów
+
+\subsection{Merging and getting results}
+
+\subsection{Visualizations}
+
+TODO: Tutaj dojdzie jeszcze opis każdego z paneli osobno
+
+\section{CASE STUDY: PISA2012}
+
+
+\section{Summary}
+
+Some summary. 
+\section{Acknowledgements}
+
+The authors thank to ... .
+
+Work on this package was financially supported by the \emph{NCN Opus grant 2016/21/B/ST6/02176}.
+
+
+\bibliography{sitko_biecek}
+
+\address{Agnieszka Sitko \\
+  University of Warsaw\\
+  Faculty of Mathematics, 
+  Informatics and Mechanics\\
+  Poland \\
+  \email{ag.agnieszka.sitko@gmail.com}}
+
+\address{Przemysław Biecek \\
+  University of Warsaw \\
+  Institute of Applied Mathematics and Mechanics\\
+  Poland\\
+  \email{P.biecek@mimuw.edu.pl}}

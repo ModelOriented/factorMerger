@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: RJwrapper.aux
+The style file: abbrvnat.bst
+Database file #1: sitko_biecek.bib
+Warning--empty publisher in Proch
+You've used 11 entries,
+            2773 wiz_defined-function locations,
+            673 strings with 6228 characters,
+and the built_in function-call counts, 4736 in all, are:
+= -- 436
+> -- 221
+< -- 12
++ -- 77
+- -- 66
+* -- 352
+:= -- 728
+add.period$ -- 39
+call.type$ -- 11
+change.case$ -- 52
+chr.to.int$ -- 11
+cite$ -- 23
+duplicate$ -- 239
+empty$ -- 400
+format.name$ -- 83
+if$ -- 997
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 12
+newline$ -- 69
+num.names$ -- 44
+pop$ -- 109
+preamble$ -- 1
+purify$ -- 44
+quote$ -- 0
+skip$ -- 182
+stack$ -- 0
+substring$ -- 172
+swap$ -- 35
+text.length$ -- 4
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 106
+warning$ -- 1
+while$ -- 48
+width$ -- 0
+write$ -- 160
+(There was 1 warning)
