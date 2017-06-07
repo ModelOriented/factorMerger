@@ -8,9 +8,9 @@
   statistic = "loglikelihood", nodesSpacing = "equidistant",
   colorClusters = TRUE, splitStatistic = "GIC", splitThreshold = NULL,
   penalty = 2, showSplit = FALSE, showSignificance = TRUE,
-  chisqQuantile = 0.05, title = "Factor Merger Tree", subtitle = " ",
-  palette = NULL, responsePanel = NULL, responsePanelPalette = NULL,
-  gicPanelColor = NULL, panelGrid = TRUE)
+  title = "Factor Merger Tree", subtitle = " ", palette = NULL,
+  responsePanel = NULL, responsePanelPalette = NULL, gicPanelColor = NULL,
+  panelGrid = TRUE, chisqQuantile = 0.05)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}.}
@@ -58,10 +58,6 @@ that are significantly worse than their predecessors on the Factor Merger Tree (
 
 Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
 
-\item{chisqQuantile}{Significance level. If \code{statistic = "likelihood"} each interval on
-the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile}
-quantile of chi-square distribution.}
-
 \item{title}{Factor Merger Tree plot's title.}
 
 \item{subtitle}{Factor Merger Tree plot's subtitle.}
@@ -80,6 +76,12 @@ quantile of chi-square distribution.}
 palettes for the Factor Merger Tree and the Response Plot are to be different.}
 
 \item{gicPanelColor}{Color used in the GIC plot.}
+
+\item{panelGrid}{Boolean. If \code{TRUE}, each interval on
+the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile}
+quantile of chi-square distribution. Otherwise, panel is blank.}
+
+\item{chisqQuantile}{Significance level used if \code{panelGrid = TRUE}.}
 }
 \description{
 Plot Factor Merger
