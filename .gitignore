@@ -5,9 +5,13 @@ notes
 *.Rproj
 /Analysis/testUpgrade.Rmd
 inst/doc
-ignore.R
+/ignoreFiles/
 test.rda
 *.RDataTmp*
 *vignette*files/*
 *user_abstract.tex*
 *.bbl*
+/vignettes/*.RData
+/figures/SER/
+analysis
+*nb*
