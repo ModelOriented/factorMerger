@@ -6,3 +6,10 @@ cache: packages
 
 notifications:
   email: false
+  
+r_packages:
+  forcats
+  survival
+  dplyr
+  knitr
+  
