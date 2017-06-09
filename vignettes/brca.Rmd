@@ -24,25 +24,14 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 ```
 
 ```{r}
-devtools::install_github("RTCGA/RTCGA", build_vignettes = TRUE)
-library(RTCGA)
-installTCGA("RTCGA.clinical")
 library(factorMerger)
-library(RTCGA.clinical)
 library(forcats)
 library(survival)
 ```
 
 
 ```{r}
-data("BRCA.clinical")
-colsToBeExtracted <- c("patient.drugs.drug.drug_name",
-                       "patient.clinical_cqcf.histological_type",
-                       "patient.stage_event.tnm_categories.pathologic_categories.pathologic_t")
-
-BRCA <- survivalTCGA(BRCA.clinical,
-             extract.cols = colsToBeExtracted)
-BRCA <- dplyr::filter(BRCA, times > 0) 
+data("brca")
 ```
 
 
