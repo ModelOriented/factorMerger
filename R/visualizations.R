@@ -1,3 +1,15 @@
+#' @importFrom ggplot2 ggplot aes aes_string coord_flip xlab ylab labs stat_summary guides position_dodge annotate unit ggtitle
+#' @importFrom ggplot2 geom_point geom_bar geom_rect geom_ribbon geom_line geom_boxplot geom_errorbar geom_label geom_segment geom_vline geom_text geom_tile
+#' @importFrom ggplot2 scale_y_discrete scale_y_continuous scale_x_discrete scale_color_manual scale_fill_manual scale_fill_distiller scale_x_continuous scale_x_log10
+#' @importFrom ggplot2 theme_classic theme theme_bw theme_minimal element_line element_blank element_text
+NULL
+
+#' @importFrom dplyr mutate filter group_by count arrange summarize left_join summarise
+NULL
+
+#' @importFrom reshape2 melt
+NULL
+
 #' Plot Factor Merger
 #'
 #' @param factorMerger object of a class \code{factorMerger}.
@@ -156,7 +168,6 @@ getClusterSplit <- function(splitStatistic, splitThreshold, penalty) {
 # -------------------
 # Factor Merger Tree
 
-#' @importFrom ggplot2 theme_classic theme element_line element_blank theme_minimal element_text
 treeTheme <- function(panelGrid = TRUE) {
     myTheme <- theme_minimal() +
         theme(panel.grid.major.x = element_line(color = "lightgrey",
@@ -220,11 +231,7 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
 
 }
 
-#' @importFrom dplyr mutate filter group_by count
 #' @importFrom scales hue_pal
-#' @importFrom ggplot2 ggplot geom_segment scale_x_log10 theme_bw scale_x_continuous
-#' @importFrom ggplot2 coord_flip xlab ylab theme element_blank geom_vline geom_text
-#' @importFrom ggplot2 geom_point aes geom_label scale_fill_manual scale_y_continuous labs
 plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                                nodesSpacing, markBestModel, markStars,
                                alpha, color, colorsDf, palette,
@@ -402,7 +409,6 @@ plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSpli
 }
 
 #' @importFrom proxy dist
-#' @importFrom dplyr arrange
 findSimilarities <- function(factorMerger) {
     stats <- calculateMeansAndRanks(factorMerger$response,
                                     factorMerger$factor)
@@ -427,10 +433,6 @@ findSimilarities <- function(factorMerger) {
 #' dimension is scaled to have mean equal to zero and standard deviation equal to one.
 #'
 #' @export
-#' @importFrom ggplot2 ggplot geom_tile aes ylab xlab stat_summary labs theme_minimal scale_x_continuous theme
-#' @importFrom ggplot2 coord_flip scale_y_continuous element_line element_blank scale_fill_distiller labs guides
-#' @importFrom reshape2 melt
-#' @importFrom dplyr filter arrange
 plotHeatmap <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
@@ -461,8 +463,6 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
 #' @description Plots rank plot - one series is a single factor level and one group
 #' on the OX axis is a single dimension of the response.
 #'
-#'
-#' @importFrom ggplot2 ggplot aes geom_line geom_text theme_minimal theme scale_color_manual labs
 #' @export
 plotProfile <- function(factorMerger, color, clusterSplit) {
     df <- findSimilarities(factorMerger)
@@ -509,8 +509,6 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
 #' @description Plots boxplot with mean as a summary statistic groupping observation by factor levels.
 #'
 #' @export
-#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs ylab xlab
-#' @importFrom dplyr group_by summarize left_join
 plotBoxplot <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
@@ -542,8 +540,6 @@ plotBoxplot <- function(factorMerger, color, clusterSplit) {
 #' @description For each factor level plots its mean and interval of the length equal to its standard deviation.
 #'
 #' @export
-#' @importFrom ggplot2 ggplot geom_boxplot aes coord_flip labs geom_errorbar theme ylab position_dodge element_blank element_text
-#' @importFrom dplyr group_by summarize left_join
 plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
     factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
     df <- getMeansAndStds(factorMerger, factor)
@@ -578,8 +574,6 @@ plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
 #' @description Plots proportion of success for each factor level.
 #'
 #' @export
-#' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
-#' @importFrom dplyr group_by summarize left_join summarise
 plotProportion <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
     responseLevels <- factorMerger$response %>% as.factor() %>% levels()
@@ -609,8 +603,6 @@ plotProportion <- function(factorMerger, color, clusterSplit) {
 #' Survival plot (survival)
 #'
 #' @description Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
-#'
-#' @importFrom ggplot2 labs
 #'
 #' @export
 plotSurvival <- function(factorMerger, color, clusterSplit) {
@@ -647,8 +639,6 @@ getGICBreaks <- function(mH) {
 #' GIC plot
 #'
 #' @description Plots Generalized Information Criterion for models on the Factor Merger Tree.
-#'
-#' @importFrom ggplot2 ggplot annotate aes_string geom_line aes theme element_blank scale_y_continuous labs geom_point geom_ribbon
 #'
 #' @export
 plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
@@ -718,9 +708,6 @@ plotTukey <- function(factorMerger) {
 #'
 #' @description
 #'
-#' @importFrom ggplot2 ggplot scale_x_discrete geom_bar aes coord_flip scale_fill_manual theme theme element_blank scale_y_continuous labs
-#' @importFrom dplyr count left_join
-#'
 #' @export
 plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
@@ -753,7 +740,6 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
 
 #' Plot ANOVA table
 #'
-#' @importFrom ggplot2 ggplot element_blank geom_text element_text geom_rect aes unit ggtitle
 plotTable <- function(tab) {
     vecTab <- c("", rownames(tab))
     for (i in 1:ncol(tab)) {
