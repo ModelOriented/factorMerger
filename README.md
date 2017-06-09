@@ -1,4 +1,4 @@
-# factorMerger 
+# factorMerger: A Set of Tools to Support Results From Post Hoc Testing
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://api.travis-ci.org/geneticsMiNIng/factorMerger.png)](https://travis-ci.org/geneticsMiNIng/factorMerger)
@@ -14,3 +14,20 @@ Longer description may be found here
 
 https://github.com/geneticsMiNIng/FactorMerger/blob/master/materials/useR/user_abstract.pdf
 
+
+### Installing and loading `factorMerger`
+
+To install the latest version of`factorMerger` from **Github** run:
+
+```{r}
+if (!require(devtools)) install.packages("devtools")
+devtools::install_github("geneticsMiNIng/factorMerger", build_vignettes = FALSE)
+```
+
+To load `factorMerger` use a command:
+
+```{r}
+library(factorMerger)
+```
+
+### Working with `factorMerger`
