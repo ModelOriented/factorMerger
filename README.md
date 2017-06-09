@@ -17,17 +17,15 @@ https://github.com/geneticsMiNIng/FactorMerger/blob/master/materials/useR/user_a
 
 ### Installing and loading `factorMerger`
 
-To install the latest version of`factorMerger` from **Github** run:
+To install and the latest version of`factorMerger` from **Github** run:
 
 ```{r}
 if (!require(devtools)) install.packages("devtools")
 devtools::install_github("geneticsMiNIng/factorMerger", build_vignettes = FALSE)
-```
 
-To load `factorMerger` use a command:
-
-```{r}
 library(factorMerger)
 ```
 
 ### Working with `factorMerger`
+
+<img src="https://github.com/geneticsMiNIng/factorMerger/blob/master/README_workflow.png" alt="fm_workflow" width = '650'/>
