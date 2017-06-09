@@ -24,6 +24,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 ```
 
 ```{r}
+install.packages("BiocInstaller", repos = "http://bioconductor.org/packages/2.13/bioc")
 BiocInstaller::useDevel() # swiches to devel branchof Bioconductor
 source("https://bioconductor.org/biocLite.R") # downloads bioClite function
 biocLite("RTCGA.clinical") # installs a package
