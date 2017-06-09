@@ -1,10 +1,10 @@
-# Factor Merger 
+# factorMerger 
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://api.travis-ci.org/geneticsMiNIng/factorMerger.png)](https://travis-ci.org/geneticsMiNIng/factorMerger)
 [![Github Issues](http://githubbadges.herokuapp.com/geneticsMiNIng/factorMerger/issues.svg)](https://github.com/geneticsMiNIng/factorMerger/issues)
 
-The aim of this project is to create hierarchical algorithm for post-hoc testing.
+The aim of this project is to create an algorithm of post-hoc testing that would enable to extract hierarchical structure of factors.
 
 A short overview is available here
 
