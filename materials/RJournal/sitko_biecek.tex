@@ -9,13 +9,13 @@ Hoc Testing}
 \maketitle
 
 \abstract{
-\emph{ANOVA}-like statistical tests for differences among groups are available for almost a hundred years. However, for large number of groups the results from commonly used \emph{post-hoc} tests are often hard to interpret. To deal with this problem, the \factorMerger  package constructs and plots the hierarchical relation for the considered factor. Such a~hierarchical structure is derived based on the~\emph{Likelihood~Ratio~Test} and is presented with the~\emph{Factor~Merger~Tree} created with the~\textbf{ggplot2} package. The~current implementation handles one-dimensional and multi-dimensional Gaussian models as well as binomial and survival models. In this article the~methodological background is outlined and the~main functionalities of the packege are
+\emph{ANOVA}-like statistical tests for differences among groups are available for almost a hundred years. However, for large number of groups the results from commonly used \emph{post-hoc} tests are often hard to interpret. To deal with this problem, the \factorMerger  package constructs and plots the hierarchical relation for the considered factor. Such a~hierarchical structure is derived based on the~\emph{Likelihood~Ratio~Test} and is presented with the~\emph{Factor~Merger~Tree} created with the~\textbf{ggplot2} package~\citep{ggplot2}. The~current implementation handles one-dimensional and multi-dimensional Gaussian models as well as binomial and survival models. In this article the~methodological background is outlined and the~main functionalities of the packege are
 illustrated using real-data examples.
 }
 
 \section{Introduction}
 
-In this article we present the \factorMerger package that enriches results from \emph{ANOVA} tests.  The~\emph{ANOVA} method verifies the null hypothesis that the variable of interest $y$ has the same distribution in all groups that are being compared.
+In this article we present the \factorMerger package that enriches results from \emph{ANOVA} tests.  The~\emph{ANOVA} method verifies the null hypothesis that a variable of interest $y$ has the same distribution in all groups that are being compared.
 If this null hypothesis is rejected a more detailed analysis of differences among categorical variable levels might be needed. The traditional approach is to perform \emph{pairwise post hoc tests} in order to verify which groups differ significantly. 
 
 One may find implementations of the traditional \emph{post hoc tests} in many \emph{R} packages. Package \textbf{agricolae} \citep{Agric} offers a wide range of them. It gives one of the most popular \emph{post hoc test}, Tukey HSD test (\code{HSD.test}), its less conservative version --- Student-Newman-Keuls test (\code{SNK.test}) or Scheffe test (\code{scheffe.test}) which is robust to factor imbalance. These parametric tests are based on Student's t-distribution, thus, are reduced to Gaussian models only. In contrasts, \textbf{multcomp} package \citep{Multcomp} can be used with generalized linear models (function \code{glht}) as it uses general linear hypothesis. Similarly to the \textbf{multcomp}, some implementations that accept \code{glm} objects are also given in \textbf{car} (\code{linearHypothesis}, \citealp{car}) and \textbf{lsmeans} \citep{lsmeans}.
@@ -76,7 +76,7 @@ In the \emph{successive} version of the algorithm levels of a categorical variab
 \centering \begin{tabular}[t]{c|c}
 \hline \textbf{model} & \textbf{metric} \\
 \hline one-dimensional Gaussian & average \\
-\hline multi-dimensional Gaussian & average of isoMDS transformation \\
+\hline multi-dimensional Gaussian & average of the isoMDS transformation \\
 \hline binomial & proportion of successes \\
 \hline survival & relative survival rate \\
 \hline 
@@ -176,7 +176,7 @@ TODO: Wstępny opis
 \end{algorithm}
 
 
-\section{The \emph{R} package \factorMerger}
+\section{An \emph{R} package \factorMerger}
 
 The \factorMerger package provides easy-to-use functions for factor merging and visualizing obtained results. 
 
