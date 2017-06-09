@@ -8,8 +8,8 @@ notifications:
   email: false
   
 r_packages:
-  forcats
-  survival
-  dplyr
-  knitr
+  - forcats
+  - survival
+  - dplyr
+  - knitr
   
