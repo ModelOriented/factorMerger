@@ -17,7 +17,7 @@ https://github.com/geneticsMiNIng/FactorMerger/blob/master/materials/useR/user_a
 
 ### Installing and loading `factorMerger`
 
-To install and the latest version of`factorMerger` from **Github** run:
+To install and load the latest version of`factorMerger` from **Github** run:
 
 ```{r}
 if (!require(devtools)) install.packages("devtools")
