@@ -77,7 +77,8 @@ calculateMeans <- function(response, factor) {
 #' @importFrom dplyr rename
 calculateMeansAndRanks <- function(response, factor) {
     means <- apply(as.data.frame(response), 2, function(x) {
-        aggregate(x ~ level, mean, data = data.frame(x = x, level = factor))
+        aggregate(x ~ level, function(x) mean(x, na.rm = T),
+                  data = data.frame(x = x, level = factor))
     })
 
     means <- lapply(means, function(x) {
