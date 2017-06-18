@@ -35,18 +35,116 @@ Furthermore, the \factorMerger package gives an approximate implementation of \e
 
 More detailed description of all algorithms implemented in \factorMerger is given in the section \nameref{algs}.
 
-\section{Algorithms overview}\label{algs}
+\section{Methodology}\label{algs}
 
-The \factorMerger package gives a user the ability to perform analysis for the wide family of models and choose from the broad spectrum of merging approaches. 
+Merging procedures implemented in the \factorMerger package begin with the full model --- with all levels of a given factor included --- and iteratively merge one pair of levels until the factor is constant. Uniting two groups reduces by one the number of subsets, so, as initially we have finite number of levels, the procedure will eventually obtain one-level-factor and terminate. In a single iteration \emph{all possible} pairs are considered and the one which optimizes some objective function is joined. Objective functions use likelihood-based statistics we will describe later on. 
+
+The \factorMerger package gives the ability to perform analysis for the wide family of models and choose from the broad spectrum of merging approaches. Depending on the problem statement, some parts of the merging procedure may differ. The general sketch of~the~algorithm is described below.
+
+\begin{algorithm}[H]
+\caption{The outline of the merging procedure}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, family,
+successive, method$}
+\State{$pairsSet := generatePairs(response, factor, successive$)}
+\State{$\mathcal{M}:= createModel(response, factor, family)$}
+\While{$|levels(factor)| > 1$}
+    \State{$toBeMerged := \mathrm{argmax_{pair \in pairsSet}}objectiveFunction(pair)$}    
+    \State{$\mathcal{M} := updateModel(M_0, \; toBeMerged)$}
+    \State{$factor := mergeLevels(factor, pair)$}
+    \State{$pairsSet := removePair(pairsSet, pair) $}
+\EndWhile
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Model family}
 
 In the current version the package supports parametric models: 
 
 \begin{itemize}
-\item one-dimensional Gaussian (with the argument \code{family = "gaussian"}),
-\item multi dimensional Gaussian (with the argument \code{family = "gaussian"}),
+\item single dimensional Gaussian (with the argument \code{family = "gaussian"}),
+\item multi dimensional Gaussian --- Gaussian model with multiple $y$ outputs (with the argument \code{family = "gaussian"})\footnote{Both single dimensional and multi dimensional Gaussian models use \code{family = "gaussian"}. However, multi~dimensional model uses different functions for likelihood estimation and may require additional preprocessing, thus, it is considered as a~separate category.},
 \item binomial (with the argument \code{family = "binomial"}),
 \item survival (with the argument \code{family = "survival"}).
 \end{itemize}
+
+Each case has its own method of estimating model parameters and a specific likelihood formula.
+
+\break
+
+\paragraph{Single dimensional Gaussian model}
+
+Here we consider the following model.
+
+$$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}\left(0, \sigma^2\right),$$
+
+where $X$ is a binary matrix responsible for encoding group membership.
+
+Under the above assumption, denoting sample size as $n$, we may formulate the likelihood of the Gaussian linear model (\citealp{friedman2001elements}, p.31)
+
+$$L\left(\beta, \sigma | y\right) = \left(2\pi \sigma^2\right)^{-\frac{n}{2}} 
+\exp{\left(-\frac{1}{2}\left(y - X\beta\right)^T\left(y - X\beta\right)/ \sigma^2\right)}$$
+
+and its logarithm
+
+$$l\left(\beta, \sigma | y\right) = 
+-\frac{n}{2} \log{\left(2\pi\right)} -\frac{n}{2} \log{\left(\sigma^2\right)} -\frac{1}{2}\left(y - X\beta\right)^T\left(y - X\beta\right)/ \sigma^2.$$
+
+
+To calculate the loglikelihood we use \code{logLik.lm\{stats\}}.
+
+
+\paragraph{Multi dimensional Gaussian model}
+
+Here we consider the model.
+
+$$Y = X \beta + E, \;\; E \sim \mathcal{N}(0, \Sigma),$$
+
+where $X$ is a binary matrix responsible for encoding group membership, $Y = \left(y_1, y_2, ..., y_k\right)$ is~a~$k$-dimensional response and $E = \left(\epsilon_1, \epsilon_2, ..., \epsilon_k\right)$ is a $k$-dimensional error.
+
+Having the sample size denoted as $n$, we may calculate the likelihood 
+$$L\left(\beta, \Sigma | Y\right) = \left(|2\pi \Sigma|\right)^{-\frac{1}{2}} 
+\exp{\left(-\frac{1}{2}\left(Y - X\beta\right)^T\Sigma^{-1}\left(Y - X\beta\right)\right)}$$
+
+and its logarithm
+
+$$l\left(\beta, \sigma | Y\right) = 
+-\frac{n}{2} \log{\left(2\pi\right)} -\frac{n}{2} \log{\left(|\Sigma|\right)} -\frac{1}{2}\left(Y - X\beta\right)^T\Sigma^{-1}\left(Y - X\beta\right).$$
+
+Unfortunately, \textbf{stats} or any commonly used \emph{R} package do not support multiple responses in the loglikelihood calculation for linear Gaussian models. In the package we use \code{logLik.lm} implementation introduced in the \textbf{Atools} package \citep{atools} and the \code{dmvnorm\{mvtnorm\}} \citep{mvtnorm} implementation for multivariate normal density estimation.
+
+
+\paragraph{Binomial model}
+
+In the binomial case we assume that 
+$$y \sim \mathcal{B}\left(p, n\right)$$
+
+where $\mathcal{B}\left(p,n\right)$ is the binomial distribution with probability of success $p$ and number of trials $n$. We consider the logit model 
+
+$$\ln\left(\frac{p}{1 - p}\right) = X \beta$$
+
+with $X$ -- binarized matrix reprezentation of a factor.
+
+Let $z = \sum_{i = 1}^n y_i$. We may write the likelihood as follow \citep{binom}
+
+$$L\left(\beta | y \right) = 
+\frac{n!}{z!\left(n - z\right)!}p ^z \left(1 - p\right)^{n - z}.$$
+
+Thus, the logarithm of the likelihood may be expressed as follow
+
+$$l\left(\beta|y\right) = zX\beta - n \log{\left(1 + \exp^{X\beta}\right)}.$$
+
+TODO: Policzyć loglik, czy na pewno dobrze.
+
+To calculate loglikelihood for the binomial model we use \code{logLik.glm\{stats\}}.
+
+\paragraph{Survival model}
+
+
+\subsection{Pairs considered}
+
 Set of hypotheses that are tested during merging may be either comprehensive or limited. This gives two possibilities:
 
 \begin{itemize}
@@ -58,7 +156,9 @@ Set of hypotheses that are tested during merging may be either comprehensive or 
 
 The version \emph{all-to-all} considers all possible pairs of factor levels. In the \emph{successive} approach factor levels are preliminarily sorted and then only consecutive groups are tested for means equality.
 
-The \factorMerger package for each model family and merging strategy implements two types of a single iteration of the algorithm. They use one of the following:
+\subsection{Defining levels similarity}
+
+The \factorMerger package for each model family and merging strategy implements two types of a~single iteration of the algorithm. They use one of the following:
 
 \begin{itemize}
 
@@ -116,7 +216,7 @@ $$
 
 will reduce likelihood the least.
 
-\subparagraph{Asymptotic behaviour of the \emph{LRT} statistic} 
+\paragraph{Asymptotic behaviour of the \emph{LRT} statistic} 
 
 A convenient result by Samuel S. Wilks \citep{wilks1938large} shows that $LRT(M_h|M_0)$ tends asymptotically to chi-squared distribution with degrees of freedom equal to the difference in degrees of freedom between $M_0$ and $M_h$ as number of observations approaches infinity. This convergence will be used to evaluate model's 'statistical correctness'.
 
@@ -146,8 +246,6 @@ TODO: Rozwinąć... (Analogia do LRT testów, ale można uprościć do samego lo
     \EndFunction
 \end{algorithmic}
 \end{algorithm}
-
-\break
 
 \subsection{The \emph{DMR4glm}-based merging}
 

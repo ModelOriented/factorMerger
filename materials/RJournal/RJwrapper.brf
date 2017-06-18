@@ -9,5 +9,9 @@
 \backcite {Proch}{{1}{2.1}{section.2.1}}
 \backcite {Proch}{{1}{2.1}{section.2.1}}
 \backcite {DMR}{{1}{2.1}{section.2.1}}
-\backcite {MASS}{{2}{2.2.1}{table.caption.2}}
-\backcite {wilks1938large}{{3}{2.2.3}{subsection.2.2.3}}
+\backcite {friedman2001elements}{{3}{2.2.1}{subsection.2.2.1}}
+\backcite {atools}{{3}{2.2.1}{subsection.2.2.1}}
+\backcite {mvtnorm}{{3}{2.2.1}{subsection.2.2.1}}
+\backcite {binom}{{3}{2.2.1}{subsection.2.2.1}}
+\backcite {MASS}{{4}{2.2.4}{table.caption.2}}
+\backcite {wilks1938large}{{5}{2.2.6}{subsection.2.2.6}}
