@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.1.7)  18 JUN 2017 22:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.1.7)  22 JUN 2017 14:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1456,18 +1456,19 @@ Package microtype Info: Character `textemdash ' is missing
 (microtype)             Ignoring protrusion settings for this character.
  [2] [3]
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <10> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 171.
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 238.
  [4]
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <9> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 219.
-LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <12> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 277.
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 286.
  [5]
+LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <12> not available
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 344.
+
 (./RJwrapper.bbl (./RJwrapper.brf)
 \tf@brf=\write6
 \openout6 = `RJwrapper.brf'.
 
-) [6]) [7]
+ [6])) [7]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 28.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 28.
  (./RJwrapper.aux)
@@ -1476,17 +1477,17 @@ Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 28.
 Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
 (rerunfilecheck)             Checksum: FF3AD4F218DA32BC836AC201BF479754;1256.
 Package rerunfilecheck Info: File `RJwrapper.brf' has not changed.
-(rerunfilecheck)             Checksum: 6646ADA0FC50514764BE427878F90E0A;764.
+(rerunfilecheck)             Checksum: 5BED998FDC79BAD916C4FA09591C6472;868.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 28.
  ) 
 Here is how much of TeX's memory you used:
- 22599 strings out of 493029
- 398940 string characters out of 6136235
- 498166 words of memory out of 5000000
- 25403 multiletter control sequences out of 15000+600000
- 68114 words of font info for 254 fonts, out of 8000000 for 9000
+ 22620 strings out of 493029
+ 399208 string characters out of 6136235
+ 498255 words of memory out of 5000000
+ 25415 multiletter control sequences out of 15000+600000
+ 68500 words of font info for 259 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,12n,56p,981b,589s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,11n,56p,981b,643s stack positions out of 5000i,500n,10000p,200000b,80000s
 pdfTeX warning (dest): name{Hfootnote.2} has been referenced but does not exi
 st, replaced by a fixed one
 
@@ -1505,10 +1506,10 @@ fplmri.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/share/
 texlive/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (7 pages, 168158 bytes).
+Output written on RJwrapper.pdf (7 pages, 174684 bytes).
 PDF statistics:
- 270 PDF objects out of 1000 (max. 8388607)
- 247 compressed objects within 3 object streams
- 49 named destinations out of 1000 (max. 500000)
+ 279 PDF objects out of 1000 (max. 8388607)
+ 256 compressed objects within 3 object streams
+ 51 named destinations out of 1000 (max. 500000)
  47253 words of extra memory for PDF output out of 51595 (max. 10000000)
 

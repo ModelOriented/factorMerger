@@ -4,45 +4,45 @@ The top-level auxiliary file: RJwrapper.aux
 The style file: abbrvnat.bst
 Database file #1: sitko_biecek.bib
 Warning--empty publisher in Proch
-You've used 16 entries,
+You've used 18 entries,
             2773 wiz_defined-function locations,
-            702 strings with 6928 characters,
-and the built_in function-call counts, 6447 in all, are:
-= -- 585
-> -- 302
-< -- 17
-+ -- 106
-- -- 90
-* -- 465
-:= -- 1010
-add.period$ -- 59
-call.type$ -- 16
-change.case$ -- 71
-chr.to.int$ -- 16
-cite$ -- 33
-duplicate$ -- 336
-empty$ -- 552
-format.name$ -- 114
-if$ -- 1352
+            713 strings with 7142 characters,
+and the built_in function-call counts, 7343 in all, are:
+= -- 672
+> -- 333
+< -- 20
++ -- 117
+- -- 99
+* -- 518
+:= -- 1140
+add.period$ -- 67
+call.type$ -- 18
+change.case$ -- 79
+chr.to.int$ -- 18
+cite$ -- 37
+duplicate$ -- 389
+empty$ -- 637
+format.name$ -- 127
+if$ -- 1555
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 19
-newline$ -- 98
-num.names$ -- 64
-pop$ -- 157
+missing$ -- 22
+newline$ -- 109
+num.names$ -- 72
+pop$ -- 180
 preamble$ -- 1
-purify$ -- 62
+purify$ -- 69
 quote$ -- 0
-skip$ -- 250
+skip$ -- 289
 stack$ -- 0
-substring$ -- 182
-swap$ -- 42
-text.length$ -- 5
+substring$ -- 218
+swap$ -- 53
+text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 146
+type$ -- 163
 warning$ -- 1
-while$ -- 63
+while$ -- 72
 width$ -- 0
-write$ -- 231
+write$ -- 260
 (There was 1 warning)

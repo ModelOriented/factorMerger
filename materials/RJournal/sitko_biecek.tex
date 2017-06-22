@@ -72,39 +72,58 @@ In the current version the package supports parametric models:
 
 Each case has its own method of estimating model parameters and a specific likelihood formula.
 
+Here we will introduce notation used in the article. We will denote:
+\begin{itemize}
+
+\item the sample size as $n$,
+\item the initial number of factor levels as $k$,
+\item the binary matrix representing group membership as $X = \{x_ij\}_{i,j=1}^{n,k}$. 
+
+$$
+x_ij = \left\{
+                \begin{array}{ll}
+                  1\;\; \mathrm{if} \; i \mathrm{-th \;
+                  observation \; belongs \; to 
+                  \; group\;} j \\
+                  0 \;\; \mathrm{otherwise.} 
+                \end{array}
+       \right.$$
+We assume that groups do not overlap.
+\item the effects vector of a length $k$ as $\beta$.
+\item the response vector as $y = (y_1, \ldots, y_n)$ or the response matrix as $Y = \{y_{ij}\}_{i,j=1}^{n,m}$.
+
+\end{itemize}
+
 \break
 
 \paragraph{Single dimensional Gaussian model}
 
-Here we consider the following model.
+A convinient and commonly made assumption in the analysis of variance is the normality of the errors. Here we will consider a linear model in which beta coefficients represent group means. The model may be written in vector form as
 
-$$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}\left(0, \sigma^2\right),$$
+$$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}\left(0, \sigma^2\right).$$
 
-where $X$ is a binary matrix responsible for encoding group membership.
 
-Under the above assumption, denoting sample size as $n$, we may formulate the likelihood of the Gaussian linear model (\citealp{friedman2001elements}, p.31)
+Under the above assumptions we may formulate the likelihood of the Gaussian linear model (\citealp{friedman2001elements}, p.31)
 
 $$L\left(\beta, \sigma | y\right) = \left(2\pi \sigma^2\right)^{-\frac{n}{2}} 
 \exp{\left(-\frac{1}{2}\left(y - X\beta\right)^T\left(y - X\beta\right)/ \sigma^2\right)}$$
 
-and its logarithm
+and the corresponding logarithm of the likelihood
 
 $$l\left(\beta, \sigma | y\right) = 
 -\frac{n}{2} \log{\left(2\pi\right)} -\frac{n}{2} \log{\left(\sigma^2\right)} -\frac{1}{2}\left(y - X\beta\right)^T\left(y - X\beta\right)/ \sigma^2.$$
 
 
-To calculate the loglikelihood we use \code{logLik.lm\{stats\}}.
+To calculate the loglikelihood in the package we use \code{logLik.lm\{stats\}}.
 
 
-\paragraph{Multi dimensional Gaussian model}
-
-Here we consider the model.
+\paragraph{Multi dimensional Gaussian model} In the multi dimensional generalization of the Gaussian model we will observe multiple outputs $Y$. It takes the following form
 
 $$Y = X \beta + E, \;\; E \sim \mathcal{N}(0, \Sigma),$$
 
-where $X$ is a binary matrix responsible for encoding group membership, $Y = \left(y_1, y_2, ..., y_k\right)$ is~a~$k$-dimensional response and $E = \left(\epsilon_1, \epsilon_2, ..., \epsilon_k\right)$ is a $k$-dimensional error.
+where $E = \left(\epsilon_1, \epsilon_2, ..., \epsilon_m\right)$ is an $m$-dimensional error.
 
-Having the sample size denoted as $n$, we may calculate the likelihood 
+Now, we may write the likelihood 
 $$L\left(\beta, \Sigma | Y\right) = \left(|2\pi \Sigma|\right)^{-\frac{1}{2}} 
 \exp{\left(-\frac{1}{2}\left(Y - X\beta\right)^T\Sigma^{-1}\left(Y - X\beta\right)\right)}$$
 
@@ -113,34 +132,82 @@ and its logarithm
 $$l\left(\beta, \sigma | Y\right) = 
 -\frac{n}{2} \log{\left(2\pi\right)} -\frac{n}{2} \log{\left(|\Sigma|\right)} -\frac{1}{2}\left(Y - X\beta\right)^T\Sigma^{-1}\left(Y - X\beta\right).$$
 
-Unfortunately, \textbf{stats} or any commonly used \emph{R} package do not support multiple responses in the loglikelihood calculation for linear Gaussian models. In the package we use \code{logLik.lm} implementation introduced in the \textbf{Atools} package \citep{atools} and the \code{dmvnorm\{mvtnorm\}} \citep{mvtnorm} implementation for multivariate normal density estimation.
+Unfortunately, \textbf{stats} or any commonly used \emph{R} package do not support multiple responses in the loglikelihood calculation for linear Gaussian models. In the package we use \code{logLik.mlm} implementation introduced in the \textbf{Atools} package \citep{atools} and the \code{dmvnorm\{mvtnorm\}} \citep{mvtnorm} implementation for multivariate normal density estimation.
 
 
 \paragraph{Binomial model}
 
-In the binomial case we assume that 
+In the binomial case the observed response $y$ will take one of two possible disjoint outcomes (success or failure). We will be interested whether probabilities of success in given subpopulations are statistically the same. Let us introduce the assumption
 $$y \sim \mathcal{B}\left(p, n\right)$$
 
-where $\mathcal{B}\left(p,n\right)$ is the binomial distribution with probability of success $p$ and number of trials $n$. We consider the logit model 
+where $\mathcal{B}\left(p,n\right)$ is the binomial distribution with the probability of success $p$ and the number~of~trials~$n$. We consider the logit model 
 
-$$\ln\left(\frac{p}{1 - p}\right) = X \beta$$
+$$\ln\left(\frac{p}{1 - p}\right) = X \beta.$$
 
-with $X$ -- binarized matrix reprezentation of a factor.
-
-Let $z = \sum_{i = 1}^n y_i$. We may write the likelihood as follow \citep{binom}
+Let $z = \sum_{i = 1}^n y_i$. Now the likelihood may be written as follows  \citep{binom}
 
 $$L\left(\beta | y \right) = 
 \frac{n!}{z!\left(n - z\right)!}p ^z \left(1 - p\right)^{n - z}.$$
 
-Thus, the logarithm of the likelihood may be expressed as follow
+Thus, the logarithm of the likelihood is expressed as 
 
 $$l\left(\beta|y\right) = zX\beta - n \log{\left(1 + \exp^{X\beta}\right)}.$$
 
 TODO: Policzyć loglik, czy na pewno dobrze.
 
-To calculate loglikelihood for the binomial model we use \code{logLik.glm\{stats\}}.
+To calculate the loglikelihood for the binomial model we use \code{logLik.glm\{stats\}}.
 
 \paragraph{Survival model}
+
+Survival analysis is a branch of statistics for analyzing the time until a~specified event takes to happen (such as a patient death or a machine failure). Usually we assume that survival time of an individual depends on two factors: the underlying baseline hazard function and a set of explanatory variables. In the package for survival analysis applications the \emph{Cox proportional hazard regression} introduced by D. R. Cox \citep{coxph} is used. In this model we assume that the baseline hazard function is the same for the whole population and the effects of predictors are multiplicatively related to the individual hazard. 
+
+Let $\lambda(t)$ be the hazard function and let $\lambda_0(t)$ be the baseline hazard function, where $t$ denotes time. Then the Cox model has the following form
+
+$$\lambda(t) = 
+\lambda_0(t)\cdot \exp{(X\beta)}.$$
+
+Let $y = (y_1, \ldots, y_n)$ be a vector of observed times in the sample. For $i$-th observation $y_i$ can be either event time or censoring time. We say that an observation is censored if we do not have complete information about its status in the context of our interest (for example, the patient died  of causes other than the disease of our consideration or was lost to follow-up). Let $C = (C_1, \ldots, C_n)$ be the vector of be the indicators that the time corresponds to an event. To be more presice,
+
+$$C_i = \left\{
+                \begin{array}{ll}
+                  0 \;\; \mathrm{if} \; i \mathrm{-th \;
+                  observation \; was \; censored,}\\
+                  1 \;\; \mathrm{if \; for} \; i 
+                  \mathrm{-th \; 
+                  observation \; the \; event \; occured.}
+                \end{array}
+              \right.$$
+
+Then we may construct the partial likelihood (as a function of $\beta$ only) in the following way
+
+$$L(\beta|y) = 
+	\prod_{i: C_i = 1}
+		\left[
+			\frac{\exp{\left(X_i\beta\right)}}
+					{\sum_{j: y_j \geq y_i} 
+					\exp{\left(X_i\beta\right)}}
+			\right]$$
+			
+and the corresponding loglikelihood
+$$
+l\left(\beta\right|y) = 
+	\sum_{i:C_i = 1} 
+		\left(
+			X_i\beta -
+			\log{
+				\left(
+				\sum_{j:y_j\geq y_i} 
+				\exp{\left(X_i\beta\right)}		
+				\right)
+			}
+		\right).
+$$
+
+TODO: Dlaczego możemy korzystać z częściowej wiarygodności?
+
+The Cox regression is implemented in the \textbf{survival} package (\code{coxph\{survival\}}, \citealp{survival-book})
+and the loglikelihood of the model one may find by accessing the field \code{loglik} of a \code{coxph.object}.
+
 
 
 \subsection{Pairs considered}
