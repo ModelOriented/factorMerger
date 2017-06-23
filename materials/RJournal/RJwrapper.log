@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.1.7)  22 JUN 2017 14:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.1.7)  23 JUN 2017 10:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1211,27 +1211,27 @@ Document Style - pseudocode environments for use with the `algorithmicx' style
 ) (./RJwrapper.aux)
 \openout1 = `RJwrapper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 15.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 15.
  (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Try loading font information for T1+ppl on input line 14.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Try loading font information for T1+ppl on input line 15.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1ppl.fd
 File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
@@ -1301,7 +1301,7 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 14.
+LaTeX Info: Redefining \microtypecontext on input line 15.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -1319,8 +1319,8 @@ Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
 tim
 )
 \AtBeginShipoutBox=\box44
-Package backref Info: ** backref set up for natbib ** on input line 14.
-Package hyperref Info: Link coloring ON on input line 14.
+Package backref Info: ** backref set up for natbib ** on input line 15.
+Package hyperref Info: Link coloring ON on input line 15.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
@@ -1330,9 +1330,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count160
 )
-LaTeX Info: Redefining \ref on input line 14.
-LaTeX Info: Redefining \pageref on input line 14.
-LaTeX Info: Redefining \nameref on input line 14.
+LaTeX Info: Redefining \ref on input line 15.
+LaTeX Info: Redefining \pageref on input line 15.
+LaTeX Info: Redefining \nameref on input line 15.
 
 (./RJwrapper.out) (./RJwrapper.out)
 \@outlinefile=\write5
@@ -1343,35 +1343,35 @@ Package caption Info: float package is loaded.
 Package caption Info: End \AtBeginDocument code.
  (./sitko_biecek.tex
 LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <20.74> not available
-(Font)              Font shape `T1/ppl/b/n' tried instead on input line 9.
+(Font)              Font shape `T1/ppl/b/n' tried instead on input line 11.
 LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <9> not available
-(Font)              Font shape `T1/ppl/b/n' tried instead on input line 14.
-LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <12> not available
 (Font)              Font shape `T1/ppl/b/n' tried instead on input line 16.
-LaTeX Font Info:    Try loading font information for OT1+ppl on input line 18.
+LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <12> not available
+(Font)              Font shape `T1/ppl/b/n' tried instead on input line 18.
+LaTeX Font Info:    Try loading font information for OT1+ppl on input line 20.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 File: ot1ppl.fd 2001/06/04 font definitions for OT1/ppl.
 )
-LaTeX Font Info:    Try loading font information for OML+zplm on input line 18.
+LaTeX Font Info:    Try loading font information for OML+zplm on input line 20.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMS+zplm on input line 18.
+LaTeX Font Info:    Try loading font information for OMS+zplm on input line 20.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMX+zplm on input line 18.
+LaTeX Font Info:    Try loading font information for OMX+zplm on input line 20.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Try loading font information for OT1+zplm on input line 18.
+LaTeX Font Info:    Try loading font information for OT1+zplm on input line 20.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1zplm.fd
@@ -1382,32 +1382,32 @@ Package microtype Info: Loading generic settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 18.
+(Font)              scaled to size 9.37807pt on input line 20.
 
 (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 18.
+(Font)              scaled to size 7.29405pt on input line 20.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 18.
+(Font)              scaled to size 5.21004pt on input line 20.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 18.
+(Font)              scaled to size 9.37807pt on input line 20.
 
 (/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 18.
+(Font)              scaled to size 7.29405pt on input line 20.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 18.
-LaTeX Font Info:    Try loading font information for T1+zi4 on input line 21.
+(Font)              scaled to size 5.21004pt on input line 20.
+LaTeX Font Info:    Try loading font information for T1+zi4 on input line 23.
 
 (/usr/share/texlive/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2014/06/22 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 21.
+(Font)              scaled to size 9.18004pt on input line 23.
 Package microtype Info: Loading generic settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
@@ -1419,75 +1419,74 @@ Package microtype Info: Character `textemdash ' is missing
 (microtype)             in font `T1/zi4/m/n/9'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 30.
+(Font)              scaled to size 8.33606pt on input line 32.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 30.
+(Font)              scaled to size 6.25204pt on input line 32.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 30.
+(Font)              scaled to size 8.33606pt on input line 32.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 30.
+(Font)              scaled to size 6.25204pt on input line 32.
  [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 ]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 45.
+put line 47.
 LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <10> not available
-(Font)              Font shape `T1/ppl/b/n' tried instead on input line 45.
+(Font)              Font shape `T1/ppl/b/n' tried instead on input line 47.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 49.
+(Font)              scaled to size 10.42007pt on input line 52.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 49.
+(Font)              scaled to size 7.91925pt on input line 52.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 49.
+(Font)              scaled to size 10.42007pt on input line 52.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 49.
-LaTeX Font Info:    Try loading font information for TS1+ppl on input line 67.
+(Font)              scaled to size 7.91925pt on input line 52.
+LaTeX Font Info:    Try loading font information for TS1+ppl on input line 69.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
-)
+) [2]
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 8.16003pt on input line 68.
+(Font)              scaled to size 8.16003pt on input line 96.
 Package microtype Info: Character `textendash ' is missing
 (microtype)             in font `T1/zi4/m/n/8'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `textemdash ' is missing
 (microtype)             in font `T1/zi4/m/n/8'.
 (microtype)             Ignoring protrusion settings for this character.
- [2] [3]
-LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <10> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 238.
- [4]
+ [3] [4]
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <9> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 286.
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 240.
  [5]
+LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <10> not available
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 304.
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <12> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 344.
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 355.
 
-(./RJwrapper.bbl (./RJwrapper.brf)
+[6] (./RJwrapper.bbl (./RJwrapper.brf)
 \tf@brf=\write6
 \openout6 = `RJwrapper.brf'.
 
- [6])) [7]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 28.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 28.
+ [7])) [8]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 29.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 29.
  (./RJwrapper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 28.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 28.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 29.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 29.
 Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
-(rerunfilecheck)             Checksum: FF3AD4F218DA32BC836AC201BF479754;1256.
+(rerunfilecheck)             Checksum: 9E4630A4DFBBB4EB39E8A5872A89F73C;1104.
 Package rerunfilecheck Info: File `RJwrapper.brf' has not changed.
-(rerunfilecheck)             Checksum: 5BED998FDC79BAD916C4FA09591C6472;868.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 28.
+(rerunfilecheck)             Checksum: A474FEF3642394DEF2791B74E57C408F;868.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 29.
  ) 
 Here is how much of TeX's memory you used:
- 22620 strings out of 493029
- 399208 string characters out of 6136235
- 498255 words of memory out of 5000000
+ 22619 strings out of 493029
+ 399162 string characters out of 6136235
+ 498317 words of memory out of 5000000
  25415 multiletter control sequences out of 15000+600000
- 68500 words of font info for 259 fonts, out of 8000000 for 9000
+ 68496 words of font info for 259 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,11n,56p,981b,643s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,12n,56p,981b,671s stack positions out of 5000i,500n,10000p,200000b,80000s
 pdfTeX warning (dest): name{Hfootnote.2} has been referenced but does not exi
 st, replaced by a fixed one
 
@@ -1506,10 +1505,10 @@ fplmri.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/share/
 texlive/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (7 pages, 174684 bytes).
+Output written on RJwrapper.pdf (8 pages, 176578 bytes).
 PDF statistics:
- 279 PDF objects out of 1000 (max. 8388607)
- 256 compressed objects within 3 object streams
- 51 named destinations out of 1000 (max. 500000)
- 47253 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 276 PDF objects out of 1000 (max. 8388607)
+ 252 compressed objects within 3 object streams
+ 50 named destinations out of 1000 (max. 500000)
+ 47237 words of extra memory for PDF output out of 51595 (max. 10000000)
 

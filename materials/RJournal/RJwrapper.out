@@ -4,14 +4,12 @@
 \BOOKMARK [2][-]{subsection.2.2.1}{Model family}{section.2.2}% 4
 \BOOKMARK [2][-]{subsection.2.2.2}{Pairs considered}{section.2.2}% 5
 \BOOKMARK [2][-]{subsection.2.2.3}{Defining levels similarity}{section.2.2}% 6
-\BOOKMARK [2][-]{subsection.2.2.4}{The successive merging}{section.2.2}% 7
-\BOOKMARK [2][-]{subsection.2.2.5}{The all-to-all merging}{section.2.2}% 8
-\BOOKMARK [2][-]{subsection.2.2.6}{The Likelihood Ratio Test statistics}{section.2.2}% 9
-\BOOKMARK [2][-]{subsection.2.2.7}{The Likelihood Ratio Test-based merging}{section.2.2}% 10
-\BOOKMARK [2][-]{subsection.2.2.8}{The DMR4glm-based merging}{section.2.2}% 11
-\BOOKMARK [1][-]{section.2.3}{An R package factorMerger }{section*.1}% 12
-\BOOKMARK [2][-]{subsection.2.3.1}{Merging and getting results}{section.2.3}% 13
-\BOOKMARK [2][-]{subsection.2.3.2}{Visualizations}{section.2.3}% 14
-\BOOKMARK [1][-]{section.2.4}{CASE STUDY: PISA2012}{section*.1}% 15
-\BOOKMARK [1][-]{section.2.5}{Summary}{section*.1}% 16
-\BOOKMARK [1][-]{section.2.6}{Acknowledgements}{section*.1}% 17
+\BOOKMARK [2][-]{subsection.2.2.4}{The Likelihood Ratio Test statistics}{section.2.2}% 7
+\BOOKMARK [2][-]{subsection.2.2.5}{The Likelihood Ratio Test-based merging}{section.2.2}% 8
+\BOOKMARK [2][-]{subsection.2.2.6}{The DMR4glm-based merging}{section.2.2}% 9
+\BOOKMARK [1][-]{section.2.3}{An R package factorMerger }{section*.1}% 10
+\BOOKMARK [2][-]{subsection.2.3.1}{Merging and getting results}{section.2.3}% 11
+\BOOKMARK [2][-]{subsection.2.3.2}{Visualizations}{section.2.3}% 12
+\BOOKMARK [1][-]{section.2.4}{CASE STUDY: PISA2012}{section*.1}% 13
+\BOOKMARK [1][-]{section.2.5}{Summary}{section*.1}% 14
+\BOOKMARK [1][-]{section.2.6}{Acknowledgements}{section*.1}% 15
