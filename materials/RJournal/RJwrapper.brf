@@ -15,5 +15,5 @@
 \backcite {binom}{{4}{2.2.1}{subsection.2.2.1}}
 \backcite {coxph}{{4}{2.2.1}{subsection.2.2.1}}
 \backcite {survival-book}{{4}{2.2.1}{subsection.2.2.1}}
-\backcite {MASS}{{5}{2.2.2}{table.caption.2}}
-\backcite {wilks1938large}{{6}{2.2.4}{subsection.2.2.4}}
+\backcite {wilks1938large}{{5}{2.2.1}{equation.2.2.3}}
+\backcite {MASS}{{6}{2.2.2}{table.caption.2}}

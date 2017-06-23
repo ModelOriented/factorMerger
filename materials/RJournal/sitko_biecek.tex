@@ -3,6 +3,7 @@
 \newcommand{\factorMerger}{\href{https://github.com/geneticsMiNIng/factorMerger}{factorMerger }}
 \definecolor{orange}{rgb}{1,0.5,0}
 \newcommand{\todo}{\textcolor{red}}
+\newcommand{\M}{\mathcal{M}}
 
 \title{\factorMergerTitle: A Set of Tools to Support Results From Post
 Hoc Testing}
@@ -102,7 +103,7 @@ Each case has its own method of estimating model parameters and a specific likel
 
 \paragraph{Single dimensional Gaussian model}
 
-A convinient and commonly made assumption in the analysis of variance is the normality of the errors. Here we will consider a linear model in which beta coefficients represent group means. The model may be written in vector form as
+A convenient and commonly made assumption in the analysis of variance is the normality of the errors. Here we will consider a linear model in which beta coefficients represent group means. The model may be written in vector form as
 
 $$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}\left(0, \sigma^2\right).$$
 
@@ -213,6 +214,43 @@ $$
 The Cox regression is implemented in the \textbf{survival} package (\code{coxph\{survival\}}, \citealp{survival-book})
 and the loglikelihood of the model one may find by accessing the field \code{loglik} of a \code{coxph.object}.
 
+\break
+
+\paragraph{The Likelihood Ratio Test statistics}
+
+The substantial part of \factorMergerTitle 's algorithms is calculating the \emph{Likelihood Ratio Test statistics}. In this paragraph we will formulate its definition.
+
+Let us assume that the initial factor variable divides population into $l$ subgroups and denote~the effect of~a~group $i$ on~the~response as $\beta_i$. We define $h_{ij}$, a constraint on~groups $i$~and~$j$~claiming that their group effects are statistically the same, as
+
+\begin{equation} \label{constraint}
+h_{ij}: \beta_i = \beta_j, \;\; i \neq j \;\; i,j \in \{1, 2, ..., l \}.
+\end{equation}
+
+
+Let us take $\M_0$  --- the model with no constraints and $\M_{h_{ij}}$ --- the model under $h_{ij}$. For both models we are able to estimate the \emph{Maximum Likelihood Estimators} of group effects and denote them as~$\hat{\beta}_{\M_0}, \hat{\beta}_{\M_{h_{ij}}},$ respectively.
+
+Then, the \textbf{Likelihood Ratio Test statistic} is
+
+\begin{equation} \label{LRTstat}
+LRT(\M_{h_{ij}}|\M_0) = 2 \cdot l (\hat{\beta}_{\M_0}|y) - 2 \cdot l (\hat{\beta}_{\M_{h_{ij}}}|y), 
+\end{equation}
+
+where $l(\cdot|y)$ is the log-likelihood function conditioned by observed $y$.
+
+The higher the $LRT(\M_{h_{ij}}|\M_0)$, the more likely it is that constraint $h_{ij}$ is rejected. One may interpret the $LRT(\M_{h_{ij}}|\M_0)$ as a distance between group $i$ and $j$.
+
+As $\M_{h_{ij}}$ for all $i,j$  ($i \neq j \;\; i,j \in \{1, 2, ..., l \}$) is nested in $\M_0$, the likelihood of $\M_{h_{ij}}$ is not greater than the $\M_0$'s likelihood. Therefore, if~$\mathcal{H}$~is a set of all considered constraint defined in~\eqref{constraint}, a constraint 
+
+\begin{equation} \label{maxLikelihood}
+\mathrm{argmin}_{h \in \mathcal{H}} LRT(\M_h|\M_0) = \mathrm{argmax}_{h \in \mathcal{H}} l(\M_h)
+\end{equation}
+
+will reduce the likelihood the least.
+
+\paragraph{Asymptotic behaviour of the \emph{LRT statistic}}
+
+An advantageous result by Samuel S. Wilks \citep{wilks1938large} shows that for a linear constraint $h$ the $LRT(\M_h|\M_0)$ tends asymptotically to chi-squared distribution with degrees of freedom equal to the difference in degrees of~freedom between $\M_0$ and $\M_h$ as number of observations approaches infinity. This convergence will be used to evaluate model's \emph{statistical correctness} in visualizations.
+
 
 
 \subsection{Pairs considered}
@@ -239,7 +277,7 @@ It is possible that the \emph{all-to-all} strategy will give better merging path
 
 \paragraph{The \emph{successive} merging}
 
-In the \emph{successive} version of the algorithm levels of a categorical variable are sorted. The order depends on the model family chosen. In most cases it is associated with the beta coefficients estimators. The interpretation of beta coefficient is gathered in the table below.
+In the \emph{successive} version of the algorithm at the very beginning levels of a categorical variable are sorted. The order depends on the model family chosen. In most cases it is associated with the beta coefficients estimators. The interpretation of beta coefficient is gathered in the table below.
 
 \begin{table}[H]
 \centering \begin{tabular}[t]{c|c}
@@ -247,7 +285,7 @@ In the \emph{successive} version of the algorithm levels of a categorical variab
 \hline one-dimensional Gaussian & average \\
 \hline multi-dimensional Gaussian & average of the isoMDS transformation \\
 \hline binomial & proportion of successes \\
-\hline survival & relative survival rate \\
+\hline survival & log hazard ratio \\
 \hline 
 
 \end{tabular}
@@ -255,15 +293,13 @@ In the \emph{successive} version of the algorithm levels of a categorical variab
 
 \end{table}
 
-For single dimensional Gaussian and binomial models groups are sorted by means and proportions of success, respectively. In the survival case we estimate survival model, which takes all factor levels separately. Then beta coefficient approximations specify levels order (base level gets coefficient equal to zero). 
+For single dimensional Gaussian and binomial models groups are sorted by means and proportions of success, respectively. In the survival case we use log hazard ratios with one level set as the reference level. Multi dimensional Gaussian model needs additional preprocessing. First, group means are computed. Then they are projected into one dimension with the use of the Kruskal's non-metric multidimensional scaling. The \factorMerger uses \code{isoMDS} implementation from the package \textbf{MASS} \citep{MASS}. 
 
-Multi dimensional Gaussian model needs additional preprocessing. First, group means are computed. Then they are projected into one dimension with the use of the Kruskal's non-metric multidimensional scaling. The \factorMerger uses \code{isoMDS} implementation from the package \textbf{MASS} \citep{MASS}. 
-
-Having set the factor order, we may limit number of comparisons in each step.
+Having set the factor order, we may limit number of comparisons in each step in a way that a~particular level is tested only against its closest neighbours.
 
 
 
-\subsection{Defining levels similarity}
+\subsection{Objective functions}
 
 The \factorMerger package for each model family and merging strategy implements two types of a~single iteration of the algorithm. They use one of the following:
 
@@ -273,30 +309,6 @@ The \factorMerger package for each model family and merging strategy implements 
 \item \emph{agglomerative clustering with constant distance matrix} (based on the \emph{DMR4glm} algorithm, with the argument \code{method = "hclust"}). 
 
 \end{itemize}
-
-
-\subsection{The Likelihood Ratio Test statistics}
-
-The substantial part of \factorMergerTitle 's algorithms is calculating the \emph{Likelihood Ratio Test} statistics. In this section we define \emph{LRT} statistic used in merging.
-
-Let us assume $y$ is a response variable and $C$ is a factor with $k$ levels ($C \in \{1, 2, ..., k \}$). We denote as $h$ some linear hypothesis on the levels of $C$, $M_0$ the initial model (taking all factor levels independently) and $M_h$ --- the model under $h$. Then, $LRT(M_h|M_0)$ statistic based on the \emph{Likelihood Ratio Test} is defined as below.
-
-$$ 
-LRT(M_h|M_0) = 2 \cdot l (M_0) - 2 \cdot l (M_h), 
-$$
-
-where $l(\cdot)$ is log-likelihood function.
-
-As $M_h$ is nested in $M_0$, the likelihood of $M_h$ is not greater than the $M_0$'s likelihood. Therefore, if $\mathcal{H}$ is a set of considered linear hypothesis, hypothesis 
-$$
-\mathrm{argmin}_{h \in \mathcal{H}} LRT(M_h|M_0) = \mathrm{argmax}_{h \in \mathcal{H}} l(M_h)
-$$
-
-will reduce likelihood the least.
-
-\paragraph{Asymptotic behaviour of the \emph{LRT} statistic} 
-
-A convenient result by Samuel S. Wilks \citep{wilks1938large} shows that $LRT(M_h|M_0)$ tends asymptotically to chi-squared distribution with degrees of freedom equal to the difference in degrees of freedom between $M_0$ and $M_h$ as number of observations approaches infinity. This convergence will be used to evaluate model's 'statistical correctness'.
 
 
 
