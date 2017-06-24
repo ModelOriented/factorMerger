@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.1.7)  23 JUN 2017 12:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.1.7)  23 JUN 2017 12:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1459,11 +1459,11 @@ LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <9> not available
 (Font)              Font shape `T1/ppl/b/it' tried instead on input line 250.
  [5]
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <10> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 316.
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 317.
 
 [6]
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <12> not available
-(Font)              Font shape `T1/ppl/b/it' tried instead on input line 367.
+(Font)              Font shape `T1/ppl/b/it' tried instead on input line 368.
  (./RJwrapper.bbl (./RJwrapper.brf)
 \tf@brf=\write6
 \openout6 = `RJwrapper.brf'.
@@ -1506,7 +1506,7 @@ fplmri.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/share/
 texlive/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (8 pages, 178151 bytes).
+Output written on RJwrapper.pdf (8 pages, 178179 bytes).
 PDF statistics:
  276 PDF objects out of 1000 (max. 8388607)
  252 compressed objects within 3 object streams

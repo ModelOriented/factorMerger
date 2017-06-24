@@ -15,7 +15,6 @@ vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-bibliography: ../materials/factorMerger.bib
 ---
 
 ```{r, echo = FALSE}

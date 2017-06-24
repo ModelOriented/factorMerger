@@ -4,3 +4,6 @@
 ^\.travis\.yml$
 ^figures$
 ^materials$
+^analysis$
+^ignoreFiles$
+^README_.*\.png$

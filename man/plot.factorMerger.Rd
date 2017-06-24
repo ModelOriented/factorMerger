@@ -4,16 +4,16 @@
 \alias{plot.factorMerger}
 \title{Plot Factor Merger}
 \usage{
-\method{plot}{factorMerger}(factorMerger, panel = "all",
-  statistic = "loglikelihood", nodesSpacing = "equidistant",
-  colorClusters = TRUE, splitStatistic = "GIC", splitThreshold = NULL,
-  penalty = 2, showSplit = FALSE, showSignificance = TRUE,
+\method{plot}{factorMerger}(x, panel = "all", statistic = "loglikelihood",
+  nodesSpacing = "equidistant", colorClusters = TRUE,
+  splitStatistic = "GIC", splitThreshold = NULL, penalty = 2,
+  showSplit = FALSE, showSignificance = TRUE,
   title = "Factor Merger Tree", subtitle = " ", palette = NULL,
   responsePanel = NULL, responsePanelPalette = NULL, gicPanelColor = NULL,
-  panelGrid = TRUE, chisqQuantile = 0.05)
+  panelGrid = TRUE, chisqQuantile = 0.05, ...)
 }
 \arguments{
-\item{factorMerger}{object of a class \code{factorMerger}.}
+\item{x}{object of a class \code{factorMerger}.}
 
 \item{panel}{Type of panels to be plot. Possible values are \code{c("all", "response", "GIC", "tree")}.
 All types of plots include the Factor Merger Tree. Apart from the Factor Merger Tree there are
@@ -82,6 +82,8 @@ the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile
 quantile of chi-square distribution. Otherwise, panel is blank.}
 
 \item{chisqQuantile}{Significance level used if \code{panelGrid = TRUE}.}
+
+\item{...}{Other arguments}
 }
 \description{
 Plot Factor Merger

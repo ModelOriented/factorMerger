@@ -4,8 +4,20 @@
 \alias{plotFrequency}
 \title{Frequency plot}
 \usage{
-plotFrequency(factorMerger, colorClusters, clusterSplit)
+plotFrequency(factorMerger, color, clusterSplit)
+}
+\arguments{
+\item{factorMerger}{object of a class \code{factorMerger}}
+
+\item{color}{Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+to the final cluster split.}
+
+\item{clusterSplit}{final cluster split definition. A list with two fields:
+\itemize{
+    \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+    \item \code{value} cut threshold / GIC penalty
+}}
 }
 \description{
-
+Plots barplot with group frequencies.
 }

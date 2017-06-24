@@ -12,6 +12,8 @@ mergingHistory(factorMerger, showStats = FALSE, round = TRUE)
 \item{showStats}{If \code{TRUE} extends results with loglikelihood (column \code{model}),
 p-value for the \code{LRT} tests against the full model (column \code{pval}) and Generalized Information
 Criterion value (column \code{GIC}). By default \code{showStats} is set to \code{FALSE}.}
+
+\item{round}{Logical. If \code{TRUE}, the default, statistics are rounded}
 }
 \description{
 Summarizes merging path by giving pairs of factor groups merged in each iteration.

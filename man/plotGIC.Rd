@@ -6,6 +6,16 @@
 \usage{
 plotGIC(factorMerger, color, penalty = 2, statistic)
 }
+\arguments{
+\item{factorMerger}{object of a class \code{factorMerger}}
+
+\item{color}{Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+to the final cluster split.}
+
+\item{penalty}{GIC penalty}
+
+\item{statistic}{cluster split statistic}
+}
 \description{
 Plots Generalized Information Criterion for models on the Factor Merger Tree.
 }

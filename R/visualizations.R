@@ -12,7 +12,7 @@ NULL
 
 #' Plot Factor Merger
 #'
-#' @param factorMerger object of a class \code{factorMerger}.
+#' @param x object of a class \code{factorMerger}.
 #' @param panel Type of panels to be plot. Possible values are \code{c("all", "response", "GIC", "tree")}.
 #' All types of plots include the Factor Merger Tree. Apart from the Factor Merger Tree there are
 #' also two possible panels: the Response Plot (response summary, specific to the model family),
@@ -67,11 +67,12 @@ NULL
 #' @param panelGrid Boolean. If \code{TRUE}, each interval on
 #'  the OX axis of the Factor Merger Tree corresponds to the 1 - \code{chisqQuantile}
 #'  quantile of chi-square distribution. Otherwise, panel is blank.
+#' @param ... Other arguments
 #'
 #' @importFrom gridExtra grid.arrange
 #'
 #' @export
-plot.factorMerger <- function(factorMerger, panel = "all",
+plot.factorMerger <- function(x, panel = "all",
                               statistic = "loglikelihood",
                               nodesSpacing = "equidistant",
                               colorClusters = TRUE,
@@ -87,7 +88,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
                               responsePanelPalette = NULL,
                               gicPanelColor = NULL,
                               panelGrid = TRUE,
-                              chisqQuantile = 0.05) {
+                              chisqQuantile = 0.05, ...) {
 
     stopifnot(panel %in% c("all", "response", "GIC", "tree"))
     stopifnot(statistic %in% c("loglikelihood", "p-value"))
@@ -96,8 +97,8 @@ plot.factorMerger <- function(factorMerger, panel = "all",
 
     clusterSplit <- getClusterSplit(splitStatistic, splitThreshold, penalty)
 
-    responsePanel <- checkResponsePanel(factorMerger, responsePanel)
-    responsePlot <- plotResponse(factorMerger, responsePanel,
+    responsePanel <- checkResponsePanel(x, responsePanel)
+    responsePlot <- plotResponse(x, responsePanel,
                                  colorClusters, clusterSplit)
 
     if (is.null(responsePanelPalette) && !is.null(palette)) {
@@ -110,14 +111,14 @@ plot.factorMerger <- function(factorMerger, panel = "all",
 
     # Set colors
     if (colorClusters) {
-        colorsDf <- getOptimalPartitionDf(factorMerger,
+        colorsDf <- getOptimalPartitionDf(x,
                                           clusterSplit[[1]],
                                           clusterSplit[[2]])
     } else {
         colorsDf <- NULL
     }
 
-    mergingPathPlot <- plotTree(factorMerger, statistic, nodesSpacing,
+    mergingPathPlot <- plotTree(x, statistic, nodesSpacing,
                                 clusterSplit, showSplit, showSignificance,
                                 chisqQuantile, colorClusters, colorsDf, palette,
                                 title, subtitle, panelGrid)
@@ -134,8 +135,8 @@ plot.factorMerger <- function(factorMerger, panel = "all",
            },
            "all" = {
                return(grid.arrange(mergingPathPlot, responsePlot,
-                                   plotGIC(factorMerger, gicPanelColor, penalty, statistic),
-                                   plotTable(calculateAnovaTable(factorMerger$initialModel)),
+                                   plotGIC(x, gicPanelColor, penalty, statistic),
+                                   plotTable(calculateAnovaTable(x$initialModel)),
                                    ncol = 2,
                                    widths = c(6.5, 2.5), heights = c(6.5, 2.5)))
            },
@@ -145,7 +146,7 @@ plot.factorMerger <- function(factorMerger, panel = "all",
                                    widths = c(7.5, 2.5)))
            },
            "GIC" = {
-               return(grid.arrange(mergingPathPlot, plotGIC(factorMerger, gicPanelColor, penalty, statistic),
+               return(grid.arrange(mergingPathPlot, plotGIC(x, gicPanelColor, penalty, statistic),
                                    ncol = 1,
                                    heights = c(7.5, 2.5)))
            })
@@ -408,7 +409,6 @@ plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSpli
            })
 }
 
-#' @importFrom proxy dist
 findSimilarities <- function(factorMerger) {
     stats <- calculateMeansAndRanks(factorMerger$response,
                                     factorMerger$factor)
@@ -431,7 +431,14 @@ findSimilarities <- function(factorMerger) {
 #'
 #' @description Plots heatmap for each dimension of the response variable. Vector of means of factor levels for a given
 #' dimension is scaled to have mean equal to zero and standard deviation equal to one.
-#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #' @export
 plotHeatmap <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
@@ -462,7 +469,14 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
 #'
 #' @description Plots rank plot - one series is a single factor level and one group
 #' on the OX axis is a single dimension of the response.
-#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #' @export
 plotProfile <- function(factorMerger, color, clusterSplit) {
     df <- findSimilarities(factorMerger)
@@ -507,6 +521,14 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
 #' Boxplot (single-dimensional Gaussian)
 #'
 #' @description Plots boxplot with mean as a summary statistic groupping observation by factor levels.
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #'
 #' @export
 plotBoxplot <- function(factorMerger, color, clusterSplit) {
@@ -538,7 +560,14 @@ plotBoxplot <- function(factorMerger, color, clusterSplit) {
 #' Means and standard deviation plot (single-dimensional Gaussian)
 #'
 #' @description For each factor level plots its mean and interval of the length equal to its standard deviation.
-#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #' @export
 plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
     factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
@@ -572,7 +601,14 @@ plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
 #' Proportion plot (binomial)
 #'
 #' @description Plots proportion of success for each factor level.
-#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #' @export
 plotProportion <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
@@ -592,7 +628,7 @@ plotProportion <- function(factorMerger, color, clusterSplit) {
         g <- df %>% ggplot() + geom_bar(aes(x = group, fill = as.factor(y)), position = "fill")
     }
 
-    g + scale_y_continuous(label = scales::percent, name = "") +
+    g + scale_y_continuous(labels = scales::percent, name = "") +
         scale_x_discrete(expand = c(0,0)) +
         coord_flip() + treeTheme() +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
@@ -603,7 +639,14 @@ plotProportion <- function(factorMerger, color, clusterSplit) {
 #' Survival plot (survival)
 #'
 #' @description Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
-#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #' @export
 plotSurvival <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
@@ -639,7 +682,11 @@ getGICBreaks <- function(mH) {
 #' GIC plot
 #'
 #' @description Plots Generalized Information Criterion for models on the Factor Merger Tree.
-#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param statistic cluster split statistic
+#' @param penalty GIC penalty
 #' @export
 plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     if (is.null(color)) {
@@ -706,16 +753,25 @@ plotTukey <- function(factorMerger) {
 
 #' Frequency plot
 #'
-#' @description
+#' @description Plots barplot with group frequencies.
+#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+#' to the final cluster split.
+#' @param clusterSplit final cluster split definition. A list with two fields:
+#' \itemize{
+#'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+#'     \item \code{value} cut threshold / GIC penalty
+#' }
 #'
 #' @export
-plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
+plotFrequency <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- data.frame(group = factorMerger$factor)
     df <- df %>% count(group)
 
-    if (colorClusters) {
+    if (color) {
         df <- df %>% left_join(getOptimalPartitionDf(factorMerger,
                                                      clusterSplit[[1]],
                                                      clusterSplit[[2]]),
@@ -738,8 +794,6 @@ plotFrequency <- function(factorMerger, colorClusters, clusterSplit) {
         labs(title = "Groups frequencies", subtitle = " ")
 }
 
-#' Plot ANOVA table
-#'
 plotTable <- function(tab) {
     vecTab <- c("", rownames(tab))
     for (i in 1:ncol(tab)) {

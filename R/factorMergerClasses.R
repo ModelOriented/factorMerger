@@ -1,11 +1,13 @@
-#' factorMerger
-#'
-#' @description \code{factorMerger} is the
-#' base class of the factorMerger package. \code{factorMerger} stores information about
-#' response, initial factor, its levels and their abbreviated names (field \code{map}).
-#' \code{factorMerger} creates its own structure of inheritance connected with model family.
 #' @importFrom magrittr "%>%"
-#'
+#' @importFrom graphics text
+#' @importFrom stats aggregate anova aov as.dist ave
+#'           coef complete.cases glm hclust lm logLik
+#'           predict proj qchisq quantile rbeta rbinom
+#'           reshape residuals rexp rnorm runif step
+#' @importFrom utils head tail
+#' @importFrom proxy dist
+NULL
+
 merger <- function(response, factor,
                    family = "gaussian",
                    abbreviate) {
@@ -107,6 +109,7 @@ groupsStats <- function(factorMerger) {
 #' @param showStats If \code{TRUE} extends results with loglikelihood (column \code{model}),
 #' p-value for the \code{LRT} tests against the full model (column \code{pval}) and Generalized Information
 #' Criterion value (column \code{GIC}). By default \code{showStats} is set to \code{FALSE}.
+#' @param round Logical. If \code{TRUE}, the default, statistics are rounded
 #'
 #' @examples
 #' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
@@ -155,16 +158,19 @@ call <- function(factorMerger) {
 #'
 #' @export
 #'
+#' @param x object of a class \code{factorMerger}.
+#' @param ... Other arguments
+#'
 #' @importFrom knitr kable
 #'
-print.factorMerger <- function(factorMerger) {
-   df <- mergingHistory(factorMerger, TRUE)
+print.factorMerger <- function(x, ...) {
+   df <- mergingHistory(x, TRUE)
    colnames(df)[1:2] <- c("groupA", "groupB")
-   cat(call(factorMerger))
+   cat(call(x))
 
-   if ("map" %in% names(factorMerger)) {
+   if ("map" %in% names(x)) {
        cat("\nFactor levels were recoded as below:")
-       cat(paste(c("", "", kable(factorMerger$map, output = FALSE)), collapse = "\n"))
+       cat(paste(c("", "", kable(x$map, output = FALSE)), collapse = "\n"))
    }
 
    cat("\n\nFactor levels were merged in the following order:")
@@ -188,6 +194,8 @@ print.factorMerger <- function(factorMerger) {
 #' Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.
 #' @param penalty A number used as a multiplication in GIC calculation.
 #' By default AIC is calculated with the \code{penalty = 2}.
+#' @param abbreviate Logical. If \code{TRUE}, the default, factor levels names
+#' are abbreviated.
 #'
 #' @examples
 #' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)

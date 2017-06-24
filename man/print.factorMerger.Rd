@@ -4,7 +4,12 @@
 \alias{print.factorMerger}
 \title{factorMerger}
 \usage{
-\method{print}{factorMerger}(factorMerger)
+\method{print}{factorMerger}(x, ...)
+}
+\arguments{
+\item{x}{object of a class \code{factorMerger}.}
+
+\item{...}{Other arguments}
 }
 \description{
 \code{factorMerger} is the

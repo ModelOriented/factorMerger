@@ -6,6 +6,18 @@
 \usage{
 plotProfile(factorMerger, color, clusterSplit)
 }
+\arguments{
+\item{factorMerger}{object of a class \code{factorMerger}}
+
+\item{color}{Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
+to the final cluster split.}
+
+\item{clusterSplit}{final cluster split definition. A list with two fields:
+\itemize{
+    \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
+    \item \code{value} cut threshold / GIC penalty
+}}
+}
 \description{
 Plots rank plot - one series is a single factor level and one group
 on the OX axis is a single dimension of the response.
