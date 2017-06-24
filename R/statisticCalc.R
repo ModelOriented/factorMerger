@@ -49,7 +49,7 @@ calculateModelStatistic.mlm <- function(obj) {
 
     resids <- residuals(obj)
     n <- nrow(resids)
-    Sigma_ML <- crossprod(resids) /n
+    Sigma_ML <- crossprod(resids) / n # sample covariance (https://en.wikipedia.org/wiki/Sample_mean_and_covariance)
     ans <- sum(dmvnorm(resids, sigma = Sigma_ML, log = T))
     return(ans %>% as.numeric())
 }
