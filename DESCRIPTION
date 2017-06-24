@@ -34,6 +34,6 @@ Imports:
     ggpubr,
     forcats
 RoxygenNote: 6.0.1
-URL: https://github.com/Durszlaczek/FactorMerger
+URL: https://github.com/geneticsMiNIng/factorMerger
 Suggests: rmarkdown
 VignetteBuilder: knitr
