@@ -2,6 +2,7 @@
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://api.travis-ci.org/geneticsMiNIng/factorMerger.png)](https://travis-ci.org/geneticsMiNIng/factorMerger)
+[![Pending Pull-Requests](http://githubbadges.herokuapp.com/geneticsMiNIng/factorMerger/pulls.svg)](https://github.com/geneticsMiNIng/factorMerger/pulls)
 [![Github Issues](http://githubbadges.herokuapp.com/geneticsMiNIng/factorMerger/issues.svg)](https://github.com/geneticsMiNIng/factorMerger/issues)
 
 The aim of this project is to create an algorithm of post-hoc testing that would enable to extract hierarchical structure of factors.
@@ -16,6 +17,12 @@ https://github.com/geneticsMiNIng/FactorMerger/blob/master/materials/useR/user_a
 
 
 ### Installing and loading `factorMerger`
+
+`factorMerger` can be installed from [CRAN](https://cran.r-project.org/package=factorMerger) as follows:
+
+```{r}
+install.packages("factorMerger")
+```
 
 To install and load the latest version of`factorMerger` from **Github** run:
 
