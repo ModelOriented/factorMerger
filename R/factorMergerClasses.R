@@ -26,8 +26,9 @@ merger <- function(response, factor,
     factor <- as.factor(factor)
 
     if (abbreviate) {
-        map <- data.frame(`recoded` = paste0("(", abbreviate(levels(factor)), ")"),
-                          `original` = levels(factor))
+        map <- data.frame(
+            `recoded` = paste0("(", abbreviate(levels(factor)), ")"),
+            `original` = levels(factor))
         rownames(map) <- NULL
         factor <- factor(factor, labels = map$recoded)
 
@@ -69,7 +70,7 @@ merger <- function(response, factor,
            },
            stop("Unknown family"))
 
-    if (NCOL(factor) > 1) { # TODO: ...
+    if (NCOL(factor) > 1) {
         class(fm) <- append(class(fm), "multiClassFactorMerger")
         stop("Factor merging with multivariate factor is not supported yet.")
     }
@@ -78,13 +79,14 @@ merger <- function(response, factor,
 }
 
 stats <- function(factorMerger) {
-    statsList <- lapply(factorMerger$mergingList, function(x) { x$modelStats })
+    statsList <- lapply(factorMerger$mergingList, function(x) x$modelStats)
     do.call(rbind, statsList)
 }
 
 #' Groups statistic
 #'
-#' @description Summary of statistics specific for a model for each group that appeared in merging.
+#' @description Summary of statistics specific for a model for each group that
+#' appeared in merging.
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #'
@@ -96,7 +98,7 @@ stats <- function(factorMerger) {
 #' @export
 groupsStats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
-                        function(x) { as.data.frame(x$groupStats) })
+                        function(x) as.data.frame(x$groupStats))
     statsDf <- do.call(rbind, statsList)
     statsDf <- subset(statsDf, !duplicated(level))
 
@@ -111,13 +113,16 @@ groupsStats <- function(factorMerger) {
 
 #' Merging history
 #'
-#' @description Summarizes merging path by giving pairs of factor groups merged in each iteration.
+#' @description Summarizes merging path by giving pairs of factor groups merged
+#' in each iteration.
 #' @export
 #'
 #' @param factorMerger Object of a class \code{factorMerger}
-#' @param showStats If \code{TRUE} extends results with loglikelihood (column \code{model}),
-#' p-value for the \code{LRT} tests against the full model (column \code{pval}) and Generalized Information
-#' Criterion value (column \code{GIC}). By default \code{showStats} is set to \code{FALSE}.
+#' @param showStats If \code{TRUE} extends results with
+#' the loglikelihood (column \code{model}),
+#' p-value for the \code{LRT} tests against the full model (column \code{pval})
+#' and Generalized Information Criterion value (column \code{GIC}).
+#' By default \code{showStats} is set to \code{FALSE}.
 #' @param round Logical. If \code{TRUE}, the default, statistics are rounded
 #'
 #' @examples
@@ -128,7 +133,7 @@ groupsStats <- function(factorMerger) {
 #' @importFrom dplyr rename
 mergingHistory <- function(factorMerger, showStats = FALSE, round = TRUE) {
     mergingList <- sapply(factorMerger$mergingList,
-                        function(x) { x$merged })
+                        function(x)  x$merged )
     mergingDf <- do.call(rbind, mergingList) %>%
         as.data.frame(stringsAsFactors = FALSE) %>%
         rename(groupA = V1, groupB = V2)
@@ -148,8 +153,9 @@ mergingHistory <- function(factorMerger, showStats = FALSE, round = TRUE) {
 
 call <- function(factorMerger) {
     return(
-        paste0("Family: ", gsub('([[:upper:]])', ' \\1',
-                                class(factorMerger)[length(class(factorMerger))]), ".")
+        paste0("Family: ",
+               gsub("([[:upper:]])", " \\1",
+                    class(factorMerger)[length(class(factorMerger))]), ".")
         )
 }
 
@@ -161,8 +167,10 @@ call <- function(factorMerger) {
 #' response, initial factor, its levels and their abbreviated names (field \code{map}).
 #' \code{factorMerger} creates its own structure of inheritance connected with model family.
 #'
-#' When merging is applied, \code{factorMerger} shows which levels have been merged together with
-#' the matching summary statistics: model loglikelihood, pvalue for the \code{LRT} test
+#' When merging is applied, \code{factorMerger} shows which levels have been
+#' merged together with
+#' the matching summary statistics:
+#' model loglikelihood, pvalue for the \code{LRT} test
 #' against the full model and Generalized Information Criterion value.
 #'
 #' @export
@@ -197,7 +205,8 @@ print.factorMerger <- function(x, ...) {
 #' @param family Model family to be used in merging. Available models are: \code{"gaussian",}
 #' \code{ "survival", "binomial"}.
 #' By default \code{mergeFactors} uses \code{"gaussian"} model.
-#' @param successive If \code{FALSE}, the default, in each step of the merging procedure all possible pairs are compared.
+#' @param successive If \code{FALSE}, the default,
+#' in each step of the merging procedure all possible pairs are compared.
 #' Otherwise, factor levels are preliminarly sorted and only succesive pairs are compared.
 #' @param method A string specifying method used during merging.
 #' Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.
@@ -245,8 +254,9 @@ mergeLRT <- function(factorMerger, successive, penalty) {
     fmList <- startMerging(factorMerger, successive, "LRT", penalty)
     fm <- fmList$factorMerger
 
-    while(canBeMerged(fm)) {
-        fmList <- mergePairLRT(fm, successive, fmList$factor, fmList$model, penalty)
+    while (canBeMerged(fm)) {
+        fmList <- mergePairLRT(fm, successive, fmList$factor,
+                               fmList$model, penalty)
         fm <- fmList$factorMerger
     }
 
@@ -257,9 +267,11 @@ mergeLRT <- function(factorMerger, successive, penalty) {
 mergeHClust <- function(factorMerger, successive, penalty) {
     factorMerger <- startMerging(factorMerger, successive, "hclust", penalty)
     clust <- clusterFactors(factorMerger$dist, successive)
-    factorMerger$mergingHistory <- recodeClustering(clust$merge,
-                                                    clust$labels,
-                                                    getIncreasingFactor(factorMerger))
+    factorMerger$mergingHistory <-
+        recodeClustering(clust$merge,
+                         clust$labels,
+                         getIncreasingFactor(factorMerger))
+
     factor <- factorMerger$factor
     for (i in 1:nrow(factorMerger$mergingHistory)) {
         fm <- mergePairHClust(factorMerger, factor, penalty)

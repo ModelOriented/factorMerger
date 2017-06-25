@@ -139,7 +139,8 @@ plot.factorMerger <- function(x, panel = "all",
                                            penalty, statistic),
                                    aovTable,
                                    ncol = 2,
-                                   widths = c(6.5, 2.5), heights = c(6.5, 2.5)))
+                                   widths = c(6.5, 2.5),
+                                   heights = c(6.5, 2.5)))
            },
            "response" = {
                return(grid.arrange(mergingPathPlot, responsePlot,
@@ -488,7 +489,7 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
     tmp <- tapply(df$mean, df$variable, function(x) scale(x) %>% as.numeric())
     df$mean <- (do.call(cbind, tmp) %>% reshape2::melt())$value
     df %>% ggplot() +
-        geom_tile(aes(x = level, y = variable, fill = mean)) +
+        geom_tile(aes_string(x = "level", y = "variable", fill = "mean")) +
         coord_flip() + theme_minimal() +
         theme(panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
@@ -528,7 +529,7 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
         arrange(rank) %>%
         subset(select = level)
 
-    df$group <- factor(df$level, levels = profileLevels)
+    df$group <- factor(df$level, levels = profileLevels$level)
 
     noLevels <- length(levels(df$level))
     df$rank <- factor(df$rank, levels = noLevels:1)
@@ -547,8 +548,9 @@ plotProfile <- function(factorMerger, color, clusterSplit) {
     }
 
     g <- g + geom_line(size = 1) +
-        geom_text(data = subset(df,
-                                variable == levels(df$variable) %>% tail(1)),
+        geom_text(data =
+                      subset(df,
+                             variable == levels(df$variable) %>% tail(1)),
                   aes(x = variable),
                   size = 4, hjust = 0.8,  nudge_x = 0.5) +
         ylab("") + xlab("") +

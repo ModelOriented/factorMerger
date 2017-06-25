@@ -8,8 +8,9 @@
         devtools.path = "~/R-dev",
         devtools.install.args = "",
         devtools.name = "Durszlaczek",
-        devtools.desc.author = '"Agnieszka Sitko <ag.agnieszka.sitko@gmail.cpm> [aut, cre]"',
-        devtools.desc.license = "What license is it under?",
+        devtools.desc.author =
+            '"Agnieszka Sitko <ag.agnieszka.sitko@gmail.cpm> [aut, cre]"',
+        devtools.desc.license = "GPL",
         devtools.desc.suggests = NULL,
         devtools.desc = list()
     )

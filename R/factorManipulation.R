@@ -1,7 +1,7 @@
 getIncreasingFactor <- function(factorMerger) {
     stats <- calculateGroupStatistic(factorMerger, factorMerger$factor)
     colnames(stats)[2] <- "stat"
-    stats <- stats %>% arrange(stat)
+    stats <- stats %>% arrange_("stat")
     return(factor(factorMerger$factor, levels = as.character(stats[, 1])))
 }
 
@@ -41,7 +41,9 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
     }
     else {
         if (!"projectedResponse" %in% names(factorMerger)) {
-            factorMerger$projectedResponse <- MASS::isoMDS(dist(factorMerger$response), k = 1, trace = FALSE)$points[, 1]
+            factorMerger$projectedResponse <-
+                MASS::isoMDS(dist(factorMerger$response),
+                             k = 1, trace = FALSE)$points[, 1]
         }
         return(calculateMeans(factorMerger$projectedResponse, factor))
     }
@@ -49,7 +51,6 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
 
 #' @importFrom dplyr arrange left_join
 calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
-    groups <- levels(factor)
     model <- calculateModel(factorMerger, factor)
     coefs <- data.frame(level = factor,
                         coef = predict(model, type = "risk")) %>% unique()
@@ -88,8 +89,8 @@ calculateMeansAndRanks <- function(response, factor) {
         df
     })
 
-    return(melt(means, id.vars = c("level", "rank")) %>%
-               subset(select = -variable) %>%
-               rename(mean = value,
-                      variable = L1))
+    attr(means, "varname") <- "variable"
+
+    return(melt(means, id.vars = c("level", "rank"),
+                value.name = "mean"))
 }
