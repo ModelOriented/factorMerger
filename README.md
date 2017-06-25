@@ -1,5 +1,6 @@
 # factorMerger: A Set of Tools to Support Results From Post Hoc Testing
 
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://api.travis-ci.org/geneticsMiNIng/factorMerger.png)](https://travis-ci.org/geneticsMiNIng/factorMerger)
 [![Pending Pull-Requests](http://githubbadges.herokuapp.com/geneticsMiNIng/factorMerger/pulls.svg)](https://github.com/geneticsMiNIng/factorMerger/pulls)
