@@ -1,13 +1,11 @@
 Package: factorMerger
-Title: Hierarchical algorithm for post-hoc testing
+Title: Hierarchical Algorithm for Post-Hoc Testing
 Version: 0.3
 Authors@R: c(
     person("Agnieszka", "Sitko", email = "ag.agnieszka.sitko@gmail.com", role = c("aut", "cre")),
     person("Przemyslaw", "Biecek", email = "przemyslaw.biecek@gmail.com", role = c("aut","ths"))
     )
-Description: factorMerger is a package that 
-    implements hierarchical algorithm for post-hoc testing. 
-    Work on this package was financially supported by the NCN Opus grant 2016/21/B/ST6/02176.
+Description: A set of tools to support results of post-hoc testing and enable to extract hierarchical structure of factors. Work on this package was financially supported by the 'NCN Opus grant 2016/21/B/ST6/02176'.
 Depends:
     R (>= 3.2.3)
 License: GPL
@@ -32,7 +30,8 @@ Imports:
     magrittr,
     survival,
     ggpubr,
-    forcats
+    forcats,
+    agricolae
 RoxygenNote: 6.0.1
 URL: https://github.com/geneticsMiNIng/factorMerger
 Suggests: rmarkdown

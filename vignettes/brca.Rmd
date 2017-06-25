@@ -1,20 +1,12 @@
 ---
-title: "factorMerger: Breast cancer analysis"
+title: "BRCA - the Cox regression merging"
 author: "Agnieszka Sitko"
 date: "`r Sys.Date()`"
-output: 
-    html_document:
-        toc: true
-        toc_depth: 3
-        toc_float: 
-            collapsed: false
-        theme: united
-        highlight: tango    
-        collapsed: false
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{BRCA - the Cox regression merging}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r, echo = FALSE}

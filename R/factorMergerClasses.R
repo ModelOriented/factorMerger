@@ -6,7 +6,16 @@
 #'           reshape residuals rexp rnorm runif step
 #' @importFrom utils head tail
 #' @importFrom proxy dist
+#' @importFrom agricolae HSD.test
 NULL
+
+globalVariables(c("x1", "x2", "y1", "y2", "y0",
+                  "pred", "group", "y",
+                  "variable", "value", "stat", "significance",
+                  "level", "hjust", "vjust", "label", "left", "n", "right",
+                  "L1", "V0", "V05", "V1", "V2",
+                  "xmin", "xpos", "y100", "y25", "xmax",
+                  "y50", "y75", "ymax", "ymin", "ypos"))
 
 merger <- function(response, factor,
                    family = "gaussian",
