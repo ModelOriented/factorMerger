@@ -5,6 +5,7 @@
 NULL
 
 #' @importFrom dplyr mutate filter group_by count arrange summarize left_join summarise
+#' @importFrom dplyr group_by_ arrange_
 NULL
 
 #' @importFrom reshape2 melt

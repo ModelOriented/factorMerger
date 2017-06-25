@@ -10,7 +10,8 @@ groupsStats(factorMerger)
 \item{factorMerger}{object of a class \code{factorMerger}}
 }
 \description{
-Summary of statistics specific for a model for each group that appeared in merging.
+Summary of statistics specific for a model for each group that
+appeared in merging.
 }
 \examples{
 randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)

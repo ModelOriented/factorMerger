@@ -18,7 +18,8 @@ generateMultivariateSample(N, k, d = 2)
 and factor variable \code{factor}.
 }
 \description{
-Produces a random sample of k groups and d dimensions drawn from the normal distribution with different
+Produces a random sample of k groups and d dimensions drawn from the
+normal distribution with different
 parameters.
 }
 \examples{

@@ -40,7 +40,9 @@ getTreeSegmentDf <- function(factorMerger, statisticColname, nodesPosition) {
     df <- df[complete.cases(df), ]
 
     pointsDf <- subset(pointsDf, select = c(x1, y1, significance, step))
-    pointsDf[, -3] <- pointsDf[, -3] %>% apply(2, as.numeric) %>% as.data.frame()
+    pointsDf[, -3] <- pointsDf[, -3] %>%
+        apply(2, as.numeric) %>%
+        as.data.frame()
 
     return(list(df = df,
                 labelsDf = labelsDf,
@@ -94,12 +96,15 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
     if (length(segment$df[segment$df$x2 < bestModel, ]$x2) > 0) {
         segment$df[segment$df$x1 < bestModel, ]$x1 <- bestModel
     }
-    # segment <- lapply(segment, function(x)x %>% filter(x1 >= bestModel))
-    map <- getOptimalPartitionDf(factorMerger, clusterSplit[[1]], clusterSplit[[2]])
+    map <- getOptimalPartitionDf(factorMerger,
+                                 clusterSplit[[1]],
+                                 clusterSplit[[2]])
     map$pred <- as.character(map$pred)
     map$orig <- as.character(map$orig)
-    segment$df <- segment$df %>% left_join(map, by = c("label" = "orig"))
-    segment$labelsDf <- segment$labelsDf %>% left_join(map, by = c("label" = "orig"))
+    segment$df <- segment$df %>%
+        left_join(map, by = c("label" = "orig"))
+    segment$labelsDf <- segment$labelsDf %>%
+        left_join(map, by = c("label" = "orig"))
     segment$pointsDf$pred <- NA
     segment$pointsDf[1:nrow(segment$labelsDf), "pred"] <- segment$labelsDf$pred
 
@@ -113,24 +118,27 @@ getClustersColors <- function(segment, factorMerger, clusterSplit, stat) {
         }
     }
 
-    segment$labelsDf <- segment$labelsDf %>% arrange(y1)
+    segment$labelsDf <- segment$labelsDf %>% arrange_("y1")
     segment$labelsDf$pred <- factor(segment$labelsDf$pred,
-                                    levels = segment$labelsDf$pred %>% unique())
+                                    levels = segment$labelsDf$pred %>%
+                                        unique())
 
     segment$pointsDf$pred <- factor(segment$pointsDf$pred,
-                                    levels = segment$labelsDf$pred %>% unique())
+                                    levels = segment$labelsDf$pred %>%
+                                        unique())
 
     segment$df$pred <- factor(segment$df$pred,
-                              levels = segment$labelsDf$pred %>% unique())
+                              levels = segment$labelsDf$pred %>%
+                                  unique())
 
     return(segment)
 }
 
 getStatNameInTable <- function(stat) {
     switch(stat,
-           "loglikelihood" = { return("model") },
-           "p-value" = { return("pvalVsFull") },
-           "GIC" = { return("GIC")} )
+           "loglikelihood" = return("model"),
+           "p-value" = return("pvalVsFull"),
+           "GIC" = return("GIC"))
 }
 
 getLimits <- function(df, simplifiedNodes) {
@@ -148,7 +156,7 @@ getStatisticName <- function(factorMerger) {
 
 getStatisticName.gaussianFactorMerger <- function(factorMerger) {
     if (NCOL(factorMerger$response) > 1) {
-        return ("isoMDS projection group means")
+        return("isoMDS projection group means")
     }
     return("Group means")
 }
@@ -192,11 +200,12 @@ getChisqBreaks <- function(plotData, alpha) {
 calculateBoxPlotMoments <- function(df) {
     return(
         df %>% left_join(
-            df %>% group_by(group) %>% summarize(y0 = min(y, na.rm = TRUE),
-                                             y25 = quantile(y, 0.25, na.rm = TRUE),
-                                             y50 = mean(y, na.rm = TRUE),
-                                             y75 = quantile(y, 0.75, na.rm = TRUE),
-                                             y100 = max(y, na.rm = TRUE)), by = "group")
+            df %>% group_by_("group") %>%
+                summarize(y0 = min(y, na.rm = TRUE),
+                          y25 = quantile(y, 0.25, na.rm = TRUE),
+                          y50 = mean(y, na.rm = TRUE),
+                          y75 = quantile(y, 0.75, na.rm = TRUE),
+                          y100 = max(y, na.rm = TRUE)), by = "group")
     )
 
 }

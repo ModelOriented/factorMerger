@@ -19,11 +19,16 @@ Returns a dictionary in a data frame format.
 Each row gives an original label of a factor level and its new (cluster) label.
 }
 \description{
-Splits factor levels into non-overlapping clusters based on a \code{factorMerger} object.
-If a \code{stat} is \code{"loglikelihood"} or {"p-value"} then performs bottom-up search through models
-on the merging path until spots a model scored worse than the given threshold (\code{value}).
-If \code{stat = "GIC"}, \code{value} is interpreted as GIC penalty and optimal GIC model is returned..
+Splits factor levels into non-overlapping
+clusters based on a \code{factorMerger} object.
+If a \code{stat} is \code{"loglikelihood"} or {"p-value"}
+then performs bottom-up search through models
+on the merging path until spots a model scored worse
+than the given threshold (\code{value}).
+If \code{stat = "GIC"}, \code{value} is interpreted as
+GIC penalty and optimal GIC model is returned.
 }
 \details{
-By default, \code{cutree} returns factor partition corresponding to the optimal GIC model (with the lowest GIC).
+By default, \code{cutree} returns factor partition
+corresponding to the optimal GIC model (with the lowest GIC).
 }

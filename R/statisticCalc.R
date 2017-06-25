@@ -49,7 +49,9 @@ calculateModelStatistic.mlm <- function(obj) {
 
     resids <- residuals(obj)
     n <- nrow(resids)
-    Sigma_ML <- crossprod(resids) / n # sample covariance (https://en.wikipedia.org/wiki/Sample_mean_and_covariance)
+    Sigma_ML <- crossprod(resids) / n
+    # sample covariance
+    # (https://en.wikipedia.org/wiki/Sample_mean_and_covariance)
     ans <- sum(dmvnorm(resids, sigma = Sigma_ML, log = T))
     return(ans %>% as.numeric())
 }
@@ -89,7 +91,8 @@ formatSingleRow <- function(num) {
         return("< 2.2e-16")
     }
     return(
-        ifelse(num < 0.1, format(num, scientific = T), format(num, scientific = F))
+        ifelse(num < 0.1, format(num, scientific = T),
+               format(num, scientific = F))
     )
 }
 
@@ -149,15 +152,17 @@ getTukeyGroups <- function(response, factor) {
     namesDict <- hsd$groups %>% left_join(namesDict, by = c("trt" = "changed"))
 
     groups <- data.frame(groups = hsd$groups$M)
-    groupList <- apply(groups, 1, function(x) substring(x, 1:nchar(x), 1:nchar(x)))
+    groupList <- apply(groups, 1,
+                       function(x) substring(x, 1:nchar(x), 1:nchar(x)))
     names(groupList) <- namesDict$real
     maxChar <- max(sapply(groupList, max))
     maxCharNum <- which(letters == maxChar)
 
     lettersUsed <- data.frame(letters[1:maxCharNum], stringsAsFactors = FALSE)
-    lettersUsage <- apply(lettersUsed, 1, function(x) sapply(groupList, function(y) x %in% y)) %>%
+    lettersUsage <- apply(lettersUsed, 1, function(x)
+        sapply(groupList, function(y) x %in% y)) %>%
         data.frame(stringsAsFactors = FALSE)
 
-    colnames(lettersUsage) <- lettersUsed[,1]
+    colnames(lettersUsage) <- lettersUsed[, 1]
     return(lettersUsage)
 }

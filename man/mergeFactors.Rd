@@ -16,7 +16,8 @@ mergeFactors(response, factor, family = "gaussian", successive = FALSE,
 \code{ "survival", "binomial"}.
 By default \code{mergeFactors} uses \code{"gaussian"} model.}
 
-\item{successive}{If \code{FALSE}, the default, in each step of the merging procedure all possible pairs are compared.
+\item{successive}{If \code{FALSE}, the default,
+in each step of the merging procedure all possible pairs are compared.
 Otherwise, factor levels are preliminarly sorted and only succesive pairs are compared.}
 
 \item{method}{A string specifying method used during merging.

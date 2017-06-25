@@ -17,7 +17,9 @@ base class of the factorMerger package. \code{factorMerger} stores information a
 response, initial factor, its levels and their abbreviated names (field \code{map}).
 \code{factorMerger} creates its own structure of inheritance connected with model family.
 
-When merging is applied, \code{factorMerger} shows which levels have been merged together with
-the matching summary statistics: model loglikelihood, pvalue for the \code{LRT} test
+When merging is applied, \code{factorMerger} shows which levels have been
+merged together with
+the matching summary statistics:
+model loglikelihood, pvalue for the \code{LRT} test
 against the full model and Generalized Information Criterion value.
 }

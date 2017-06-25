@@ -34,12 +34,15 @@ generateSample <- function(N, k, distr = "gaussian") {
     for (i in 1:k) {
         let <- LETTERS[i]
         if (distr == "binomial") {
-            numericVec[factorVec == let] <- rbinom(length(numericVec[factorVec == let]), 1, runif(1))
+            numericVec[factorVec == let] <-
+                rbinom(length(numericVec[factorVec == let]), 1, runif(1))
         } else {
             randomShift <- sample(seq(0, 1, 0.1), size = 1)
-            numericVec[factorVec == let] <- numericVec[factorVec == let] + randomShift
+            numericVec[factorVec == let] <-
+                numericVec[factorVec == let] + randomShift
             randomShift <- sample(seq(0, 1, 0.1), size = 1)
-            numericVec[factorVec == let] <- numericVec[factorVec == let] * i
+            numericVec[factorVec == let] <-
+                numericVec[factorVec == let] * i
         }
     }
 
@@ -53,7 +56,8 @@ generateSample <- function(N, k, distr = "gaussian") {
 
 #' Generate multivariate normal sample
 #'
-#' Produces a random sample of k groups and d dimensions drawn from the normal distribution with different
+#' Produces a random sample of k groups and d dimensions drawn from the
+#' normal distribution with different
 #' parameters.
 #'
 #' @param N Sample size.
