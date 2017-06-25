@@ -106,7 +106,8 @@ plot.factorMerger <- function(x, panel = "all",
     }
 
     if (!is.null(responsePanelPalette)) {
-        responsePlot <- ggpubr::ggpar(responsePlot, palette = responsePanelPalette)
+        responsePlot <- ggpubr::ggpar(responsePlot,
+                                      palette = responsePanelPalette)
     }
 
     # Set colors
@@ -127,16 +128,16 @@ plot.factorMerger <- function(x, panel = "all",
         mergingPathPlot <- ggpubr::ggpar(mergingPathPlot, palette = palette)
     }
 
-    # frequencyPlot <- plotFrequency(factorMerger, FALSE, clusterSplit)
-
     switch(panel,
            "tree" = {
                return(mergingPathPlot)
            },
            "all" = {
+               aovTable <- plotTable(calculateAnovaTable(x$initialModel))
                return(grid.arrange(mergingPathPlot, responsePlot,
-                                   plotGIC(x, gicPanelColor, penalty, statistic),
-                                   plotTable(calculateAnovaTable(x$initialModel)),
+                                   plotGIC(x, gicPanelColor,
+                                           penalty, statistic),
+                                   aovTable,
                                    ncol = 2,
                                    widths = c(6.5, 2.5), heights = c(6.5, 2.5)))
            },
@@ -146,7 +147,9 @@ plot.factorMerger <- function(x, panel = "all",
                                    widths = c(7.5, 2.5)))
            },
            "GIC" = {
-               return(grid.arrange(mergingPathPlot, plotGIC(x, gicPanelColor, penalty, statistic),
+               return(grid.arrange(mergingPathPlot,
+                                   plotGIC(x, gicPanelColor,
+                                           penalty, statistic),
                                    ncol = 1,
                                    heights = c(7.5, 2.5)))
            })
@@ -220,11 +223,14 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
     noStep <- nrow(mH)
 
     for (step in 1:noStep) {
-        newLine <- mean(nodesPosition[rownames(nodesPosition) %in% mH[step, ],])
+        which <- rownames(nodesPosition) %in% mH[step, ]
+        newLine <- nodesPosition[which, ] %>%
+            mean()
         nodesPosition <- rbind(nodesPosition, newLine)
         rownames(nodesPosition)[nrow(nodesPosition)] <-
             paste(mH[step, ], collapse = "")
     }
+
     return(plotCustomizedTree(factorMerger, statistic, clusterSplit,
                               "equidistant", markBestModel, markStars,
                               alpha, color, colorsDf, palette,
@@ -236,41 +242,51 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
 plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
                                nodesSpacing, markBestModel, markStars,
                                alpha, color, colorsDf, palette,
-                               nodesPosition = NULL, title, subtitle, panelGrid) {
+                               nodesPosition = NULL, title,
+                               subtitle, panelGrid) {
     statisticColname <- getStatNameInTable(statistic)
+
     if (nodesSpacing == "modelSpecific") {
         nodesPosition <- applyModelTransformation(factorMerger, nodesPosition)
     }
+
     segment <- getTreeSegmentDf(factorMerger, statisticColname, nodesPosition)
     df <- segment$df
     pointsDf <- segment$pointsDf
-    labelsDf <- segment$labelsDf
-    labelsDf <- labelsDf %>% arrange(-y1)
+    labelsDf <- segment$labelsDf %>%
+        arrange(-y1)
     showY <- nodesSpacing != "equidistant"
 
     g <- df %>% ggplot() +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), size = 0.5) +
-        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75)+
+        geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75) +
         scale_y_continuous(limits = getLimits(labelsDf, showY),
                            position = "right",
                            breaks = labelsDf$y1,
-                           labels = getLabels(labelsDf, factorMerger),
+                           labels = getLabels(labelsDf,
+                                              factorMerger),
                            expand = c(0, 0)) +
         ylab(getStatisticName(factorMerger)) + xlab(statistic) +
         labs(title = title,
              subtitle = subtitle) + treeTheme(panelGrid)
     if (color) {
-        g <- addClustersColors(g, segment, factorMerger, clusterSplit, statistic, palette)
+        g <- addClustersColors(g, segment, factorMerger,
+                               clusterSplit, statistic, palette)
     }
 
     g <- scaleAxis(g, statistic, alpha)
 
     if (markBestModel) {
         mark <- markOptimalModel(factorMerger, clusterSplit, statistic, alpha)
-        g <- g + geom_vline(xintercept = mark$intercept, col = "mediumorchid3", linetype = "dotted") +
-            geom_label(x = mark$labelIntercept, y = getLimits(labelsDf, showY)[1],
-                       label = mark$label, alpha = 0.5, col = "mediumorchid3",
-                       angle = 90, size = 3, fontface = "italic")
+        g <- g + geom_vline(xintercept = mark$intercept,
+                            col = "mediumorchid3", linetype = "dotted") +
+            geom_label(x = mark$labelIntercept,
+                       y = getLimits(labelsDf, showY)[1],
+                       label = mark$label,
+                       alpha = 0.5,
+                       col = "mediumorchid3",
+                       angle = 90, size = 3,
+                       fontface = "italic")
     }
 
     if (markStars) {
@@ -282,15 +298,22 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
     return(g)
 }
 
-addClustersColors <- function(plot, segment, factorMerger, clusterSplit, statistic, palette) {
-    segmentColoured <- getClustersColors(segment, factorMerger, clusterSplit, statistic)
+addClustersColors <- function(plot, segment,
+                              factorMerger, clusterSplit,
+                              statistic, palette) {
+    segmentColoured <- getClustersColors(segment, factorMerger,
+                                         clusterSplit, statistic)
     plot <- plot +
         geom_segment(data = segmentColoured$df,
-                     aes(x = x1, y = y1, xend = x2, yend = y2, col = pred), size = 0.75) +
+                     aes(x = x1, y = y1,
+                         xend = x2, yend = y2,
+                         col = pred),
+                     size = 0.75) +
         geom_point(data = segmentColoured$pointsDf,
                    aes(x = x1, y = y1, col = pred), size = 0.75)
     nGroups <- length(unique(segmentColoured$labelsDf$pred))
-    clusterColors <- factor(segmentColoured$labelsDf$pred, labels = hue_pal()(nGroups)) %>%
+    clusterColors <- factor(segmentColoured$labelsDf$pred,
+                            labels = hue_pal()(nGroups)) %>%
         as.character()
     plot <- plot + theme(axis.text.y = element_text(
         color = clusterColors[length(clusterColors):1],
@@ -351,7 +374,8 @@ checkResponsePanel <- function(object, responsePanel) {
     UseMethod("checkResponsePanel", object)
 }
 
-checkResponsePanel.gaussianFactorMerger <- function(factorMerger, responsePanel) {
+checkResponsePanel.gaussianFactorMerger <- function(factorMerger,
+                                                    responsePanel) {
     if (NCOL(factorMerger$response) > 1) {
         responsePanelSet <-  c("heatmap", "profile", "frequency")
     } else {
@@ -360,49 +384,66 @@ checkResponsePanel.gaussianFactorMerger <- function(factorMerger, responsePanel)
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
 
-checkResponsePanel.binomialFactorMerger <- function(factorMerger, responsePanel) {
+checkResponsePanel.binomialFactorMerger <- function(factorMerger,
+                                                    responsePanel) {
     responsePanelSet <- c("proportion", "frequency")
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
 
-checkResponsePanel.survivalFactorMerger <- function(factorMerger, responsePanel) {
+checkResponsePanel.survivalFactorMerger <- function(factorMerger,
+                                                    responsePanel) {
     responsePanelSet <- c("survival", "frequency")
     warnIfUnexpectedResponsePanel(responsePanelSet, responsePanel)
 }
 
-warnIfUnexpectedResponsePanel <- function(responsePanelSet, responsePanel) {
+warnIfUnexpectedResponsePanel <- function(responsePanelSet,
+                                          responsePanel) {
     if (is.null(responsePanel)) {
         return(responsePanelSet[1])
     }
     if (!(responsePanel %in% responsePanelSet)) {
-        warning(paste0("ResponsePanel '", responsePanel, ", is not supported by supplied model family -- ", responsePanelSet[1], " used insted."))
+        warning(
+            paste0(
+                "ResponsePanel '", responsePanel,
+                ", is not supported by supplied model family -- ",
+                responsePanelSet[1], " used insted."
+                )
+            )
         return(responsePanelSet[1])
     }
     return(responsePanel)
 }
 
-plotResponse <- function(factorMerger, responsePanel, colorClusters, clusterSplit) {
+plotResponse <- function(factorMerger, responsePanel,
+                         colorClusters, clusterSplit) {
     switch(responsePanel,
            "heatmap" = {
-               return(plotHeatmap(factorMerger, colorClusters, clusterSplit))
+               return(plotHeatmap(factorMerger,
+                                  colorClusters, clusterSplit))
            },
            "profile" = {
-               return(plotProfile(factorMerger, colorClusters, clusterSplit))
+               return(plotProfile(factorMerger,
+                                  colorClusters, clusterSplit))
            },
            "boxplot" = {
-               return(plotBoxplot(factorMerger, colorClusters, clusterSplit))
+               return(plotBoxplot(factorMerger,
+                                  colorClusters, clusterSplit))
            },
            "means" = {
-               return(plotMeansAndConfInt(factorMerger, colorClusters, clusterSplit))
+               return(plotMeansAndConfInt(factorMerger,
+                                          colorClusters, clusterSplit))
            },
            "survival" = {
-               return(plotSurvival(factorMerger, colorClusters, clusterSplit))
+               return(plotSurvival(factorMerger,
+                                   colorClusters, clusterSplit))
            },
            "proportion" = {
-               return(plotProportion(factorMerger, colorClusters, clusterSplit))
+               return(plotProportion(factorMerger,
+                                     colorClusters, clusterSplit))
            },
            "frequency" = {
-               return(plotFrequency(factorMerger, FALSE, clusterSplit))
+               return(plotFrequency(factorMerger,
+                                    FALSE, clusterSplit))
            },
            "tukey" = {
                return(plotTukey(factorMerger))
@@ -481,11 +522,13 @@ plotHeatmap <- function(factorMerger, color, clusterSplit) {
 plotProfile <- function(factorMerger, color, clusterSplit) {
     df <- findSimilarities(factorMerger)
 
-    df$group <- factor(df$level,
-                       levels = (df %>%
-                                     filter(variable == levels(df$variable) %>%
-                                                head(1)) %>% arrange(rank))$level
-    )
+    profileLevels <- df %>%
+        filter(variable == levels(df$variable) %>%
+                   head(1)) %>%
+        arrange(rank) %>%
+        subset(select = level)
+
+    df$group <- factor(df$level, levels = profileLevels)
 
     noLevels <- length(levels(df$level))
     df$rank <- factor(df$rank, levels = noLevels:1)
@@ -570,7 +613,8 @@ plotBoxplot <- function(factorMerger, color, clusterSplit) {
 #' }
 #' @export
 plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
-    factor <- factor(factorMerger$factor, levels = getFinalOrderVec(factorMerger))
+    factor <- factor(factorMerger$factor,
+                     levels = getFinalOrderVec(factorMerger))
     df <- getMeansAndStds(factorMerger, factor)
 
     if (color) {
@@ -612,7 +656,6 @@ plotMeansAndConfInt <- function(factorMerger, color, clusterSplit) {
 #' @export
 plotProportion <- function(factorMerger, color, clusterSplit) {
     levels <- getFinalOrderVec(factorMerger)
-    responseLevels <- factorMerger$response %>% as.factor() %>% levels()
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- data.frame(group = factorMerger$factor, y = factorMerger$response)
 
@@ -625,11 +668,13 @@ plotProportion <- function(factorMerger, color, clusterSplit) {
         g <- df %>% ggplot() +
             geom_bar(aes(x = group, y = mean, fill = pred), stat = "identity")
     } else {
-        g <- df %>% ggplot() + geom_bar(aes(x = group, fill = as.factor(y)), position = "fill")
+        g <- df %>% ggplot() +
+            geom_bar(aes(x = group, fill = as.factor(y)),
+                     position = "fill")
     }
 
     g + scale_y_continuous(labels = scales::percent, name = "") +
-        scale_x_discrete(expand = c(0,0)) +
+        scale_x_discrete(expand = c(0, 0)) +
         coord_flip() + treeTheme() +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
         labs(title = "Success ratio",
@@ -666,8 +711,9 @@ plotSurvival <- function(factorMerger, color, clusterSplit) {
                                         data = df,
                                         variable = df$group,
                                         curve.size = 1) +
-        treeTheme() + labs(title = "Survival plot",
-                           subtitle = "Adjusted survival curves for coxph model")
+        treeTheme() +
+        labs(title = "Survival plot",
+             subtitle = "Adjusted survival curves for coxph model")
     return(g)
 }
 
@@ -697,10 +743,13 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     minGIC <- min(mH$GIC)
     yBreaks <- getGICBreaks(mH)
     minModel <- mH$model[which.min(mH$GIC)]
-    g <- mH %>% ggplot(aes_string(x = getStatNameInTable(statistic), y = "GIC")) +
+    g <- mH %>%
+        ggplot(aes_string(x = getStatNameInTable(statistic),
+                          y = "GIC")) +
         geom_line(col = color, size = 1) +
         geom_point(col = color, size = 1.5) +
-        geom_point(x = minModel, y = minGIC, col = color, size = 2.5) +
+        geom_point(x = minModel, y = minGIC,
+                   col = color, size = 2.5) +
         geom_ribbon(aes_string(x = getStatNameInTable(statistic),
                                ymin = "minGIC", ymax = "GIC"),
                     fill = color, alpha = 0.2) +
@@ -712,13 +761,16 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
         scale_y_continuous(position = "right",
                            breaks = yBreaks)
 
-    annotation <- data.frame(xpos = max(mH[, getStatNameInTable(statistic)]),
-                             ypos = max(mH[, "GIC"]),
-                             text = paste0("GIC penalty = ", round(penalty, 1)),
-                             hjust = 1, vjust = 1)
+    annotation <- data.frame(
+        xpos = max(mH[, getStatNameInTable(statistic)]),
+        ypos = max(mH[, "GIC"]),
+        text = paste0("GIC penalty = ", round(penalty, 1)),
+        hjust = 1, vjust = 1)
 
-    g <- g + geom_label(data = annotation, aes(x = xpos, y = ypos, hjust = hjust,
-                                              vjust = vjust, label = text)) +
+    g <- g +
+        geom_label(data = annotation,
+                   aes(x = xpos, y = ypos, hjust = hjust,
+                       vjust = vjust, label = text)) +
         ylab("")
 
     if (statistic == "p-value") {
@@ -810,10 +862,12 @@ plotTable <- function(tab) {
                        V1 = vecTab,
                        stringsAsFactors = FALSE)
 
-    rectData <- data.frame(xmin = 1.5, xmax = w + 1, ymin = h - 0.5, ymax = h + 0.5)
+    rectData <- data.frame(xmin = 1.5, xmax = w + 1,
+                           ymin = h - 0.5, ymax = h + 0.5)
     tab1[is.na(tab1)] <- " "
     ggplot(tab1, aes(x = V05, y = V0, label = format(V1, nsmall = 1))) +
-        geom_text(size = 5.5, hjust=0, vjust=0.5) + theme_bw() +
+        geom_text(size = 5.5, hjust = 0, vjust = 0.5) +
+        theme_bw() +
         theme(panel.grid.major = element_blank(),
               legend.position = "none",
               panel.border = element_blank(),
@@ -821,11 +875,11 @@ plotTable <- function(tab) {
               axis.text.y = element_blank(),
               axis.ticks = element_blank(),
               plot.title = element_text(hjust = 0.9, size = 15),
-              plot.margin = unit(c(0,0,0,0), "lines")) +
-        labs(x="",y="") + ggtitle("ANOVA table") +
+              plot.margin = unit(c(0, 0, 0, 0), "lines")) +
+        labs(x = "", y = "") + ggtitle("ANOVA table") +
         scale_x_continuous(limits = c(1, w + 1), expand = c(0, 0.25)) +
-        # geom_hline(yintercept = c(h - 0.5, h + 0.5))
         geom_rect(inherit.aes = FALSE,
                   data = rectData, alpha = 0.1,
-                  mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax))
+                  mapping = aes(xmin = xmin, xmax = xmax,
+                                ymin = ymin, ymax = ymax))
 }
