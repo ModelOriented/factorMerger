@@ -6,7 +6,6 @@ output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{BRCA - the Cox regression factor merging}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteDepends{forcats}
   \usepackage[utf8]{inputenc}
 ---
 

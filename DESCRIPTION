@@ -11,7 +11,8 @@ Depends:
 License: GPL
 Encoding: UTF-8
 LazyData: true
-Imports: ggplot2,
+Imports: 
+    ggplot2,
     dplyr,
     reshape2,
     colorRamps,
@@ -24,8 +25,8 @@ Imports: ggplot2,
     knitr,
     magrittr,
     survival,
-    agricolae
-Suggests: forcats
+    agricolae,
+    forcats
 RoxygenNote: 6.0.1
 URL: https://github.com/geneticsMiNIng/factorMerger
 Suggests: rmarkdown
