@@ -17,8 +17,6 @@ Imports:
     ggrepel,
     reshape2,
     colorRamps,
-    Hotelling,
-    vegan,
     proxy,
     MASS,
     survminer,
