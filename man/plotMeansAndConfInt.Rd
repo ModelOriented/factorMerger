@@ -4,7 +4,7 @@
 \alias{plotMeansAndConfInt}
 \title{Means and standard deviation plot (single-dimensional Gaussian)}
 \usage{
-plotMeansAndConfInt(factorMerger, color, clusterSplit)
+plotMeansAndConfInt(factorMerger, color, clusterSplit, palette = NULL)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}

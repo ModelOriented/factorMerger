@@ -4,7 +4,7 @@
 \alias{plotProportion}
 \title{Proportion plot (binomial)}
 \usage{
-plotProportion(factorMerger, color, clusterSplit)
+plotProportion(factorMerger, color, clusterSplit, palette = NULL)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}

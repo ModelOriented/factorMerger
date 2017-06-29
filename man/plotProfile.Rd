@@ -4,7 +4,7 @@
 \alias{plotProfile}
 \title{Profile plot (multi-dimensional Gaussian)}
 \usage{
-plotProfile(factorMerger, color, clusterSplit)
+plotProfile(factorMerger, color, clusterSplit, palette = NULL)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}

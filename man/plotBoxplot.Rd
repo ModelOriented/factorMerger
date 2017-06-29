@@ -4,7 +4,7 @@
 \alias{plotBoxplot}
 \title{Boxplot (single-dimensional Gaussian)}
 \usage{
-plotBoxplot(factorMerger, color, clusterSplit)
+plotBoxplot(factorMerger, color, clusterSplit, palette = NULL)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}

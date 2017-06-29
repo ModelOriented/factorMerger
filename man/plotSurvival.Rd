@@ -4,7 +4,7 @@
 \alias{plotSurvival}
 \title{Survival plot (survival)}
 \usage{
-plotSurvival(factorMerger, color, clusterSplit)
+plotSurvival(factorMerger, color, clusterSplit, palette = NULL)
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}

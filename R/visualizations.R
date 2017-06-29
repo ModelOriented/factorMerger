@@ -2,6 +2,7 @@
 #' @importFrom ggplot2 geom_point geom_bar geom_rect geom_ribbon geom_line geom_boxplot geom_errorbar geom_label geom_segment geom_vline geom_text geom_tile
 #' @importFrom ggplot2 scale_y_discrete scale_y_continuous scale_x_discrete scale_color_manual scale_fill_brewer scale_fill_manual scale_fill_distiller scale_x_continuous scale_x_log10
 #' @importFrom ggplot2 theme_classic theme theme_bw theme_minimal element_line element_blank element_text
+#' @importFrom ggplot2 scale_color_brewer ggplot_build
 NULL
 
 #' @importFrom dplyr mutate filter group_by count arrange summarize left_join summarise
@@ -107,12 +108,6 @@ plot.factorMerger <- function(x, panel = "all",
     responsePlot <- plotResponse(x, responsePanel,
                                  colorClusters, clusterSplit,
                                  responsePanelPalette)
-
-    # if (!is.null(responsePanelPalette)) {
-    #     responsePlot <- responsePlot +
-    #         scale_fill_brewer(palette = responsePanelPalette) +
-    #         scale_color_brewer(palette = responsePanelPalette)
-    # }
 
     # Set colors
     if (colorClusters) {
