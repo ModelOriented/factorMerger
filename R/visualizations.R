@@ -307,7 +307,8 @@ getClustersColorsNames <- function(palette, nGroups, pred) {
     # Fake data
     df <- data.frame(x = 1:nGroups, y = 1, col = letters[1:nGroups])
 
-    g <- ggplot(df, aes(x = x, y = y, color = col)) + geom_point() +
+    g <- ggplot(df, aes_string(x = "x", y = "y", color = "col")) +
+        geom_point() +
         scale_color_brewer(palette = palette)
     colors <- ggplot_build(g)$data[[1]]$colour
     return(factor(pred, labels = colors) %>%
@@ -395,7 +396,7 @@ checkResponsePanel <- function(object, responsePanel) {
 checkResponsePanel.gaussianFactorMerger <- function(factorMerger,
                                                     responsePanel) {
     if (NCOL(factorMerger$response) > 1) {
-        responsePanelSet <-  c("heatmap", "profile", "frequency")
+        responsePanelSet <-  c("profile", "heatmap", "frequency")
     } else {
         responsePanelSet <- c("means", "boxplot", "frequency", "tukey")
     }
@@ -506,6 +507,8 @@ findSimilarities <- function(factorMerger) {
 #'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
 #'     \item \code{value} cut threshold / GIC penalty
 #' }
+#' @param palette custom palette
+#'
 #' @export
 plotHeatmap <- function(factorMerger, color, clusterSplit, palette) {
     levels <- getFinalOrderVec(factorMerger)
@@ -544,6 +547,8 @@ plotHeatmap <- function(factorMerger, color, clusterSplit, palette) {
 #'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
 #'     \item \code{value} cut threshold / GIC penalty
 #' }
+#' @param palette custom palette
+#'
 #' @export
 plotProfile <- function(factorMerger, color, clusterSplit, palette = NULL) {
     df <- findSimilarities(factorMerger)
@@ -584,9 +589,11 @@ plotProfile <- function(factorMerger, color, clusterSplit, palette = NULL) {
               plot.title = element_text(size = 18),
               axis.text = element_text(size = 12),
               plot.subtitle = element_text(size = 12)) +
-        scale_y_discrete(expand = c(1 / (2 * nrow(df)), 1 / (2 * nrow(df)))) +
-        scale_color_brewer(palette = palette) +
-        scale_fill_brewer(palette = palette)
+        scale_y_discrete(expand = c(1 / (2 * nrow(df)), 1 / (2 * nrow(df))))
+    if (!is.null(palette)) {
+        g <- g + scale_color_brewer(palette = palette) +
+            scale_fill_brewer(palette = palette)
+    }
     return(g)
 }
 
@@ -601,6 +608,7 @@ plotProfile <- function(factorMerger, color, clusterSplit, palette = NULL) {
 #'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
 #'     \item \code{value} cut threshold / GIC penalty
 #' }
+#' @param palette custom palette
 #'
 #' @export
 plotBoxplot <- function(factorMerger, color, clusterSplit, palette = NULL) {
@@ -619,16 +627,22 @@ plotBoxplot <- function(factorMerger, color, clusterSplit, palette = NULL) {
         g <- df %>% ggplot(aes(y = y, x = group, group = group))
     }
 
-    g + geom_boxplot(aes(ymin = y0,
+    g <- g + geom_boxplot(aes(ymin = y0,
                          lower = y25,
                          middle = y50,
                          upper = y75,
                          ymax = y100), stat = "identity") +
         coord_flip() + treeTheme() + xlab("") + ylab("") +
         theme(axis.text.y = element_blank()) +
-        labs(title = "Boxplot", subtitle = "Summary statistic: mean") +
-        scale_color_brewer(palette = palette) +
-        scale_fill_brewer(palette = palette)
+        labs(title = "Boxplot", subtitle = "Summary statistic: mean")
+
+    if (!is.null(palette)) {
+        g <- g +
+            scale_color_brewer(palette = palette) +
+            scale_fill_brewer(palette = palette)
+    }
+
+    return(g)
 }
 
 #' Means and standard deviation plot (single-dimensional Gaussian)
@@ -642,6 +656,8 @@ plotBoxplot <- function(factorMerger, color, clusterSplit, palette = NULL) {
 #'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
 #'     \item \code{value} cut threshold / GIC penalty
 #' }
+#' @param palette custom palette
+#'
 #' @export
 plotMeansAndConfInt <- function(factorMerger, color,
                                 clusterSplit, palette = NULL) {
@@ -663,7 +679,7 @@ plotMeansAndConfInt <- function(factorMerger, color,
                                y = mean, group = as.factor(group)))
     }
 
-    g + geom_errorbar(aes(ymin = left, ymax = right),
+    g <- g + geom_errorbar(aes(ymin = left, ymax = right),
                       width = .5,
                       position = position_dodge(.5)) + treeTheme() +
         geom_point(size = 2) + coord_flip() +
@@ -671,9 +687,15 @@ plotMeansAndConfInt <- function(factorMerger, color,
               axis.text.y = element_blank()) +
         labs(title = "Group means",
              subtitle = "with 95% confidence intervals") +
-        ylab("") +
-        scale_color_brewer(palette = palette) +
-        scale_fill_brewer(palette = palette)
+        ylab("")
+
+    if (!is.null(palette)) {
+        g <- g +
+            scale_color_brewer(palette = palette) +
+            scale_fill_brewer(palette = palette)
+    }
+
+    return(g)
 }
 
 #' Proportion plot (binomial)
@@ -687,6 +709,8 @@ plotMeansAndConfInt <- function(factorMerger, color,
 #'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
 #'     \item \code{value} cut threshold / GIC penalty
 #' }
+#' @param palette custom palette
+#'
 #' @export
 plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
     levels <- getFinalOrderVec(factorMerger)
@@ -707,13 +731,19 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
                      position = "fill")
     }
 
-    g + scale_y_continuous(labels = scales::percent, name = "") +
+    g <- g + scale_y_continuous(labels = scales::percent, name = "") +
         scale_x_discrete(expand = c(0, 0)) +
         coord_flip() + treeTheme() +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
         labs(title = "Success ratio",
-             subtitle = "") +
-        scale_fill_brewer(palette = palette)
+             subtitle = "")
+
+    if (!is.null(palette)) {
+        g <- g +
+            scale_fill_brewer(palette = palette)
+    }
+
+    return(g)
 }
 
 #' Survival plot (survival)
@@ -727,6 +757,8 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
 #'     \item \code{stat} cluster statistic (available statistics are: \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}),
 #'     \item \code{value} cut threshold / GIC penalty
 #' }
+#' @param palette custom palette
+#'
 #' @export
 plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
     levels <- getFinalOrderVec(factorMerger)
@@ -769,6 +801,7 @@ getGICBreaks <- function(mH) {
 #' to the final cluster split.
 #' @param statistic cluster split statistic
 #' @param penalty GIC penalty
+#'
 #' @export
 plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     if (is.null(color)) {

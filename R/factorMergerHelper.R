@@ -59,7 +59,7 @@ convertToDistanceMatrix <- function(modelsPvals, successive, labels) {
 }
 
 #' @importFrom MASS isoMDS
-startMerging <- function(factorMerger, successive, method, penalty) {
+startMerging <- function(factorMerger, successive, method) {
 
     factorMerger <- appendProjection(factorMerger)
     factorMerger$factor <- getIncreasingFactor(factorMerger)
@@ -72,8 +72,6 @@ startMerging <- function(factorMerger, successive, method, penalty) {
     factorMerger$initialModel <- model
     factorMerger$mergingList[[1]]$modelStats <- data.frame(
         model = initStat,
-        GIC = calculateGIC(model, length(levels(factor)),
-                           penalty),
         pvalVsFull = 1,
         pvalVsPrevious = 1)
 
@@ -164,7 +162,7 @@ recodeClustering <- function(merge, levels, factor) {
     return(res)
 }
 
-mergePairHClust <- function(factorMerger, factor, penalty) {
+mergePairHClust <- function(factorMerger, factor) {
     step <- length(factorMerger$mergingList)
     merged <-  factorMerger$mergingHistory[step, ]
     factorMerger$mergingList <- c(factorMerger$mergingList,
@@ -185,7 +183,6 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   GIC = calculateGIC(model, length(levels(factor)), penalty),
                    pvalVsFull = compareModels(factorMerger$initialModel, model),
                    pvalVsPrevious = compareModels(prevModel, model))
 
@@ -195,7 +192,7 @@ mergePairHClust <- function(factorMerger, factor, penalty) {
     )
 }
 
-mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
+mergePairLRT <- function(factorMerger, successive, factor, model) {
     step <- length(factorMerger$mergingList)
     fs <- factorMerger$mergingList[[step]]
     pairs <- getPairList(fs$groups, successive)
@@ -223,7 +220,6 @@ mergePairLRT <- function(factorMerger, successive, factor, model, penalty) {
 
     factorMerger$mergingList[[step + 1]]$modelStats <-
         data.frame(model = calculateModelStatistic(model),
-                   GIC = calculateGIC(model, length(levels(factor)), penalty),
                    pvalVsFull = compareModels(factorMerger$initialModel, model),
                    pvalVsPrevious = pval)
 

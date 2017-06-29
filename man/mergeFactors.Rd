@@ -5,7 +5,7 @@
 \title{Merge factors}
 \usage{
 mergeFactors(response, factor, family = "gaussian", successive = FALSE,
-  method = "LRT", penalty = 2, abbreviate = TRUE)
+  method = "LRT", abbreviate = TRUE)
 }
 \arguments{
 \item{response}{A response \code{vector/matrix} suitable for the model family.}
@@ -22,9 +22,6 @@ Otherwise, factor levels are preliminarly sorted and only succesive pairs are co
 
 \item{method}{A string specifying method used during merging.
 Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.}
-
-\item{penalty}{A number used as a multiplication in GIC calculation.
-By default AIC is calculated with the \code{penalty = 2}.}
 
 \item{abbreviate}{Logical. If \code{TRUE}, the default, factor levels names
 are abbreviated.}

@@ -1,6 +1,6 @@
 Package: factorMerger
 Title: Hierarchical Algorithm for Post-Hoc Testing
-Version: 0.3
+Version: 0.3.1
 Authors@R: c(
     person("Agnieszka", "Sitko", email = "ag.agnieszka.sitko@gmail.com", role = c("aut", "cre")),
     person("Przemyslaw", "Biecek", email = "przemyslaw.biecek@gmail.com", role = c("aut","ths"))
