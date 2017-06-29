@@ -39,10 +39,10 @@ generateSample <- function(N, k, distr = "gaussian") {
         } else {
             randomShift <- sample(seq(0, 1, 0.1), size = 1)
             numericVec[factorVec == let] <-
-                numericVec[factorVec == let] + randomShift
+                numericVec[factorVec == let] + randomShift * 0.1
             randomShift <- sample(seq(0, 1, 0.1), size = 1)
-            numericVec[factorVec == let] <-
-                numericVec[factorVec == let] * i
+            # numericVec[factorVec == let] <-
+            #     numericVec[factorVec == let] * i
         }
     }
 

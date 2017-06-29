@@ -29,7 +29,6 @@ Imports:
     knitr,
     magrittr,
     survival,
-    ggpubr,
     forcats,
     agricolae
 RoxygenNote: 6.0.1
