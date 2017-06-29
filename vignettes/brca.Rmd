@@ -4,8 +4,9 @@ author: "Agnieszka Sitko"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{BRCA - the Cox regression merging}
+  %\VignetteIndexEntry{BRCA - the Cox regression factor merging}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteDepends{forcats}
   \usepackage[utf8]{inputenc}
 ---
 
