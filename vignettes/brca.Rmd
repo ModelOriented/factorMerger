@@ -16,8 +16,14 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 ```{r}
 library(factorMerger)
-library(forcats)
 library(survival)
+```
+```{r}
+if (!require("forcats")) {
+    install.packages("forcats")
+}
+library(forcats)
+
 ```
 
 
