@@ -1,0 +1,446 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx,psfrag,epsf}
+\usepackage{enumerate}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{url} % not crucial - just used below for the URL 
+\usepackage{nameref}
+
+%\pdfminorversion=4
+% NOTE: To produce blinded version, replace "0" with "1" below.
+\newcommand{\blind}{0}
+\newcommand{\factorMerger}{\textbf{factorMerger }}
+\newcommand{\todo}{\textcolor{red}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\code}{\texttt}
+
+% DON'T change margins - should be 1 inch all around.
+\addtolength{\oddsidemargin}{-.5in}%
+\addtolength{\evensidemargin}{-.5in}%
+\addtolength{\textwidth}{1in}%
+\addtolength{\textheight}{1.3in}%
+\addtolength{\topmargin}{-.8in}%
+
+
+\begin{document}
+
+%\bibliographystyle{natbib}
+
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\if0\blind
+{
+  \title{\bf factorMerger: A Set of Tools to Support
+  	Results From Post Hoc Testing \\
+  	\todo{A moze jakis tytul bardziej 
+  	zwiazany z~wizualizacja?}}
+  \author{Agnieszka Sitko\thanks{
+    \todo{The authors gratefully acknowledge}}\hspace{.2cm}\\
+    Faculty of Mathematics,  
+    Informatics and Mechanics \\
+    University of Warsaw\\
+    and \\
+    Przemys\l{}aw Biecek \\
+    Faculty of Mathematics,  
+    Informatics and Mechanics \\
+    University of Warsaw}
+  \maketitle
+} \fi
+
+\bigskip
+\begin{abstract}
+\todo{The text of your abstract.  200 or fewer words.}
+\end{abstract}
+
+\noindent%
+{\it Keywords:}  \textit{ANOVA}, hierarchical clustering, likelihood ratio test 
+\vfill
+
+\newpage
+\spacingset{1.45} % DON'T change the spacing!
+\section{Introduction}
+\label{sec:intro}
+
+In this article we present the \factorMerger package whose aim is to enrich results from \emph{ANOVA} tests together with providing the variety of plots designed for deeper understanding analyzed models. The~\emph{ANOVA} method verifies the null hypothesis that a variable of interest $y$ has the same distribution in all subpopulations.
+If this null hypothesis is rejected a more detailed analysis of differences among categorical variable levels might be needed. The traditional approach is to perform \emph{pairwise post hoc tests} in order to verify which groups differ significantly. 
+
+One may find implementations of the traditional \emph{post hoc tests} in many \emph{R} packages. Package \textbf{agricolae} \citep{Agric} offers a wide range of them. It gives one of the most popular \emph{post hoc test}, Tukey HSD test (\code{HSD.test}), its less conservative version --- Student-Newman-Keuls test (\code{SNK.test}) or Scheffe test (\code{scheffe.test}) which is robust to factor imbalance. These parametric tests are based on Student's t-distribution, thus, are reduced to Gaussian models only. In contrasts, \textbf{multcomp} package \citep{Multcomp} can be used with generalized linear models (function \code{glht}) as it uses general linear hypothesis. Similarly to the \textbf{multcomp}, some implementations that accept \code{glm} objects are also given in \textbf{car} (\code{linearHypothesis}, \citealp{car}) and \textbf{lsmeans} \citep{lsmeans}.
+
+However, an undeniable disadvantage of single-step \emph{post hoc tests} is the inconsistency of their results. For a fixed significance level, it is possible that mean in group A does not differ significantly from the one in group B, similarly with groups B and C. At the same time the difference between group A and C is detected. Then data partition is unequivocal and, as a consequence, impossible to put through. 
+
+The problem of clustering categorical variable into non-overlapping groups has already been present in the literature. First, J. Tukey proposed an iterative procedure of merging factor levels based on the studentized range distribution \citep{Tukey}. However, statistical test used in this approach made it limited to Gaussian models. \emph{Collapse And Shrinkage in ANOVA} (\emph{CAS-ANOVA}, \citealp{Casanova}) is an algorithm that extends categorical variable partitioning for generalized linear models in testing. It is based on the Tibshirani's \emph{Fused LASSO} \citep{Tib} with the constraint taken on the pairwise differences within a factor, which yields to their smoothing.
+
+\emph{Delete or Merge Regressors} algorithm (\citealp{Proch}, p. 37) is also adjusted to~generalized linear models. It directly uses the hierarchical clustering to gain a hierarchical structure of a~factor. At~the~beginning \emph{DMR4glm} estimates models arising from the full model by pairwise merging or deleting factor levels. Each model is then compared with the reference model with a use of the \emph{Likelihood Ratio Test}. Finally, the agglomerative clustering is performed taking LRT statistic as a~distance --- each step of the clustering produces a~more generalized model with different factor structure. Experimental studies (\citealp{Proch}, p. 44--91) showed that the \emph{Delete orMerge Regressors}'s performance is better than \emph{CAS-ANOVA}'s when it comes to the model accuracy. \emph{Delete or Merge Regressors}'s implementation may be found in the \textbf{DMR} package \citep{DMR}. The~algorithm will be described in details in further sections.
+
+In this article we will also present a more direct approach to the problem of hierarchical clustering, \todo{nazwa - wypadaloby miec jakas chwytliwa nazwe}. 
+Similarly to \emph{DMR4glm}, \todo{nazwa} procedure is motivated by the \emph{Likelihod Ratio Test}. In~each step it chooses a~model with the highest \emph{Likelihood~Ratio~Test} test p-value or, in~other words, the highest likelihood. While this algorithm is more complex than \emph{DMR4glm}, thanks to its dynamic adaptability, it~maximizes the likelihood in the merging path\footnote{Although it may be shown that the \emph{DMR} algorithm is a~consistent
+model selection method, its performance on smaller datasets is undefined. \todo{TODO....}}. What is~more, it is easily expandable for non-parametric models (using permutation tests instead of \emph{LRT}s). 
+
+Both \emph{DMR4glm} and \todo{nazwa} algorithms are implemented in the \factorMerger package.
+
+In addition to the comprehensive algorithm which tries uniting all feasible pairs of levels in a step, also a \emph{successive version} is provided. In the \emph{successive version} only levels which are relatively close can be merged (levels distance is dependent on the model chosen). While the basic approach (all vs. all comparisons) may result in a slightly better partition from the statistical point of view, proposed extension (all vs. subsequent comparisons) seems to be more graceful when it comes to the interpretation. Moreover, the former algorithm is~more computationally expensive.
+
+More detailed description of algorithms implemented in \factorMerger is given in~the section \nameref{sec:meth}.
+
+\todo{Przydaloby sie tez cos napisac o wizualizacji i moze o problemach z post hocami}
+
+\section{Methodology}
+\label{sec:meth}
+
+Merging procedures implemented in the \factorMerger package begin with the full model --- with all levels of a given factor included --- and iteratively merge one pair of levels until the factor is constant. Uniting two groups reduces by one the number of subsets defined by the factor. In a single iteration pairs \emph{worth uniting} are considered and the one which optimizes an objective function is joined. Objective functions use likelihood-based statistics. We will specify them later on. 
+
+The \factorMerger package gives the ability to perform analysis for the wide family of models and choose from the broad spectrum of merging approaches. Depending on the problem statement, some parts of the merging procedure may differ. The general sketch of~the~algorithm is described below.
+
+\begin{algorithm}[H]
+\caption{The outline of the merging procedure}
+\label{outline}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, family,
+successive, method$}
+\State{$pairsSet := generatePairs(response, factor, successive$)}
+\State{$\mathcal{M}:= createModel(response, factor, family)$}
+\While{$|levels(factor)| > 1$}
+    \State{$toBeMerged := \mathrm{argmax_{pair \in pairsSet}}objectiveFunction(pair, response, factor)$}    
+    \State{$\mathcal{M} := updateModel(\mathcal{M},
+   \; toBeMerged)$}
+    \State{$factor := mergeLevels(factor, pair)$}
+    \State{$pairsSet := joinPair(pairsSet, pair) $}
+\EndWhile
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+In the article we will denote:
+\begin{itemize}
+
+\item the sample size as $n$,
+\item the initial number of factor levels as $k$,
+\item the binary matrix representing group membership as $X = \{x_{ij}\}_{i,j=1}^{n,k}$. 
+
+$$
+x_{ij} = \left\{
+                \begin{array}{ll}
+                  1\;\; \mathrm{if} \; i \mathrm{-th \;
+                  observation \; belongs \; to 
+                  \; group\;} j, \\
+                  0 \;\; \mathrm{otherwise.} 
+                \end{array}
+       \right.$$
+We assume that groups do not overlap.
+\item the response vector as $y = (y_1, \ldots, y_n)$ or the response matrix as $Y = \{y_{ij}\}_{i,j=1}^{n,m}$,
+\item the effects --- vector of a length $k$  or $k \times m$ matrix --- as $\beta$.
+
+\end{itemize}
+
+\subsection{Model family}
+
+In the current version the package supports parametric models: 
+
+\begin{itemize}
+\item single dimensional Gaussian (with the argument \code{family = "gaussian"}),
+\item multi dimensional Gaussian --- Gaussian model with multiple outputs $y$ (with the argument \code{family = "gaussian"})\footnote{Both single dimensional and multi dimensional Gaussian models use \code{family = "gaussian"}. However, multi~dimensional model uses different functions for likelihood estimation and may require additional preprocessing, thus, it is considered as a~separate category.},
+\item binomial (with the argument \code{family = "binomial"}),
+\item survival (with the argument \code{family = "survival"}).
+\end{itemize}
+
+Each case has its own method of estimating model parameters and a specific likelihood formula.
+
+\paragraph{Single dimensional Gaussian model}
+
+A convenient and commonly made assumption in the analysis of variance is the normality of the errors. Here we will consider a linear model in which beta coefficients represent group means. The model may be written in vector form as
+
+$$y = X \beta + \epsilon, \;\; \epsilon \sim \mathcal{N}\left(0, \sigma^2\right).$$
+
+
+Under the above assumptions we may formulate the likelihood of the Gaussian linear model (\citealp{friedman2001elements}, p.31)
+
+$$L\left(\beta, \sigma | y\right) = \left(2\pi \sigma^2\right)^{-\frac{n}{2}} 
+\exp{\left(-\frac{1}{2}\left(y - X\beta\right)^T\left(y - X\beta\right)/ \sigma^2\right)}$$
+
+and the corresponding logarithm of the likelihood
+
+$$l\left(\beta, \sigma | y\right) = 
+-\frac{n}{2} \log{\left(2\pi\right)} -\frac{n}{2} \log{\left(\sigma^2\right)} -\frac{1}{2}\left(y - X\beta\right)^T\left(y - X\beta\right)/ \sigma^2.$$
+
+
+To calculate the loglikelihood in the package we use \code{logLik.lm\{stats\}}.
+
+
+\paragraph{Multi dimensional Gaussian model} In the multi dimensional generalization of the Gaussian model we will observe multiple outputs $Y$. It takes the following form
+
+$$Y = X \beta + E, \;\; E \sim \mathcal{N}(0, \Sigma),$$
+
+where $\beta = \{\beta\}_{i,j=1}^{k,m}$ is an $k \times m$ effects matrix and $E = \left(\epsilon_1, \epsilon_2, ..., \epsilon_m\right)$ is an $m$-dimensional error.
+
+Now, we may write the likelihood 
+$$L\left(\beta, \Sigma | Y\right) = \left(|2\pi \Sigma|\right)^{-\frac{1}{2}} 
+\exp{\left(-\frac{1}{2}\left(Y - X\beta\right)^T\Sigma^{-1}\left(Y - X\beta\right)\right)}$$
+
+and its logarithm
+
+$$l\left(\beta, \sigma | Y\right) = 
+-\frac{n}{2} \log{\left(2\pi\right)} -\frac{n}{2} \log{\left(|\Sigma|\right)} -\frac{1}{2}\left(Y - X\beta\right)^T\Sigma^{-1}\left(Y - X\beta\right).$$
+
+Unfortunately, \textbf{stats} or any commonly used \emph{R} package do not support multiple responses in the loglikelihood calculation for linear Gaussian models. In the package we use \code{logLik.mlm} implementation introduced in the \textbf{Atools} package \citep{atools} and the \code{dmvnorm\{mvtnorm\}} \citep{mvtnorm} implementation for multivariate normal density estimation.
+
+\paragraph{Binomial model}
+
+In the binomial case the observed response $y$ will take one of two possible disjoint outcomes (success or failure). We will be interested whether probabilities of success in given subpopulations are statistically the same. Let us introduce the assumption
+$$y \sim \mathcal{B}\left(p, n\right)$$
+
+where $\mathcal{B}\left(p,n\right)$ is the binomial distribution with the probability of success $p$ and the number~of~trials~$n$. We consider the logit model 
+
+$$\ln\left(\frac{p}{1 - p}\right) = X \beta.$$
+
+Let $z = \sum_{i = 1}^n y_i$. Now the likelihood may be written as follows  \citep{binom}
+
+$$L\left(\beta | y \right) = 
+\frac{n!}{z!\left(n - z\right)!}p ^z \left(1 - p\right)^{n - z}.$$
+
+Thus, the logarithm of the likelihood is expressed as 
+
+$$l\left(\beta|y\right) = zX\beta - n \log{\left(1 + \exp^{X\beta}\right)}.$$
+
+\todo{TODO: Policzy? loglik, czy na pewno dobrze.}
+
+To calculate the loglikelihood for the binomial model \code{logLik.glm\{stats\}} is used.
+
+\paragraph{Survival model}
+
+Survival analysis is a branch of statistics for analyzing the time until a~specified event takes to happen (such as a patient death or a machine failure). Usually we assume that survival time of an individual depends on two factors: the underlying baseline hazard function and a set of explanatory variables. In the package for survival analysis applications the \emph{Cox proportional hazard regression} introduced by D. R. Cox \citep{coxph} is used. In this model we assume that the baseline hazard function is the same for the whole population and the effects of predictors are multiplicatively related to the individual hazard. 
+
+Let $\lambda(t)$ be the hazard function and let $\lambda_0(t)$ be the baseline hazard function, where $t$ denotes time. Then the Cox model has the following form
+
+$$\lambda(t) = 
+\lambda_0(t)\cdot \exp{(X\beta)}.$$
+
+Here $y = (y_1, \ldots, y_n)$ is a vector of observed times in the sample. For $i$-th observation $y_i$ can be either event time or censoring time. We say that an observation is censored if we do not have complete information about its status in the context of our interest (for example, the patient died  of causes other than the disease of our consideration or was lost to follow-up). Let $C = (C_1, \ldots, C_n)$ be a vector of indicators that the time corresponds to the event. To be more presice,
+
+$$C_i = \left\{
+                \begin{array}{ll}
+                  1 \;\; \mathrm{if \; for} \; i 
+                  \mathrm{-th \; 
+                  observation \; the \; event \; occured,} \\
+                  0 \;\; \mathrm{if} \; i \mathrm{-th \;
+                  observation \; was \; censored.}
+                \end{array}
+              \right.$$
+
+Then we may construct the partial likelihood (as a function of $\beta$ only) in the following way
+
+$$L(\beta|y) = 
+	\prod_{i: C_i = 1}
+		\left[
+			\frac{\exp{\left(X_i\beta\right)}}
+					{\sum_{j: y_j \geq y_i} 
+					\exp{\left(X_i\beta\right)}}
+			\right]$$
+			
+and the corresponding loglikelihood
+$$
+l\left(\beta\right|y) = 
+	\sum_{i:C_i = 1} 
+		\left(
+			X_i\beta -
+			\log{
+				\left(
+				\sum_{j:y_j\geq y_i} 
+				\exp{\left(X_i\beta\right)}		
+				\right)
+			}
+		\right).
+$$
+
+The Cox regression is implemented in the \textbf{survival} package (\code{coxph\{survival\}}, \citealp{survival-book})
+and the loglikelihood of the model one may find by accessing the field \code{loglik} of a \code{coxph.object}.
+
+\paragraph{The Likelihood Ratio Test statistics}
+
+The substantial part of \textbf{factorMerger}'s algorithms is calculating the \emph{Likelihood Ratio Test statistics}. In this paragraph we will formulate its definition.
+
+Let us assume that a factor $C$ divides population into $l$ subgroups. Let us also denote~the effect of~a~group $i$ on~the~response as $\beta_i$. We define $h_{ij}$, a constraint on~groups $i$~and~$j$~claiming that their group effects are statistically the same, as
+
+\begin{equation} \label{constraint}
+h_{ij}: \beta_i = \beta_j, \;\; i \neq j \;\; i,j \in \{1, 2, ..., l \}.
+\end{equation}
+
+
+Let us take $\M_0$  --- the model with no constraints and $\M_{h_{ij}}$ --- the model under $h_{ij}$. For both models estimate an estimator of group effects and denote them as~$\hat{\beta}_{\M_0}, \hat{\beta}_{\M_{h_{ij}}},$ respectively.
+
+Then, the \textbf{Likelihood Ratio Test statistic} is
+
+\begin{equation} \label{LRTstat}
+LRT(\M_{h_{ij}}|\M_0) = 2 \cdot l (\hat{\beta}_{\M_0}|y) - 2 \cdot l (\hat{\beta}_{\M_{h_{ij}}}|y), 
+\end{equation}
+
+where $l(\cdot|y)$ is the log-likelihood function conditioned by observed $y$.
+
+The higher the $LRT(\M_{h_{ij}}|\M_0)$, the more likely it is that the constraint $h_{ij}$ is rejected. One may interpret the $LRT(\M_{h_{ij}}|\M_0)$ as a distance between group $i$ and $j$.
+
+As for all $i,j$  ($i \neq j \;\; i,j \in \{1, 2, ..., l \}$)$\M_{h_{ij}}$ are nested in $\M_0$, the likelihood of $\M_{h_{ij}}$ for fixed $i,j$ is not greater than the $\M_0$'s likelihood. If~$\mathcal{H}$~is a~set of all considered constraints defined in~\eqref{constraint}, a~constraint 
+
+\begin{equation} \label{maxLikelihood}
+\mathrm{argmin}_{h \in \mathcal{H}} LRT(\M_h|\M_0) = \mathrm{argmax}_{h \in \mathcal{H}} l(\M_h)
+\end{equation}
+
+will reduce the likelihood the least and, therefore, minimizing the $LRT$ distance between subgroups is equivalent to maximizing the likelihood.
+
+\paragraph{Asymptotic behaviour of the \emph{LRT statistic}}
+
+An advantageous result by Samuel S. Wilks \citep{wilks1938large} shows that for a linear constraint $h$ the $LRT(\M_h|\M_0)$ tends asymptotically to chi-squared distribution with degrees of freedom equal to the difference in degrees of~freedom between $\M_0$ and $\M_h$ as number of observations approaches infinity. This convergence will be used to evaluate model's \emph{statistical correctness} in visualizations.
+
+
+
+\subsection{Pairs considered}
+
+In the Algorithm~\ref{outline} to achieve maximal values of the likelihood in the merging path all feasible pairs should be considered while performing a single step. However, 
+computing an objective function can be expensive and, especially for big datasets, it may be beneficial to limit the set of tested hypotheses. Let us also remark that it is more likely that a~pair~of~levels $i$ and $j$ will be chosen to merge if~corresponding effects estimators ($\hat{\beta_i}, \hat{\beta_j}$) are close.
+
+\todo{TODO: Czy to potrzebuje rozwini?cia?}
+
+Therefore, in the package we implement two strategies of merging --- either comprehensive or limited. They are called as follows:
+
+\begin{itemize}
+\item \emph{all-to-all} (with the argument \code{successive = FALSE}),
+\item \emph{successive} (with the argument \code{successive = TRUE}).
+
+\end{itemize}
+
+The version \emph{all-to-all} considers all possible pairs of factor levels. In the \emph{successive} approach factor levels are preliminarily sorted and then only consecutive groups can be united. 
+
+It is possible that the \emph{all-to-all} strategy will give a better merging path, though, intuitively, the difference should not be significant.
+
+\todo{TODO: Czy ja tak moge pisac?}
+
+\paragraph{The \emph{successive} merging}
+
+In the \emph{successive} version of the algorithm at the very beginning levels of a categorical variable are sorted. The order depends on the model family chosen. In most cases it is associated with the beta coefficients estimators. The detailed rules of ordering levels are given below.
+
+\begin{table}[H]
+\centering \begin{tabular}[t]{c|c}
+\hline \textbf{model} & \textbf{metric} \\
+\hline one-dimensional Gaussian & average \\
+\hline multi-dimensional Gaussian & average of the isoMDS transformation \\
+\hline binomial & proportion of successes \\
+\hline survival & log hazard ratio \\
+\hline 
+
+\end{tabular}
+\caption{\label{tab:}Factor ordering by model family}
+
+\end{table}
+
+For single dimensional Gaussian and binomial models groups are sorted by means and proportions of success, respectively. In the survival case we use log hazard ratios with one level set as the reference level. Multi dimensional Gaussian model needs additional preprocessing. First, group means are computed. Then they are projected into one dimensional space with the use of the Kruskal's non-metric multidimensional scaling. The \factorMerger uses \code{isoMDS} implementation from the package \textbf{MASS} \citep{MASS}. 
+
+Having set the factor order, we may decrease number of comparisons in each step in a~way that a~particular level is tested only against its closest neighbours.
+
+
+
+\subsection{Objective functions}
+
+The \factorMerger package for each model family and merging strategy implements two types of a~single iteration of the algorithm. They use one of the following:
+
+\begin{itemize}
+
+\item \emph{Likelihood Ratio Test} (with the argument \code{method = "LRT"}),
+\item \emph{agglomerative clustering with constant distance matrix} (based on the \emph{DMR4glm} algorithm, with the argument \code{method = "hclust"}). 
+
+\end{itemize}
+
+
+\todo{Ujednolicic algorytmy tak, zeby byly spojne z Alg 1}
+
+\subsection{The \emph{Likelihood Ratio Test}-based merging}
+
+The \emph{Likelihood Ratio Test}-based approach minimizes likelihood reduction in the merging path. It may be summarized as follows.
+
+\todo{TODO: Rozwin??... (Analogia do LRT testów, ale mo?na upro?ci? do samego loglik)}
+
+\begin{algorithm}[H]
+\caption{Merging with the $LRT$}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, successive$}
+\State{$pairsSet := generatePairs(response, factor, successive$)}
+\State{$M_0:=$ full model}
+\While{$levels(factor) > 1$}
+    \State{$toBeMerged := \mathrm{argmax}_{pair \in pairsSet} l(updateModel(M_0, pair))$}
+    
+    \State{$M_0 := updateModel(M_0, toBeMerged)$}
+    \State{$factor := mergeLevels(factor, pair)$}
+    \State{$pairsSet := pairsSet \setminus pair $}
+\EndWhile
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{The \emph{DMR4glm}-based merging}
+
+\todo{TODO: Wst?pny opis}
+
+\begin{algorithm}[H]
+\caption{Merging with agglomerative clustering}
+\begin{algorithmic}[2]
+
+\Function{MergeFactors}{$response, factor, successive$}
+\State{$pairsSet := generatePairs(response, factor, successive$)}
+\State{$dist :=$ set of distances }
+\ForAll{$pair \in pairsSet$} 
+    \State{$h := \{\mu_{pair_1} = \mu_{pair_2}\}$ }
+    \Comment{hypothesis under which $pair$ is merged}
+    \State{$dist$[$pair$] $= LRT(M_h|M_0)$}
+\EndFor
+        
+\If{successive}
+\State{$hClust$($dist$, method = "single")}
+\Else 
+\State{$hClust$($dist$, method = "complete")}
+\EndIf
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Comparison of algorithms}
+\label{subsec:comp}
+
+\section{An \emph{R} package factorMerger}
+\label{sec:package}
+
+\section{Examples}
+\label{sec:examples}
+
+\subsection{Single dimensional Gaussian model}
+\label{subsec:sgauss}
+
+\subsection{Multi dimensional Gaussian model}
+\label{subsec:mgauss}
+
+\subsection{Binomial model}
+\label{subsec:binom}
+
+\subsection{Survival model}
+\label{subsec:surv}
+
+\section{Summary}
+\label{sec:summ}
+
+\section{Acknowledgements}
+
+
+We acknowledge the financial support from the \emph{NCN Opus grant 2016/21/B/ST6/02176}.
+
+
+\todo{Problem z kodowaniem bibliografii.}
+\bibliographystyle{Chicago}
+
+\bibliography{Bibliography-MM-MC}
+\end{document}
