@@ -10,11 +10,11 @@ The aim of this project is to create an algorithm of post-hoc testing that would
 
 A short overview is available here
 
-https://rawgit.com/geneticsMiNIng/FactorMerger/master/materials/vignette.html
+https://rawgit.com/MI2DataLab/FactorMerger/master/materials/vignette.html
 
 Longer description may be found here
 
-https://github.com/geneticsMiNIng/FactorMerger/blob/master/materials/useR/user_abstract.pdf
+https://github.com/MI2DataLab/FactorMerger/blob/master/materials/useR/user_abstract.pdf
 
 
 ### Installing and loading `factorMerger`
@@ -28,7 +28,9 @@ install.packages("factorMerger")
 To install and load the latest version of`factorMerger` from **Github** run:
 
 ```{r}
-if (!require(devtools)) install.packages("devtools")
+if (!require(devtools)) {
+    install.packages("devtools")
+}
 devtools::install_github("geneticsMiNIng/factorMerger", build_vignettes = FALSE)
 
 library(factorMerger)
@@ -36,4 +38,4 @@ library(factorMerger)
 
 ### Working with `factorMerger`
 
-<img src="https://github.com/geneticsMiNIng/factorMerger/blob/master/README_workflow.png" alt="fm_workflow" width = '650'/>
+<img src="https://github.com/MI2DataLab/factorMerger/blob/master/README_workflow.png" alt="fm_workflow" width = '650'/>
