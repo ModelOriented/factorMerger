@@ -10,11 +10,11 @@ The aim of this project is to create an algorithm of post-hoc testing that would
 
 A short overview is available here
 
-https://rawgit.com/MI2DataLab/FactorMerger/master/materials/vignette.html
+https://rawgit.com/MI2DataLab/factorMerger/master/materials/vignette.html
 
 Longer description may be found here
 
-https://github.com/MI2DataLab/FactorMerger/blob/master/materials/useR/user_abstract.pdf
+https://github.com/MI2DataLab/factorMerger/blob/master/materials/useR/user_abstract.pdf
 
 
 ### Installing and loading `factorMerger`
