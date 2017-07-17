@@ -4,6 +4,7 @@
 [![Build Status](https://api.travis-ci.org/geneticsMiNIng/factorMerger.png)](https://travis-ci.org/geneticsMiNIng/factorMerger)
 [![Pending Pull-Requests](http://githubbadges.herokuapp.com/geneticsMiNIng/factorMerger/pulls.svg)](https://github.com/geneticsMiNIng/factorMerger/pulls)
 [![Github Issues](http://githubbadges.herokuapp.com/geneticsMiNIng/factorMerger/issues.svg)](https://github.com/geneticsMiNIng/factorMerger/issues)
+[![DOI](https://zenodo.org/badge/70429809.svg)](https://zenodo.org/badge/latestdoi/70429809)
 
 The aim of this project is to create an algorithm of post-hoc testing that would enable to extract hierarchical structure of factors.
 
