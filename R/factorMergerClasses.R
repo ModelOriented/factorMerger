@@ -271,7 +271,7 @@ mergeLRT <- function(factorMerger, successive) {
 
 mergeHClust <- function(factorMerger, successive) {
     factorMerger <- startMerging(factorMerger, successive, "hclust")
-    clust <- clusterFactors(factorMerger$dist, successive)
+    clust <- clusterFactors(factorMerger$dist)
     factorMerger$mergingHistory <-
         recodeClustering(clust$merge,
                          clust$labels,

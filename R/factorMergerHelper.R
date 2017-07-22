@@ -129,10 +129,7 @@ getAllPairList <- function(groups) {
     return(unlist(twoLevelList, recursive = FALSE))
 }
 
-clusterFactors <- function(dist, successive) {
-    if (successive) {
-        return(hclust(d = dist, method = "single"))
-    }
+clusterFactors <- function(dist) {
     return(hclust(d = dist, method = "complete"))
 }
 
