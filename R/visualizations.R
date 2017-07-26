@@ -37,7 +37,7 @@ NULL
 #' @param responsePanel Response panel type -- accepts the following values dependent on the model family:
 #' \itemize{
 #' \item multi dimensional Gaussian: \code{c("heatmap", "profile")},
-#' \item single dimensional Gaussian: \code{c("means", "boxplot")},
+#' \item single dimensional Gaussian: \code{c("means", "boxplot","tukey")},
 #' \item binomial: \code{c("proportion")},
 #' \item survival: \code{c("survival")}
 #' }
