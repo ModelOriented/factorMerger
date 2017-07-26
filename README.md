@@ -31,7 +31,7 @@ To install and load the latest version of`factorMerger` from **Github** run:
 if (!require(devtools)) {
     install.packages("devtools")
 }
-devtools::install_github("geneticsMiNIng/factorMerger", build_vignettes = FALSE)
+devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
 
 library(factorMerger)
 ```
