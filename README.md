@@ -28,13 +28,14 @@ install.packages("factorMerger")
 To install and load the latest version of`factorMerger` from **Github** run:
 
 ```{r}
-if (!require(devtools)) {
-    install.packages("devtools")
-}
 devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
-
-library(factorMerger)
 ```
+
+### Cheatsheet for `factorMerger`
+
+The [pdf version](https://github.com/MI2DataLab/factorMerger/blob/master/materials/factorMerger-cheatsheet.pdf).
+
+![factorMerger cheatsheet](materials/factorMerger-cheatsheet.png)
 
 ### Working with `factorMerger`
 
