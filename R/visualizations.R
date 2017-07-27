@@ -774,10 +774,11 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
     model <- calculateModel(factorMerger, factorMerger$factor)
 
-    g <- survminer::ggcoxadjustedcurves(model,
+    g <- survminer::ggadjustedcurves(model,
                                         data = df,
                                         variable = df$group,
                                         curve.size = 1,
+                                        method = "average",
                                         palette = palette) +
         treeTheme() +
         labs(title = "Survival plot",
