@@ -764,10 +764,10 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor,
                                   levels = levels)
-    df <- data.frame(response = factorMerger$response, group = factorMerger$factor)
+    df <- data.frame(response = factorMerger$response, factor = factorMerger$factor)
 
     if (color) {
-        df$group <- cutTree(factorMerger,
+        df$factor <- cutTree(factorMerger,
                             clusterSplit[[1]],
                             clusterSplit[[2]])
     }
@@ -776,7 +776,7 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
     g <- survminer::ggadjustedcurves(model,
                                         data = df,
-                                        variable = df$group,
+                                        variable = "factor",
                                         curve.size = 1,
                                         method = "average",
                                         palette = palette) +
