@@ -764,7 +764,7 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor,
                                   levels = levels)
-    df <- data.frame(group = factorMerger$factor)
+    df <- data.frame(response = factorMerger$response, group = factorMerger$factor)
 
     if (color) {
         df$group <- cutTree(factorMerger,
