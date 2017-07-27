@@ -510,7 +510,7 @@ findSimilarities <- function(factorMerger) {
 #' @param palette custom palette
 #'
 #' @export
-plotHeatmap <- function(factorMerger, color, clusterSplit, palette) {
+plotHeatmap <- function(factorMerger, color, clusterSplit, palette = "Greys") {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- findSimilarities(factorMerger)
@@ -531,7 +531,7 @@ plotHeatmap <- function(factorMerger, color, clusterSplit, palette) {
               plot.subtitle = element_text(size = 12),
               legend.position = "none") +
         xlab("") + scale_y_discrete(expand = c(0, 0)) +
-        scale_fill_distiller(palette = "Greys") +
+        scale_fill_distiller(palette = palette) +
         labs(title = "Heatmap", subtitle = "Group means by variable")
 }
 
