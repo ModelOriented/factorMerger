@@ -45,10 +45,16 @@ ggsave(pl7, file = "FM_panelProfile.pdf", width = 3, height = 5)
 pl8 <- factorMerger::plotFrequency(factMD, color = FALSE, clusterSplit = list("GIC", 2))
 ggsave(pl8, file = "FM_panelFrequency.pdf", width = 3, height = 5)
 
-factorMerger::plotFrequency()
+
+library(survival)
+library(survminer)
+pisa2012eur <- na.omit(pisa2012eur)
+pisa2012eur$one <- 1
+factS <- mergeFactors(Surv(pisa2012eur$PV1MATH, pisa2012eur$one),
+                      pisa2012eur$CNT, method = "hclust", family = "survival")
+
+pl9 <- factorMerger::plotSurvival(factS, color = FALSE, clusterSplit = list("GIC", 2))
+ggsave(pl9, file = "FM_panelSurvival.pdf", width = 3, height = 5)
 
 
-
-
-survival: c("survival")
 
