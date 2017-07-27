@@ -849,6 +849,14 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     return(g)
 }
 
+#' TukeyHSD Plot
+#'
+#' @description TODO: Aga
+#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param palette RColorBrewer color palette
+#'
+#' @export
 plotTukey <- function(factorMerger, palette = NULL) {
     response <- factorMerger$response
     factor <- factorMerger$factor
