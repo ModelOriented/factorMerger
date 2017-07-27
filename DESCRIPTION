@@ -28,6 +28,6 @@ Imports:
     agricolae,
     forcats
 RoxygenNote: 6.0.1
-URL: https://github.com/geneticsMiNIng/factorMerger
+URL: https://github.com/MI2DataLab/factorMerger
 Suggests: rmarkdown
 VignetteBuilder: knitr
