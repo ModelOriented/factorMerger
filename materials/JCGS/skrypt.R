@@ -23,6 +23,26 @@ ggsave(pl3, file = "FM_panelBox.pdf", width = 3, height = 5)
 pl4 <- factorMerger:::plotTukey(fact, palette = "Set2")
 ggsave(pl4, file = "FM_panelTukey.pdf", width = 3, height = 5)
 
+fact2 <- mergeFactors(pisa2012eur$PV1MATH, pisa2012eur$CNT, method = "hclust")
 
 
+pisa2012eur$highSkills <- ifelse(pisa2012eur$PV1MATH > 545, 1, 0)
+pisa2012eur <- na.omit(pisa2012eur)
+
+factB <- mergeFactors(pisa2012eur$highSkills, pisa2012eur$CNT, method = "hclust", family = "binomial")
+
+pl5 <- factorMerger:::plotProportion(factB, color = TRUE, clusterSplit = list("GIC", 2), palette = "Set2")
+ggsave(pl5, file = "FM_panelProportion.pdf", width = 3, height = 5)
+
+factMD <- mergeFactors(pisa2012eur[,1:3], pisa2012eur$CNT, method = "hclust")
+
+pl6 <- factorMerger:::plotHeatmap(factMD, color = TRUE, clusterSplit = list("GIC", 2), palette = "Blues")
+ggsave(pl6, file = "FM_panelHeatmap.pdf", width = 3, height = 5)
+
+pl7 <- factorMerger::plotProfile(factMD, color = FALSE, clusterSplit = list("GIC", 2), palette = "Blues")
+ggsave(pl7, file = "FM_panelProfile.pdf", width = 3, height = 5)
+
+
+multi dimensional Gaussian: c("heatmap", "profile"),
+survival: c("survival")
 
