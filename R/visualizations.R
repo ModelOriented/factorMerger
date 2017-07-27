@@ -748,7 +748,7 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
 #' Survival plot (survival)
 #'
-#' @description Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
+#' @description Plots \code{ggcdjustedcurves} from the \code{survminer} package.
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
 #' to the final cluster split.
