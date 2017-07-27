@@ -42,7 +42,13 @@ ggsave(pl6, file = "FM_panelHeatmap.pdf", width = 3, height = 5)
 pl7 <- factorMerger::plotProfile(factMD, color = FALSE, clusterSplit = list("GIC", 2), palette = "Blues")
 ggsave(pl7, file = "FM_panelProfile.pdf", width = 3, height = 5)
 
+pl8 <- factorMerger::plotFrequency(factMD, color = FALSE, clusterSplit = list("GIC", 2))
+ggsave(pl8, file = "FM_panelFrequency.pdf", width = 3, height = 5)
 
-multi dimensional Gaussian: c("heatmap", "profile"),
+factorMerger::plotFrequency()
+
+
+
+
 survival: c("survival")
 
