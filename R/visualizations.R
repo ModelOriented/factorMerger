@@ -590,7 +590,7 @@ plotProfile <- function(factorMerger, color, clusterSplit, palette = NULL) {
               axis.text = element_text(size = 12),
               plot.subtitle = element_text(size = 12)) +
         scale_y_discrete(expand = c(1 / (2 * nrow(df)), 1 / (2 * nrow(df))))
-    if (!is.null(palette)) {
+    if (!is.null(palette) & color) {
         g <- g + scale_color_brewer(palette = palette) +
             scale_fill_brewer(palette = palette)
     }
