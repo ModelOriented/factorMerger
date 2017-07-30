@@ -37,7 +37,7 @@ NULL
 #' @param responsePanel Response panel type -- accepts the following values dependent on the model family:
 #' \itemize{
 #' \item multi dimensional Gaussian: \code{c("heatmap", "profile")},
-#' \item single dimensional Gaussian: \code{c("means", "boxplot")},
+#' \item single dimensional Gaussian: \code{c("means", "boxplot","tukey")},
 #' \item binomial: \code{c("proportion")},
 #' \item survival: \code{c("survival")}
 #' }
@@ -510,7 +510,7 @@ findSimilarities <- function(factorMerger) {
 #' @param palette custom palette
 #'
 #' @export
-plotHeatmap <- function(factorMerger, color, clusterSplit, palette) {
+plotHeatmap <- function(factorMerger, color, clusterSplit, palette = "Greys") {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor, levels = levels)
     df <- findSimilarities(factorMerger)
@@ -531,7 +531,7 @@ plotHeatmap <- function(factorMerger, color, clusterSplit, palette) {
               plot.subtitle = element_text(size = 12),
               legend.position = "none") +
         xlab("") + scale_y_discrete(expand = c(0, 0)) +
-        scale_fill_distiller(palette = "Greys") +
+        scale_fill_distiller(palette = palette) +
         labs(title = "Heatmap", subtitle = "Group means by variable")
 }
 
@@ -590,7 +590,7 @@ plotProfile <- function(factorMerger, color, clusterSplit, palette = NULL) {
               axis.text = element_text(size = 12),
               plot.subtitle = element_text(size = 12)) +
         scale_y_discrete(expand = c(1 / (2 * nrow(df)), 1 / (2 * nrow(df))))
-    if (!is.null(palette)) {
+    if (!is.null(palette) & color) {
         g <- g + scale_color_brewer(palette = palette) +
             scale_fill_brewer(palette = palette)
     }
@@ -748,7 +748,7 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
 #' Survival plot (survival)
 #'
-#' @description Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
+#' @description Plots \code{ggcdjustedcurves} from the \code{survminer} package.
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
 #' to the final cluster split.
@@ -764,20 +764,21 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
     levels <- getFinalOrderVec(factorMerger)
     factorMerger$factor <- factor(factorMerger$factor,
                                   levels = levels)
-    df <- data.frame(group = factorMerger$factor)
+    df <- data.frame(response = factorMerger$response, factor = factorMerger$factor)
 
     if (color) {
-        df$group <- cutTree(factorMerger,
+        df$factor <- cutTree(factorMerger,
                             clusterSplit[[1]],
                             clusterSplit[[2]])
     }
 
     model <- calculateModel(factorMerger, factorMerger$factor)
 
-    g <- survminer::ggcoxadjustedcurves(model,
+    g <- survminer::ggadjustedcurves(model,
                                         data = df,
-                                        variable = df$group,
+                                        variable = "factor",
                                         curve.size = 1,
+                                        method = "average",
                                         palette = palette) +
         treeTheme() +
         labs(title = "Survival plot",
@@ -849,6 +850,14 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     return(g)
 }
 
+#' TukeyHSD Plot
+#'
+#' @description TODO: Aga
+#'
+#' @param factorMerger object of a class \code{factorMerger}
+#' @param palette RColorBrewer color palette
+#'
+#' @export
 plotTukey <- function(factorMerger, palette = NULL) {
     response <- factorMerger$response
     factor <- factorMerger$factor

@@ -1,4 +1,4 @@
-# factorMerger: A Set of Tools to Support Results From Post Hoc Testing
+# factorMerger: A Set of Tools to Support Addaptive Post-Hoc Fusing of Groups
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://travis-ci.org/MI2DataLab/factorMerger.svg?branch=master)](https://travis-ci.org/MI2DataLab/factorMerger)
@@ -28,13 +28,14 @@ install.packages("factorMerger")
 To install and load the latest version of`factorMerger` from **Github** run:
 
 ```{r}
-if (!require(devtools)) {
-    install.packages("devtools")
-}
-devtools::install_github("geneticsMiNIng/factorMerger", build_vignettes = FALSE)
-
-library(factorMerger)
+devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
 ```
+
+### Cheatsheet for `factorMerger`
+
+The [pdf version](https://github.com/MI2DataLab/factorMerger/blob/master/materials/factorMerger-cheatsheet.pdf).
+
+![factorMerger cheatsheet](materials/factorMerger-cheatsheet.png)
 
 ### Working with `factorMerger`
 
