@@ -21,5 +21,5 @@ to the final cluster split.}
 \item{palette}{custom palette}
 }
 \description{
-Plots \code{ggcoxadjustedcurves} from the \code{survminer} package.
+Plots \code{ggcdjustedcurves} from the \code{survminer} package.
 }

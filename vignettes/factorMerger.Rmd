@@ -51,7 +51,6 @@ To do so, we may use function `generateSample` or `generateMultivariateSample`.
 library(factorMerger) 
 library(knitr)
 library(dplyr)
-library(ggpubr)
 randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ```
 

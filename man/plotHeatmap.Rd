@@ -4,7 +4,7 @@
 \alias{plotHeatmap}
 \title{Heatmap (multi-dimensional Gaussian)}
 \usage{
-plotHeatmap(factorMerger, color, clusterSplit, palette)
+plotHeatmap(factorMerger, color, clusterSplit, palette = "Greys")
 }
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}
