@@ -748,7 +748,7 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
 #' Survival plot (survival)
 #'
-#' @description Plots \code{ggcdjustedcurves} from the \code{survminer} package.
+#' @description Plots survival curves for each group. Survival probabilities are calculated from \code{coxph} model.
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
 #' to the final cluster split.
@@ -773,17 +773,20 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
     }
 
     model <- calculateModel(factorMerger, factorMerger$factor)
+    pred <- survexp(~factor, data = df, ratetable = model)
 
-    g <- survminer::ggadjustedcurves(model,
-                                        data = df,
-                                        variable = "factor",
-                                        curve.size = 1,
-                                        method = "average",
-                                        palette = palette) +
-        treeTheme() +
-        labs(title = "Survival plot",
-             subtitle = "Adjusted survival curves for coxph model")
-    return(g)
+    curve <- data.frame(time = rep(c(0,pred$time), length(levels)),
+                        variable = factor(rep(levels, each=1+length(pred$time))),
+                        surv = c(rbind(1, pred$surv)))
+    
+    g <- ggplot(curve, aes(x = time, y = surv, color=variable)) +
+      geom_step() + 
+      treeTheme() +
+      scale_y_continuous(limits = c(0,1)) +
+      ylab("Survival rate") +
+      labs(title = "Survival plot",
+           subtitle = "Adjusted survival curves for coxph model")
+    ggpubr::ggpar(g,  palette = palette)
 }
 
 getGICBreaks <- function(mH) {
