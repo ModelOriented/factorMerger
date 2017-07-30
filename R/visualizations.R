@@ -766,19 +766,26 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
                                   levels = levels)
     df <- data.frame(response = factorMerger$response, factor = factorMerger$factor)
 
-    if (color) {
-        df$factor <- cutTree(factorMerger,
-                            clusterSplit[[1]],
-                            clusterSplit[[2]])
-    }
-
     model <- calculateModel(factorMerger, factorMerger$factor)
     pred <- survexp(~factor, data = df, ratetable = model)
-
+    
     curve <- data.frame(time = rep(c(0,pred$time), length(levels)),
                         variable = factor(rep(levels, each=1+length(pred$time))),
                         surv = c(rbind(1, pred$surv)))
     
+    if (color) {
+      df$factorNew <- cutTree(factorMerger,
+                              clusterSplit[[1]],
+                              clusterSplit[[2]])
+      keys <- unique(df[,c("factor", "factorNew")])
+      both <- merge(curve, keys, by.x = "variable", by.y = "factor")
+      curve <- summarise(
+          group_by(
+            both, 
+            variable = factorNew, time),
+        surv = mean(surv, na.rm=TRUE))
+    }
+
     g <- ggplot(curve, aes(x = time, y = surv, color=variable)) +
       geom_step() + 
       treeTheme() +
