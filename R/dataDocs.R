@@ -37,3 +37,22 @@ NULL
 #' @usage data(pisa2012)
 #' @keywords data
 NULL
+
+
+#' European Social Survey - happiness
+#'
+#' A dataset from \url{http://www.oecd.org/pisa/} about student performance in 2012.
+#'
+#' \itemize{
+#'   \item happy
+#'   \item PV1READ student's performance (Reading)
+#'   \item PV1SCIE student's performance (Science)
+#'   \item CNT student's country
+#'   \item OCOD1 parent's occupation
+#' }
+#'
+#' @name ess
+#' @docType data
+#' @usage data(ess)
+#' @keywords data
+NULL
