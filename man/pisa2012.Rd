@@ -8,15 +8,22 @@
 data(pisa2012)
 }
 \description{
-A dataset from \url{http://www.oecd.org/pisa/} about student performance in 2012.
+Data from the \code{PISA2012lite} package.
 }
 \details{
+The original dataset (Program for International Student Assesment, \url{http://www.oecd.org/pisa/}) contains information on students'
+performance on various cognitive tests expressed with so-called plausible values measured in three fields: Mathematics (\code{PV1MATH}),
+Science (\code{PV1SCIE}) and Reading (\code{PV1READ}).
+
+\code{pisa2012} is a reweighted version of the \code{PISA2012lite} data. The weighting was performed using the \code{W_FSTUWT} variable with the seed 123.
+
+The variables are as follows (original column names from the \code{PISA2012lite} package are given in brackets):
+
 \itemize{
-  \item PV1MATH student's performance (Mathematics)
-  \item PV1READ student's performance (Reading)
-  \item PV1SCIE student's performance (Science)
-  \item CNT student's country
-  \item OCOD1 parent's occupation
+  \item \code{math} -- student's performance in Mathematics (originally: PV1MATH)
+  \item \code{reading} -- student's performance in Reading (originally: PV1READ)
+  \item \code{science} -- student's performance in Science (originally: PV1SCIE)
+  \item \code{country} -- student's country (originally: CNT)
 }
 }
 \keyword{data}

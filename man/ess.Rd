@@ -8,15 +8,17 @@
 data(ess)
 }
 \description{
-A dataset from \url{http://www.oecd.org/pisa/} about student performance in 2012.
+A dataset from \url{http://www.europeansocialsurvey.org/download.html?file=ESS7e02_1&y=2014} on hapiness
+of European countries.
 }
 \details{
+\code{ess} is a reweighted version of the original data. The weighting was performed using the \code{dweight} variable with the seed 123.
+The variables are as follows:
 \itemize{
-  \item happy
-  \item PV1READ student's performance (Reading)
-  \item PV1SCIE student's performance (Science)
-  \item CNT student's country
-  \item OCOD1 parent's occupation
+  \item \code{happy} -- binary, denoting happiness of an invidual. Interviewees were asked
+  to assess their happiness in the scale 0-10 (variable \code{happy}). Respondents who gave value
+  greater than 5 are considered as "happy",
+  \item \code{country} -- respondent's country.
 }
 }
 \keyword{data}
