@@ -74,8 +74,6 @@ NULL
 #'  quantile of chi-square distribution. Otherwise, panel is blank.
 #' @param ... Other arguments
 #'
-#' @importFrom gridExtra grid.arrange
-#'
 #' @export
 plot.factorMerger <- function(x, panel = "all",
                               statistic = "loglikelihood",
