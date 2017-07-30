@@ -10,16 +10,17 @@ data(BRCA)
 \description{
 A clinical dataset from The Cancer Genome Atlas Project from
 the \code{RTCGA.clinical} package (\url{https://github.com/RTCGA/RTCGA.clinical}).
-The variables are as follows:
 }
 \details{
+The variables are as follows (original column names from the \code{RTCGA.clinical} package are given in brackets):
+
 \itemize{
-  \item times event time / censoring time
-  \item bcr_patient_barcode patient code
-  \item patient.vital_status patient status
-  \item patient.drugs.drug.drug_name drug name given to the patient
-  \item patient.clinical_cqcf.histological_type patient histological type
-  \item patient.stage_event.tnm_categories.pathologic_categories.pathologic_t pathologic type
+  \item \code{time} -- event time / censoring time (originally: times)
+  \item \code{patientCode} -- patient's id (originally: bcr_patient_barcode)
+  \item \code{vitalStatus} -- patient status (originally: patient.vital_status)
+  \item \code{drugName} -- drug name given to the patient (originally: patient.drugs.drug.drug_name)
+  \item \code{histologicalType} -- patient histological type (originally: patient.stage_event.tnm_categories.pathologic_categories.pathologic_t)
+  \item \code{pathologicCategory} -- patient pathologic type
 }
 }
 \keyword{data}
