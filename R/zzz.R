@@ -1,5 +1,6 @@
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("Welcome to factorMerger v0.3.1!")
+    packageStartupMessage(paste0("Welcome to factorMerger ",
+                                 packageVersion("factorMerger"), "!"))
 }
 
 .onLoad <- function(libname, pkgname) {
