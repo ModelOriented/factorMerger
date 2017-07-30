@@ -19,7 +19,7 @@ Imports:
     proxy,
     MASS,
     survminer,
-    gridExtra,
+    ggpubr,
     scales,
     mvtnorm,
     knitr,

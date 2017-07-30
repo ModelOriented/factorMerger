@@ -91,6 +91,7 @@ formatSingleRow <- function(num) {
     if (num == 0) {
         return("< 2.2e-16")
     }
+    num <- round(num, 4)
     return(
         ifelse(num < 0.1, format(num, scientific = T),
                format(num, scientific = F))

@@ -12,6 +12,9 @@ NULL
 #' @importFrom reshape2 melt
 NULL
 
+#' @importFrom ggpubr ggarrange
+NULL
+
 #' Plot Factor Merger
 #'
 #' @param x object of a class \code{factorMerger}.
@@ -129,25 +132,24 @@ plot.factorMerger <- function(x, panel = "all",
            },
            "all" = {
                aovTable <- plotTable(calculateAnovaTable(x$initialModel))
-               return(grid.arrange(mergingPathPlot, responsePlot,
+               return(ggarrange(mergingPathPlot, responsePlot,
                                    plotGIC(x, gicPanelColor,
                                            penalty, statistic),
                                    aovTable,
-                                   ncol = 2,
-                                   widths = c(6.5, 2.5),
-                                   heights = c(6.5, 2.5)))
+                                ncol = 2, nrow = 2,  align = "hv",
+                                widths = c(2, 1), heights = c(2, 1)))
            },
            "response" = {
-               return(grid.arrange(mergingPathPlot, responsePlot,
-                                   ncol = 2,
-                                   widths = c(7.5, 2.5)))
+               return(ggarrange(mergingPathPlot, responsePlot,
+                                ncol = 2,  align = "hv",
+                                widths = c(2, 1)))
            },
            "GIC" = {
-               return(grid.arrange(mergingPathPlot,
+               return(ggarrange(mergingPathPlot,
                                    plotGIC(x, gicPanelColor,
                                            penalty, statistic),
-                                   ncol = 1,
-                                   heights = c(7.5, 2.5)))
+                                   nrow = 2, align = "hv",
+                                   heights = c(2, 1)))
            })
 }
 
@@ -954,7 +956,8 @@ plotTable <- function(tab) {
               axis.ticks = element_blank(),
               plot.title = element_text(hjust = 0.9, size = 15),
               plot.margin = unit(c(0, 0, 0, 0), "lines")) +
-        labs(x = "", y = "") + ggtitle("ANOVA table") +
+        labs(x = "", y = "") +
+        # ggtitle("ANOVA table") +
         scale_x_continuous(limits = c(1, w + 1), expand = c(0, 0.25)) +
         geom_rect(inherit.aes = FALSE,
                   data = rectData, alpha = 0.1,

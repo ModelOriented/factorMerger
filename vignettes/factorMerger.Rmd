@@ -16,7 +16,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 # Introduction
 
-The aim of `factorMerger` is to provide set of tools to support results from post hoc comparisons. Post hoc testing is an analysis performed after running *ANOVA* to examine differences between group means (of some response numeric variable) for each pair of groups (groups are defined by a factor variable).
+The aim of `factorMerger` is to provide a set of tools to support results from post hoc comparisons. Post hoc testing is an analysis performed after running *ANOVA* to examine differences between group means (of some response numeric variable) for each pair of groups (groups are defined by a factor variable).
 
 This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into nonoverlapping clusters. 
 
@@ -51,6 +51,7 @@ To do so, we may use function `generateSample` or `generateMultivariateSample`.
 library(factorMerger) 
 library(knitr)
 library(dplyr)
+library(ggpubr)
 randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 ```
 
@@ -132,7 +133,7 @@ Similarly to `cutTree`, functions `getOptimalPartition` and `getOptimalPartition
 We may plot results using function `plot`. 
 
 
-```{r, fig.height = 5, fig.width = 10}
+```{r, fig.height = 9, fig.width = 18}
 plot(fm, panel = "all", nodesSpacing = "equidistant", colorCluster = TRUE)
 ```
 
@@ -221,26 +222,27 @@ plot(binomFm, gicPanelColor = "red")
 If `family = "survival"` response must be of a class `Surv`.
  
 ```{r}
-library(survival)
-data(veteran)
-survResponse <- Surv(time = veteran$time, 
-                 event = veteran$status)
-survivalFm <- mergeFactors(response = survResponse, 
-                   factor = veteran$celltype, 
-                   family = "survival")
+# TODO: Waiting for CRAN update for survival
+# library(survival)
+# data(veteran)
+# survResponse <- Surv(time = veteran$time, 
+#                  event = veteran$status)
+# survivalFm <- mergeFactors(response = survResponse, 
+#                    factor = veteran$celltype, 
+#                    family = "survival")
 ```
 
 ```{r}
-mergingHistory(survivalFm, showStats = TRUE) %>% 
-    kable()
+# mergingHistory(survivalFm, showStats = TRUE) %>%
+#     kable()
 ```
 
 
 ```{r}
-plot(survivalFm)
+# plot(survivalFm)
 ```
 
 ```{r}
-plot(survivalFm, nodesSpacing = "effects", colorCluster = TRUE)
+# plot(survivalFm, nodesSpacing = "effects", colorCluster = TRUE)
 ```
 
