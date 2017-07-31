@@ -1,5 +1,5 @@
 #' @importFrom ggplot2 ggplot aes aes_string coord_flip xlab ylab labs stat_summary guides position_dodge annotate unit ggtitle
-#' @importFrom ggplot2 geom_point geom_bar geom_rect geom_ribbon geom_line geom_boxplot geom_errorbar geom_label geom_segment geom_vline geom_text geom_tile
+#' @importFrom ggplot2 geom_point geom_step geom_bar geom_rect geom_ribbon geom_line geom_boxplot geom_errorbar geom_label geom_segment geom_vline geom_text geom_tile
 #' @importFrom ggplot2 scale_y_discrete scale_y_continuous scale_x_discrete scale_color_manual scale_fill_brewer scale_fill_manual scale_fill_distiller scale_x_continuous scale_x_log10
 #' @importFrom ggplot2 theme_classic theme theme_bw theme_minimal element_line element_blank element_text
 #' @importFrom ggplot2 scale_color_brewer ggplot_build
@@ -9,7 +9,13 @@ NULL
 #' @importFrom dplyr group_by_ arrange_
 NULL
 
+#' @importFrom survival survexp
+NULL
+
 #' @importFrom reshape2 melt
+NULL
+
+#' @importFrom utils packageVersion
 NULL
 
 #' @importFrom ggpubr ggarrange
@@ -748,7 +754,7 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
 #' Survival plot (survival)
 #'
-#' @description Plots \code{ggcdjustedcurves} from the \code{survminer} package.
+#' @description Plots survival curves for each group. Survival probabilities are calculated from \code{coxph} model.
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
 #' to the final cluster split.
@@ -766,24 +772,36 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
                                   levels = levels)
     df <- data.frame(response = factorMerger$response, factor = factorMerger$factor)
 
+    model <- calculateModel(factorMerger, factorMerger$factor)
+    pred <- survexp(~factor, data = df, ratetable = model)
+    
+    curve <- data.frame(time = rep(c(0,pred$time), length(levels)),
+                        variable = factor(rep(levels, each=1+length(pred$time))),
+                        surv = c(rbind(1, pred$surv)))
+    
     if (color) {
-        df$factor <- cutTree(factorMerger,
-                            clusterSplit[[1]],
-                            clusterSplit[[2]])
+      factorNew <- time <- surv <- NULL
+            
+      df$factorNew <- cutTree(factorMerger,
+                              clusterSplit[[1]],
+                              clusterSplit[[2]])
+      keys <- unique(df[,c("factor", "factorNew")])
+      both <- merge(curve, keys, by.x = "variable", by.y = "factor")
+      curve <- summarise(
+          group_by(
+            both, 
+            variable = factorNew, time),
+        surv = mean(surv, na.rm=TRUE))
     }
 
-    model <- calculateModel(factorMerger, factorMerger$factor)
-
-    g <- survminer::ggadjustedcurves(model,
-                                        data = df,
-                                        variable = "factor",
-                                        curve.size = 1,
-                                        method = "average",
-                                        palette = palette) +
-        treeTheme() +
-        labs(title = "Survival plot",
-             subtitle = "Adjusted survival curves for coxph model")
-    return(g)
+    g <- ggplot(curve, aes(x = time, y = surv, color=variable)) +
+      geom_step() + 
+      treeTheme() +
+      scale_y_continuous(limits = c(0,1)) +
+      ylab("Survival rate") +
+      labs(title = "Survival plot",
+           subtitle = "Adjusted survival curves for coxph model")
+    ggpubr::ggpar(g,  palette = palette)
 }
 
 getGICBreaks <- function(mH) {

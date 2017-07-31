@@ -18,7 +18,6 @@ Imports:
     colorRamps,
     proxy,
     MASS,
-    survminer,
     ggpubr,
     scales,
     mvtnorm,

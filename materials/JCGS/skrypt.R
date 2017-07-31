@@ -12,6 +12,16 @@ pl1 <- plot(fact,
      palette = "Set2",
      panelGrid = FALSE)
 
+
+pl0 <- plot(fact,
+            panel = "all",
+            responsePanel = "tukey",
+            palette = "Set2",
+            panelGrid = FALSE,
+            penalty = 50)
+pl0
+ggsave(pl0, file = "FM_0.pdf", width = 10, height = 7)
+
 ggsave(pl1, file = "FM_tukey.pdf", width = 10, height = 7)
 
 pl2 <- factorMerger::plotMeansAndConfInt(fact, color = TRUE, clusterSplit = list("GIC", 2), palette = "Set2")
