@@ -39,15 +39,15 @@ appendProjection.gaussianFactorMerger <- function(factorMerger) {
     return(factorMerger)
 }
 
-convertToDistanceMatrix <- function(modelsPvals, successive, labels) {
+convertToDistanceTensor <- function(modelsPvals, successive, labels) {
     if (successive) {
-        m <- matrix(0, ncol = length(labels),
-                    nrow = length(labels))
-        tmp <- cbind(1:(nrow(m) - 1), 2:nrow(m))
-        m[tmp] <- modelsPvals
-        tmp <- cbind(2:nrow(m), 1:(nrow(m) - 1))
-        m[tmp] <- modelsPvals
-        modelsPvals <- m
+        modelsPvals <- data.frame(dist = modelsPvals,
+                                  first = labels[-length(labels)],
+                                  last = labels[-1],
+                                  firstClusterLabel = labels[-length(labels)],
+                                  lastClusterLabel = labels[-1],
+                                  stringsAsFactors = FALSE)
+        return(modelsPvals)
     }
 
     modelsPvals <- modelsPvals %>% matrix(ncol = length(labels))
@@ -96,7 +96,7 @@ startMerging <- function(factorMerger, successive, method) {
         return(2 * initStat - 2 * calculateModelStatistic(tmpModel))
     })
 
-    factorMerger$dist <- convertToDistanceMatrix(modelsPvals,
+    factorMerger$dist <- convertToDistanceTensor(modelsPvals,
                                                  successive,
                                                  levels(factorMerger$factor))
 

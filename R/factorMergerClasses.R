@@ -7,8 +7,10 @@
 #' @importFrom utils head tail
 #' @importFrom proxy dist
 #' @importFrom agricolae HSD.test
+#' @importFrom dplyr select_
 NULL
 
+# Clean this below!
 globalVariables(c("x1", "x2", "y1", "y2", "y0",
                   "pred", "group", "y",
                   "variable", "value", "stat", "significance",
@@ -268,9 +270,91 @@ mergeLRT <- function(factorMerger, successive) {
     return(fmList$factorMerger)
 }
 
+getPairWithLowestDist <- function(distance, pos) {
+    return(distance[pos, ] %>%
+               select_("firstClusterLabel", "lastClusterLabel"))
+}
+
+replaceWithMergedPair <- function(distance, pos, toBeMerged) {
+    mergedLabel <- paste0(toBeMerged, collapse = "")
+    if (pos > 1) {
+        distance[pos - 1, "lastClusterLabel"] <- mergedLabel
+    }
+    if (pos < nrow(distance)) {
+        distance[pos + 1, "firstClusterLabel"] <- mergedLabel
+    }
+    return(distance)
+}
+
+updateRowAfterMerging <- function(distance, newPos, origPos,
+                                  factorMerger, which) {
+    initStat <- factorMerger$mergingList[[1]]$modelStats$model
+    distance[newPos, which] <- distance[origPos, which]
+    newPair <- distance[newPos, c("first", "last")]
+    tmpFactor <- mergeLevels(factorMerger$factor,
+                             newPair[1], newPair[2])
+    tmpModel <- calculateModel(factorMerger, tmpFactor)
+    distance[newPos, "dist"] <-
+        2 * initStat - 2 * calculateModelStatistic(tmpModel)
+    return(distance)
+}
+
+updateDistAfterMerging <- function(factorMerger, pos, toBeMerged) {
+    distance <- factorMerger$dist
+    if (pos > 1) {
+        distance <- updateRowAfterMerging(distance, pos - 1, pos,
+                                          factorMerger, "last")
+    }
+    if (pos < nrow(distance)) {
+        distance <- updateRowAfterMerging(distance, pos + 1, pos,
+                                          factorMerger, "first")
+    }
+    distance <- distance[-pos, ]
+    return(distance)
+}
+
+addNewPairToMergingHistory <- function(factorMerger, toBeMerged) {
+    toBeMerged <- unname(toBeMerged)
+    if (length(factorMerger$mergingList) == 1) {
+        return(as.matrix(toBeMerged))
+    }
+    mH <- factorMerger$mergingHistory
+    mH <- rbind(mH, unname(as.matrix(toBeMerged)))
+    return(mH)
+}
+
+mergeSuccessiveHClust <- function(factorMerger) {
+    factor <- factorMerger$factor
+    for (step in 1:(length(levels(factorMerger$factor)) - 1)) {
+        # Take pair p of A and B with the lowest distance
+        mergingPositionInTable <- which.min(factorMerger$dist$dist)
+        toBeMerged <- getPairWithLowestDist(factorMerger$dist,
+                                            mergingPositionInTable)
+        # mergePairHClust with p (add to the merging list)
+        factorMerger$mergingHistory <-
+            addNewPairToMergingHistory(factorMerger, toBeMerged)
+        fm <- mergePairHClust(factorMerger, factor)
+        factorMerger <- fm$factorMerger
+        factor <- fm$factor
+        # Replace clusterLabels in the factorMerger$dist
+        factorMerger$dist <- replaceWithMergedPair(factorMerger$dist,
+                                                   mergingPositionInTable,
+                                                   toBeMerged)
+
+        factorMerger$dist <- updateDistAfterMerging(factorMerger,
+                                                   mergingPositionInTable,
+                                                   toBeMerged)
+    }
+    return(factorMerger)
+}
 
 mergeHClust <- function(factorMerger, successive) {
     factorMerger <- startMerging(factorMerger, successive, "hclust")
+    if (successive) {
+        return(mergeSuccessiveHClust(factorMerger))
+    }
+
+    # Original DMR
     clust <- clusterFactors(factorMerger$dist)
     factorMerger$mergingHistory <-
         recodeClustering(clust$merge,
