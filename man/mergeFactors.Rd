@@ -4,8 +4,8 @@
 \alias{mergeFactors}
 \title{Merge factors}
 \usage{
-mergeFactors(response, factor, family = "gaussian", successive = FALSE,
-  method = "LRT", abbreviate = TRUE)
+mergeFactors(response, factor, family = "gaussian",
+  method = "fast-adaptive", abbreviate = TRUE)
 }
 \arguments{
 \item{response}{A response \code{vector/matrix} suitable for the model family.}
@@ -16,12 +16,9 @@ mergeFactors(response, factor, family = "gaussian", successive = FALSE,
 \code{ "survival", "binomial"}.
 By default \code{mergeFactors} uses \code{"gaussian"} model.}
 
-\item{successive}{If \code{FALSE}, the default,
-in each step of the merging procedure all possible pairs are compared.
-Otherwise, factor levels are preliminarly sorted and only succesive pairs are compared.}
-
 \item{method}{A string specifying method used during merging.
-Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.}
+Two methods are availabel: \code{"adaptive", "fast-adaptive", "fixed", "fast-fixed"}.
+The default is \code{"fast-adaptive"}.}
 
 \item{abbreviate}{Logical. If \code{TRUE}, the default, factor levels names
 are abbreviated.}

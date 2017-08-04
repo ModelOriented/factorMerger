@@ -18,7 +18,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE, message 
 
 The aim of `factorMerger` is to provide a set of tools to support results from post hoc comparisons. Post hoc testing is an analysis performed after running *ANOVA* to examine differences between group means (of some response numeric variable) for each pair of groups (groups are defined by a factor variable).
 
-This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into nonoverlapping clusters. 
+This project arose from the need to create a method of post hoc testing which gives the hierarchical interpretation of relations between groups means. Thereby, for a given significance level we may divide groups into non-overlapping clusters. 
 
 # Algorithm inputs
 
@@ -29,21 +29,11 @@ In the current version the **factorMerger** package supports parametric models:
 - binomial (with the argument `family = "binomial"`),
 - survival (with the argument `family = "survival"`).
 
-Set of hypotheses that are tested during merging may be either comprehensive or limited. This gives two possibilities:
-
-- *all-to-all* (with the argument `successive = FALSE`),
-- *successive* (with the argument `successive = TRUE`).
-
-The version *all-to-all* considers all possible pairs of factor levels. In the  *successive* approach factor levels are preliminarily sorted and then only consecutive groups are tested for means equality.
-
-The **factorMerger** package also implements two strategies of a single iteration of the algorithm. They use one of the following:
-
-- *Likelihood Ratio Test* (with the argument `method = "LRT"`),
-- *agglomerative clustering with constant distance matrix* [based on the *DMR4glm* algorithm @Proch, with the argument `method = "hclust"`]. 
+There are four algorithms available: adaptive, fast-adaptive, fixed and fast-fixed (they are set with the `method` argument of `mergeFactors`). *Fast* algorithms enable to unite only those groups whose group statistics (i.e. means in the Gaussian case) are close.
 
 # Generating samples 
 
-To visualize functionalities of `factorMerger` we use samples for which response variable is generated from one of the distributions listed above and corresponding factor variable is sampled uniformly from a finite set of a size $k$. 
+To visualize functionalities of `factorMerger` we use samples or real data examples with response variable whose distribution follow one of the listed above. The corresponding factor variable is sampled uniformly from a finite set of a size $k$. 
 
 To do so, we may use function `generateSample` or `generateMultivariateSample`.
 
@@ -81,12 +71,11 @@ mergingHistory(fmAll, showStats = TRUE) %>%
 
 Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns *model* and *GIC* gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the *Likelihood Ratio Test* -- against the full model (*pvalVsFull*) and against the previous one (*pvalVsPrevious*).
 
-If we set `successive = TRUE` then at the beginning one dimensional response is fitted using `isoMDS{MASS}`. Next, in each step only groups whose means are closed are compared.
+If we choose a *fast* version of merging one dimensional response is fitted using `isoMDS{MASS}`. Next, in each step only groups whose means are closed are compared.
 
 ```{r}
 fm <- mergeFactors(randSample$response, randSample$factor, 
-                   successive = TRUE, 
-                   method = "hclust")
+                   method = "fast-fixed")
 
 mergingHistory(fm, showStats = TRUE) %>% 
     kable()
@@ -171,7 +160,7 @@ oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
 oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, 
-                         method = "hclust")
+                         method = "fixed")
 mergingHistory(oneDimFm, showStats = TRUE) %>% 
     kable()
 ```
@@ -198,7 +187,7 @@ table(binomRandSample$response, binomRandSample$factor) %>%
 binomFm <- mergeFactors(binomRandSample$response, 
                         binomRandSample$factor, 
                         family = "binomial", 
-                        successive = TRUE)
+                        method = "fast-adaptive")
 mergingHistory(binomFm, showStats = TRUE) %>% 
     kable()
 ```

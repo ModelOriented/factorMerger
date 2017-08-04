@@ -225,11 +225,9 @@ print.factorMerger <- function(x, ...) {
 #' @param family Model family to be used in merging. Available models are: \code{"gaussian",}
 #' \code{ "survival", "binomial"}.
 #' By default \code{mergeFactors} uses \code{"gaussian"} model.
-#' @param successive If \code{FALSE}, the default,
-#' in each step of the merging procedure all possible pairs are compared.
-#' Otherwise, factor levels are preliminarly sorted and only succesive pairs are compared.
 #' @param method A string specifying method used during merging.
-#' Two methods are availabel: \code{"hclust", "LRT"}. The default is \code{"LRT"}.
+#' Two methods are availabel: \code{"adaptive", "fast-adaptive", "fixed", "fast-fixed"}.
+#' The default is \code{"fast-adaptive"}.
 #' @param abbreviate Logical. If \code{TRUE}, the default, factor levels names
 #' are abbreviated.
 #'
@@ -241,12 +239,14 @@ print.factorMerger <- function(x, ...) {
 #'
 mergeFactors <- function(response, factor,
                          family = "gaussian",
-                         successive = FALSE,
-                         method = "LRT",
+                         method = "fast-adaptive",
                          abbreviate = TRUE) {
 
     stopifnot(!is.null(response), !is.null(factor))
+    stopifnot(method %in% c("adaptive", "fast-adaptive",
+                            "fixed", "fast-fixed"))
 
+    successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
 
     if (is.data.frame(response)) {
         response <- as.matrix(response)
@@ -254,17 +254,11 @@ mergeFactors <- function(response, factor,
 
     fm <- merger(response, factor, family, abbreviate)
 
-    if (method == "LRT") {
+    if (grepl("adaptive", method)) {
         return(mergeLRT(fm, successive))
     }
 
-    if (method == "hclust") {
-        return(mergeHClust(fm, successive))
-    }
-
-    else {
-        stop("Requested method of merging is not supported.")
-    }
+    return(mergeHClust(fm, successive))
 }
 
 mergeLRT <- function(factorMerger, successive) {

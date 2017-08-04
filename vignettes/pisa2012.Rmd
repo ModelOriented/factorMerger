@@ -72,7 +72,9 @@ pisaFM <- mergeFactors(pisa2012[pisaIdxSubset, 1:3],
 
 plot(pisaFM, responsePanel = "profile")
 ```
-It's faster to use 'hclust' method on a big dataset.
+It's faster to use "fast-adaptive" or "fast-fixed" methods on a big dataset.
+They enable comparisons between neighbours only (neighbours is a pair of groups with close means). 
+
 ```{r, eval = FALSE}
 pisaIdxSubset <- which(pisa2012$country %in% c("Belgium",
                                            "Netherlands",
@@ -82,8 +84,7 @@ pisaIdxSubset <- which(pisa2012$country %in% c("Belgium",
                                            "Estonia"))
 pisaFMHClust <- mergeFactors(pisa2012[pisaIdxSubset, 1:3],
                        factor(pisa2012$country[pisaIdxSubset]),
-                       method = "hclust",
-                       successive = TRUE) 
+                       fuse = "fast-fixed") 
 
 plot(pisaFMHClust, responsePanel = "profile", 
      penalty = log(NROW(pisaFMHClustMath$factor)), 
@@ -108,8 +109,7 @@ pisaEuropean <- filter(pisa2012, country %in% c("Austria", "Belgium", "Bulgaria"
 
 pisaFMHClustEurope <- mergeFactors(pisaEuropean[,1:3],
                        factor(pisaEuropean$country),
-                       method = "hclust",
-                       successive = TRUE) 
+                       fuse = "fast-fixed") 
 
 plot(pisaFMHClustEurope)
 
