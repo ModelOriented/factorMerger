@@ -7,7 +7,7 @@
 #' @importFrom utils head tail
 #' @importFrom proxy dist
 #' @importFrom agricolae HSD.test
-#' @importFrom dplyr select_
+#' @importFrom dplyr select_ seqtequal
 NULL
 
 # Clean this below!
@@ -19,13 +19,23 @@ globalVariables(c("x1", "x2", "y1", "y2", "y0",
                   "xmin", "xpos", "y100", "y25", "xmax",
                   "y50", "y75", "ymax", "ymin", "ypos"))
 
+cleanFactor <- function(factor) {
+    factor <- as.factor(factor)
+    levs <- levels(factor)
+    factor <- droplevels(factor)
+    if (!setequal(levels(factor), levs)) {
+        warning("Dropped missing levels of the factor.")
+    }
+    return(factor)
+}
+
 merger <- function(response, factor,
                    family = "gaussian",
                    abbreviate) {
 
     stopifnot(NROW(response) == NROW(factor))
 
-    factor <- as.factor(factor)
+    factor <- cleanFactor(factor)
 
     if (abbreviate) {
         map <- data.frame(
