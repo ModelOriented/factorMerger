@@ -7,7 +7,7 @@
 #' @importFrom utils head tail
 #' @importFrom proxy dist
 #' @importFrom agricolae HSD.test
-#' @importFrom dplyr select_ seqtequal
+#' @importFrom dplyr select_ setequal
 NULL
 
 # Clean this below!
