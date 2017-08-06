@@ -774,14 +774,14 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
     model <- calculateModel(factorMerger, factorMerger$factor)
     pred <- survexp(~factor, data = df, ratetable = model)
-    
+
     curve <- data.frame(time = rep(c(0,pred$time), length(levels)),
                         variable = factor(rep(levels, each=1+length(pred$time))),
                         surv = c(rbind(1, pred$surv)))
-    
+
     if (color) {
       factorNew <- time <- surv <- NULL
-            
+
       df$factorNew <- cutTree(factorMerger,
                               clusterSplit[[1]],
                               clusterSplit[[2]])
@@ -789,13 +789,13 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
       both <- merge(curve, keys, by.x = "variable", by.y = "factor")
       curve <- summarise(
           group_by(
-            both, 
+            both,
             variable = factorNew, time),
         surv = mean(surv, na.rm=TRUE))
     }
 
     g <- ggplot(curve, aes(x = time, y = surv, color=variable)) +
-      geom_step() + 
+      geom_step() +
       treeTheme() +
       scale_y_continuous(limits = c(0,1)) +
       ylab("Survival rate") +
@@ -943,40 +943,5 @@ plotFrequency <- function(factorMerger, color, clusterSplit) {
 }
 
 plotTable <- function(tab) {
-    vecTab <- c("", rownames(tab))
-    for (i in 1:ncol(tab)) {
-        tab[, i] <- as.character(tab[, i])
-        vecTab <- c(vecTab, colnames(tab)[i], tab[, i])
-    }
-
-    tab[tab == "<NA>"] <- " "
-
-    h <- nrow(tab) + 1
-    w <- ncol(tab) + 1
-    tab1 <- data.frame(V0 = factor(rep(letters[h:1],  w)),
-                       V05 = rep(1:w, each = h),
-                       V1 = vecTab,
-                       stringsAsFactors = FALSE)
-
-    rectData <- data.frame(xmin = 1.5, xmax = w + 1,
-                           ymin = h - 0.5, ymax = h + 0.5)
-    tab1[is.na(tab1)] <- " "
-    ggplot(tab1, aes(x = V05, y = V0, label = format(V1, nsmall = 1))) +
-        geom_text(size = 5.5, hjust = 0, vjust = 0.5) +
-        theme_bw() +
-        theme(panel.grid.major = element_blank(),
-              legend.position = "none",
-              panel.border = element_blank(),
-              axis.text.x = element_blank(),
-              axis.text.y = element_blank(),
-              axis.ticks = element_blank(),
-              plot.title = element_text(hjust = 0.9, size = 15),
-              plot.margin = unit(c(0, 0, 0, 0), "lines")) +
-        labs(x = "", y = "") +
-        # ggtitle("ANOVA table") +
-        scale_x_continuous(limits = c(1, w + 1), expand = c(0, 0.25)) +
-        geom_rect(inherit.aes = FALSE,
-                  data = rectData, alpha = 0.1,
-                  mapping = aes(xmin = xmin, xmax = xmax,
-                                ymin = ymin, ymax = ymax))
+    return(ggpubr::ggtexttable(tab, theme = ggpubr::ttheme(base_size = 25, "classic")))
 }
