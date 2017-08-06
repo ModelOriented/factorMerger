@@ -816,8 +816,7 @@ getGICBreaks <- function(mH) {
 #'
 #' @description Plots Generalized Information Criterion for models on the Factor Merger Tree.
 #' @param factorMerger object of a class \code{factorMerger}
-#' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
-#' to the final cluster split.
+#' @param color GIC plot color.
 #' @param statistic cluster split statistic
 #' @param penalty GIC penalty
 #'
@@ -868,6 +867,11 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
     return(g)
 }
 
+ggDefaultPalette <- function(n) {
+    hues = seq(15, 375, length = n + 1)
+    hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
 #' TukeyHSD Plot
 #'
 #' @description TODO: Aga
@@ -877,22 +881,29 @@ plotGIC <- function(factorMerger, color, penalty = 2, statistic) {
 #'
 #' @export
 plotTukey <- function(factorMerger, palette = NULL) {
+
     response <- factorMerger$response
     factor <- factorMerger$factor
     tukeyGroups <- getTukeyGroups(response, factor)
     tukeyGroups$level <- rownames(tukeyGroups)
     tukeyGroups[tukeyGroups == FALSE] <- NA
     levelsOrder <- getFinalOrderVec(factorMerger)
-    tukeyGroups %>% melt(id.vars = "level") %>%
-        filter(!is.na(value)) %>%
+    tukeyGroups <- tukeyGroups %>% melt(id.vars = "level") %>%
+        filter(!is.na(value))
+
+    tukPlot <- tukeyGroups %>%
         ggplot(aes(variable, factor(level, levels = levelsOrder))) +
         geom_tile(aes(fill = paste(value, variable), color = "#000000"),
                   show.legend = FALSE, na.rm = TRUE) +
         scale_color_manual(values = "#000000") +
-        scale_fill_brewer(direction = -1, palette = palette) +
         scale_y_discrete(expand = c(0, 0)) +
         ggtitle(label = "Tukey HSD test", subtitle = " ") +
         xlab("") + treeTheme(FALSE) + theme(axis.text.y = element_blank())
+
+    if (is.null(palette)) {
+        return(tukPlot)
+    }
+    return(tukPlot + scale_fill_brewer(direction = -1, palette = palette))
 }
 
 
@@ -943,5 +954,8 @@ plotFrequency <- function(factorMerger, color, clusterSplit) {
 }
 
 plotTable <- function(tab) {
-    return(ggpubr::ggtexttable(tab, theme = ggpubr::ttheme(base_size = 25, "classic")))
+    return(ggpubr::ggtexttable(tab, theme =
+                                   ggpubr::ttheme(base_colour = "gray50",
+                                                  base_size = 25,
+                                                  "classic")))
 }
