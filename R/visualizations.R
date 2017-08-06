@@ -767,7 +767,7 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
 
 #' Survival plot (survival)
 #'
-#' @description Plots survival curves for each group. Survival probabilities are calculated from \code{coxph} model.
+#' @description Plots adjusted survival curves for coxph model for each group. Survival probabilities are calculated from \code{coxph} model.
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param color Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
 #' to the final cluster split.
@@ -813,7 +813,7 @@ plotSurvival <- function(factorMerger, color, clusterSplit, palette = NULL) {
       scale_y_continuous(limits = c(0,1)) +
       ylab("Survival rate") +
       labs(title = "Survival plot",
-           subtitle = "Adjusted survival curves for coxph model")
+           subtitle = "")
     ggpubr::ggpar(g,  palette = palette)
 }
 
