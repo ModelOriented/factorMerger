@@ -283,7 +283,9 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
         g <- g + geom_vline(xintercept = mark$intercept,
                             col = "mediumorchid3", linetype = "dotted") +
             geom_label(x = mark$labelIntercept,
-                       y = getLimits(labelsDf, showY)[1],
+                       y = getLimits(labelsDf, showY)[1] +
+                           0.1 * (getLimits(labelsDf, showY)[2] -
+                                getLimits(labelsDf, showY)[1]),
                        label = mark$label,
                        alpha = 0.5,
                        col = "mediumorchid3",
