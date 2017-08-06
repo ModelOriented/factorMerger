@@ -122,7 +122,10 @@ plot.factorMerger <- function(x, panel = "all",
                                           clusterSplit[[1]],
                                           clusterSplit[[2]])
     } else {
-        colorsDf <- NULL
+        colorsDf <- data.frame(
+            orig = levels(x$factor),
+            pred = levels(x$factor)
+        )
     }
 
     mergingPathPlot <- plotTree(x, statistic, nodesSpacing,
@@ -274,6 +277,14 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
     if (color) {
         g <- addClustersColors(g, segment, factorMerger,
                                clusterSplit, statistic, palette)
+    } else {
+        clusterColors <- getClustersColorsNames(palette,
+                                                NROW(colorsDf),
+                                                factor(labelsDf$label,
+                                                       levels = labelsDf$label))
+        g <- g + theme(axis.text.y = element_text(
+            color = rev(clusterColors),
+            size = 15))
     }
 
     g <- scaleAxis(g, statistic, alpha)
