@@ -14,7 +14,8 @@ NULL
 globalVariables(c("x1", "x2", "y1", "y2", "y0",
                   "pred", "group", "y",
                   "variable", "value", "stat", "significance",
-                  "level", "hjust", "vjust", "label", "left", "n", "right",
+                  "level", "hjust", "vjust", "label",
+                  "left", "n", "right",
                   "L1", "V0", "V05", "V1", "V2",
                   "xmin", "xpos", "y100", "y25", "xmax",
                   "y50", "y75", "ymax", "ymin", "ypos"))
@@ -202,6 +203,7 @@ call <- function(factorMerger) {
 #'
 print.factorMerger <- function(x, ...) {
    df <- mergingHistory(x, showStats = TRUE)
+   rownames(df) <- 0:(nrow(df) - 1)
    colnames(df)[1:2] <- c("groupA", "groupB")
    cat(call(x))
 
