@@ -143,7 +143,7 @@ calculateAnovaTable.coxph <- function(model) {
         pvalue = formatPvalue(round(anova(model,
                                           test = "Chisq")$`Pr(>|Chi|)`[2], 4)),
         nGroups = NROW(model$coefficients),
-        nObs = NROW(model$fitted.values)
+        nObs = model$n
     )
 
     anTable <- t(anTable)
