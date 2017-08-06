@@ -130,7 +130,7 @@ calculateAnovaTable.binomglm <- function(model) {
         pvalue = formatPvalue(round(anova(model,
                                           test = "Chisq")$`Pr(>Chi)`[2], 4)),
         nGroups = NROW(model$coefficients),
-        nObs = model$n
+        nObs = NROW(model$fitted.values)
     )
 
     anTable <- t(anTable)
