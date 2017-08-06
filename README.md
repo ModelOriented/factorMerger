@@ -2,7 +2,7 @@
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://travis-ci.org/MI2DataLab/factorMerger.svg?branch=master)](https://travis-ci.org/MI2DataLab/factorMerger)
-[![Pending Pull-Requests](http://githubbadges.herokuapp.com/MI2DataLab/factorMerger/pulls.svg)](https://github.com/geneticsMiNIng/factorMerger/pulls)
+[![Pending Pull-Requests](http://githubbadges.herokuapp.com/MI2DataLab/factorMerger/pulls.svg)](https://github.com/MI2DataLab/factorMerger/pulls)
 [![Github Issues](http://githubbadges.herokuapp.com/MI2DataLab/factorMerger/issues.svg)](https://github.com/MI2DataLab/factorMerger/issues)
 [![DOI](https://zenodo.org/badge/70429809.svg)](https://zenodo.org/badge/latestdoi/70429809)
 
