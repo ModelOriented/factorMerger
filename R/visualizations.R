@@ -754,8 +754,7 @@ plotProportion <- function(factorMerger, color, clusterSplit, palette = NULL) {
         scale_x_discrete(expand = c(0, 0)) +
         coord_flip() + treeTheme() +
         theme(axis.title.y = element_blank(), axis.text.y = element_blank()) +
-        labs(title = "Success ratio",
-             subtitle = "")
+        labs(title = "Success ratio")
 
     if (!is.null(palette)) {
         g <- g +

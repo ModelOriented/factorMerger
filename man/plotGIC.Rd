@@ -9,8 +9,7 @@ plotGIC(factorMerger, color, penalty = 2, statistic)
 \arguments{
 \item{factorMerger}{object of a class \code{factorMerger}}
 
-\item{color}{Boolean. If \code{TRUE}, the default, there is added aesthetic group corresponding
-to the final cluster split.}
+\item{color}{GIC plot color.}
 
 \item{penalty}{GIC penalty}
 
