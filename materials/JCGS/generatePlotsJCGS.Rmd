@@ -1,0 +1,147 @@
+---
+title: "Plots included in the JCGS article"
+output: html_notebook
+---
+
+```{r libs}
+library(factorMerger)
+library(dplyr)
+```
+
+
+# PISA - 11 countries (first part of the article)
+
+```{r}
+pisa11 <- pisa2012 %>% filter(country %in% c("Austria", "Belgium",
+                                             "Finland", "Poland", 
+                                             "Germany", "Denmark",
+                                             "United Kingdom", "France",
+                                             "Italy", "Spain", "Sweden"))
+
+pisaAOV <- aov(math ~ country, pisa11)
+
+tuk <- TukeyHSD(pisaAOV)
+par(mar=c(1,10,4,2)+0.1,mgp=c(5,1,0))
+plot(tuk, yaxt = 'n', ann = FALSE)
+text(y = seq(0, 55, by=55 / NROW(tuk$country)), par("usr")[1], labels = rownames(tuk$country), pos = 2, xpd = TRUE)
+
+```
+
+```{r}
+pisaFM <- mergeFactors(pisa11$math, 
+                       pisa11$country, 
+                       method = "fast-fixed")
+pisaPlot <- plot(pisaFM, panelGrid = FALSE, responsePanel = "tukey", 
+                 title = "PISA 2012 - Math scores in countries")
+ggsave(plot = pisaPlot, filename = "./introPlots/FM_pisa_tukey.pdf", 
+       width = 15, height = 10)
+
+```
+
+
+# PISA - European countries + math
+
+```{r}
+pisaEuropean <- pisa2012 %>% filter(country %in% c("Austria", "Belgium", "Bulgaria",
+                                            "Czech Republic", "Germany", "Denmark",
+                                            "Spain", "Estonia", "Finland",
+                                            "France", "Hungary", "Ireland",
+                                            "Italy", "Netherlands", "Norway",
+                                            "Poland", "Portugal", "United Kingdom",
+                                            "Turkey", "Sweden", "Croatia", "Montenegro",
+                                            "Russian Federation", "Slovak Republic",
+                                            "Slovenia")) 
+pisaAOV <- aov(math ~ country, pisaEuropean)
+```
+
+## Original tukey plot
+
+```{r}
+tuk <- TukeyHSD(pisaAOV)
+plot(tuk)
+```
+
+## Custom tukey plot
+```{r}
+ggtuk <- tuk$country %>% as.data.frame() %>% add_rownames() %>% 
+    ggplot(aes(y = diff, x = rowname)) + geom_point() +
+    geom_errorbar(aes(ymin = lwr, ymax = upr)) + 
+    coord_flip() + 
+    ylab("Differences in mean levels of Country") +
+    xlab("Country") + 
+    ggtitle("95% family-wise confidence level")
+ggsave(filename = "./plotsGenerated/custom_tukey.pdf", plot = ggtuk, 
+       width = 15, height = 10)
+```
+
+# Factor merger - pisa intro
+
+```{r}
+pisaFM <- mergeFactors(pisaEuropean$math, 
+                       pisaEuropean$country, 
+                       method = "fast-fixed")
+pisaPlot <- plot(pisaFM, panelGrid = FALSE, responsePanel = "tukey", 
+                 title = "")
+ggsave(plot = pisaPlot, filename = "./plotsGenerated/FM_pisa_tukey.pdf", 
+       width = 15, height = 10)
+```
+
+
+# Response panel
+
+## One dim
+
+```{r}
+pisa2012eur <- pisa2012[pisa2012$CNT %in% c("Austria","Belgium","Germany","Denmark", "Spain","Finland","France","United Kingdom","Italy","Poland","Sweden"), ]
+pisa2012eur$CNT <- factor(pisa2012eur$CNT)
+
+fact <- mergeFactors(pisa2012eur$PV1MATH, pisa2012eur$CNT, method = "hclust")
+
+pl2 <- factorMerger::plotMeansAndConfInt(fact, color = TRUE, clusterSplit = list("GIC", 2), palette = "Set2")
+ggsave(pl2, file = "./plotsGenerated/FM_panelCI.pdf", width = 3, height = 5)
+
+pl3 <- factorMerger::plotBoxplot(fact, color = TRUE, clusterSplit = list("GIC", 2), palette = "Set2")
+ggsave(pl3, file = "./plotsGenerated/FM_panelBox.pdf", width = 3, height = 5)
+
+pl4 <- factorMerger:::plotTukey(fact, palette = "Set2")
+ggsave(pl4, file = "./plotsGenerated/FM_panelTukey.pdf", width = 3, height = 5)
+
+fact2 <- mergeFactors(pisa2012eur$PV1MATH, pisa2012eur$CNT, method = "hclust")
+
+
+pisa2012eur$highSkills <- ifelse(pisa2012eur$PV1MATH > 545, 1, 0)
+pisa2012eur <- na.omit(pisa2012eur)
+
+factB <- mergeFactors(pisa2012eur$highSkills, pisa2012eur$CNT, method = "hclust", family = "binomial")
+
+pl5 <- factorMerger:::plotProportion(factB, color = TRUE, clusterSplit = list("GIC", 2), palette = "Set2")
+ggsave(pl5, file = "./plotsGenerated/FM_panelProportion.pdf", width = 3, height = 5)
+
+factMD <- mergeFactors(pisa2012eur[,1:3], pisa2012eur$CNT, method = "hclust")
+
+pl6 <- factorMerger:::plotHeatmap(factMD, color = TRUE, clusterSplit = list("GIC", 2), palette = "Blues")
+ggsave(pl6, file = "./plotsGenerated/FM_panelHeatmap.pdf", width = 3, height = 5)
+
+pl7 <- factorMerger::plotProfile(factMD, color = FALSE, clusterSplit = list("GIC", 2), palette = "Blues")
+ggsave(pl7, file = "./plotsGenerated/FM_panelProfile.pdf", width = 3, height = 5)
+
+pl8 <- factorMerger::plotFrequency(factMD, color = FALSE, clusterSplit = list("GIC", 2))
+ggsave(pl8, file = "./plotsGenerated/FM_panelFrequency.pdf", width = 3, height = 5)
+
+
+library(survival)
+library(survminer)
+pisa2012eur <- na.omit(pisa2012eur)
+pisa2012eur$one <- 1
+factS <- mergeFactors(Surv(pisa2012eur$PV1MATH, pisa2012eur$one),
+                      pisa2012eur$CNT, method = "hclust", family = "survival")
+
+pl9 <- factorMerger::plotSurvival(factS, color = FALSE, clusterSplit = list("GIC", 2))
+ggsave(pl9, file = "./plotsGenerated/FM_panelSurvival.pdf", width = 3, height = 5)
+```
+
+# GIC plot
+```{r}
+gicPlot <- plotGIC(pisaFM, color = NULL, penalty = 50, statistic = "loglikelihood")
+ggsave(gicPlot, file = "./plotsGenerated/FM_gicPlot.pdf", width = 5, height = 2.5)
+```

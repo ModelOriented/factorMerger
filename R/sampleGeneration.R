@@ -1,3 +1,9 @@
+getLetters <- function(k) {
+    reps <- rep(LETTERS, round(k / length(LETTERS) + 1))[1:k]
+    prefix <- rep(c("", LETTERS), each = length(LETTERS))[1:k]
+    return(paste0(prefix, reps))
+}
+
 #' Generate sample
 #'
 #' Produces a random sample of k groups drawn from the same distribution with different
@@ -27,12 +33,13 @@ generateSample <- function(N, k, distr = "gaussian") {
         "binomial" = rep(0, N),
         stop("Unknown distribution."))
 
-    factorVec <- as.factor(sample(LETTERS[1:k],
+    kLetters <- getLetters(k)
+    factorVec <- as.factor(sample(kLetters,
                               size = N,
                               replace = TRUE))
 
     for (i in 1:k) {
-        let <- LETTERS[i]
+        let <- kLetters[i]
         if (distr == "binomial") {
             numericVec[factorVec == let] <-
                 rbinom(length(numericVec[factorVec == let]), 1, runif(1))
