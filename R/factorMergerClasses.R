@@ -153,7 +153,6 @@ mergingHistory <- function(factorMerger, showStats = FALSE,
         as.data.frame(stringsAsFactors = FALSE) %>%
         rename(groupA = V1, groupB = V2)
 
-    rownames(mergingDf) <- NULL
     if (showStats) {
         st <- stats(factorMerger)
         if (round) {
@@ -168,6 +167,7 @@ mergingHistory <- function(factorMerger, showStats = FALSE,
         mergingDf$GIC <- -2 * mergingDf$model +
             penalty * nrow(mergingDf):1
     }
+    rownames(mergingDf) <- as.character(0:(nrow(mergingDf) - 1))
 
     return(mergingDf)
 }
@@ -203,7 +203,7 @@ call <- function(factorMerger) {
 #'
 print.factorMerger <- function(x, ...) {
    df <- mergingHistory(x, showStats = TRUE)
-   rownames(df) <- 0:(nrow(df) - 1)
+   rownames(df) <- as.character(0:(nrow(df) - 1))
    colnames(df)[1:2] <- c("groupA", "groupB")
    cat(call(x))
 
