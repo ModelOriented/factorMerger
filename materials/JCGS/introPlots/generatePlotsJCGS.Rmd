@@ -62,11 +62,16 @@ ggsave(plot = pisaPlot, filename = "./FM_pisa_tukey.pdf",
 ## One dim
 
 ```{r}
-pisa2012eur <- pisa2012[pisa2012$CNT %in% c("Austria","Belgium","Germany","Denmark", "Spain","Finland","France","United Kingdom","Italy","Poland","Sweden"), ]
-pisa2012eur$CNT <- factor(pisa2012eur$CNT)
+pisa2012eur <- pisa2012[pisa2012$country %in% c("Austria","Belgium","Germany","Denmark", "Spain","Finland","France","United Kingdom","Italy","Poland","Sweden"), ]
+pisa2012eur$country <- factor(pisa2012eur$country)
 
-fact <- mergeFactors(pisa2012eur$PV1MATH, pisa2012eur$CNT, method = "hclust")
+fact <- mergeFactors(pisa2012eur$math, pisa2012eur$country, method = "fixed")
+pl0 <- plot(fact, panelGrid = FALSE, panel = "tree")
+ggsave(pl0, file = "./FM_pisa_tukey_0_countries.pdf", width = 15, height = 10)
 
+pl1 <- plot(fact, panelGrid = FALSE, responsePanel = "tukey",
+            title = "PISA 2012 - Math scores in countries")
+ggsave(pl1, file = "./FM_pisa_tukey_11_countries.pdf", width = 15, height = 10)
 pl2 <- factorMerger::plotMeansAndConfInt(fact, color = TRUE, clusterSplit = list("GIC", 2), palette = "Set2")
 ggsave(pl2, file = "./FM_panelCI.pdf", width = 3, height = 5)
 
