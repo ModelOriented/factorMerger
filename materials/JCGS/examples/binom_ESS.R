@@ -29,6 +29,7 @@ gicComparisons <-
     ggpubr::ggarrange(p1, p2, p3, ncol = 3, labels = c("A", "B", "C"))
 ggsave(gicComparisons, file = "./materials/JCGS/examples/ess_gic.pdf",
        width = 17, height = 10)
+save(gicComparisons, file = "./materials/JCGS/examples/ess_gic.rda")
 
 p4 <- plot(happyFM, panel = "tree", penalty = 500,
      title = "      European Social Study - happiness proportion",
@@ -39,11 +40,4 @@ library(ggplot2)
 ggsave(essPanels, file = "./materials/JCGS/examples/essPanels.pdf",
        width = 15, height = 20)
 
-
-p5 <- plot(happyFM, panel = "response", penalty = 500,
-           title = "European Social Study - happiness proportion",
-           panelGrid = FALSE)
-
-ggsave(p5, file = "./materials/JCGS/examples/ess_proportion.pdf",
-       width = 11, height = 7)
-
+save(essPanels, file = "./materials/JCGS/examples/essPanels.rda")
