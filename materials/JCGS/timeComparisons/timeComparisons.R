@@ -74,6 +74,8 @@ nEvalPerMinute <- ggpubr::ggarrange(t1, t2, ncol = 2, legend = "bottom", common.
 ggsave(nEvalPerMinute, filename = "./materials/JCGS/timeComparisons/nEvalsPerMinute.pdf",
        width = 8, height = 5)
 
+save(nEvalPerMinute, file = "./materials/JCGS/timeComparisons/nEvalsPerMinute.rda")
+
 p1 <- res %>%
     group_by(nGroups, method, nObs) %>%
     summarise(time = mean(time)) %>%
