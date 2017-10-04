@@ -1,0 +1,10 @@
+# A tibble: 6 x 3
+# Groups:   nObs [2]
+   nObs        method     value
+  <dbl>         <chr>     <dbl>
+1  1000      adaptive  2.504947
+2  1000 fast-adaptive 37.989110
+3  1000    fast-fixed 73.019350
+4  1000         fixed 26.130128
+5  2000      adaptive  1.893724
+6  2000 fast-adaptive 29.382958
