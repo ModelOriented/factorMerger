@@ -23,3 +23,4 @@ the matching summary statistics:
 model loglikelihood, pvalue for the \code{LRT} test
 against the full model and Generalized Information Criterion value.
 }
+

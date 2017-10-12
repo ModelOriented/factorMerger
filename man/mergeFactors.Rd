@@ -67,3 +67,4 @@ randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 mergeFactors(randSample$response, randSample$factor)
 
 }
+

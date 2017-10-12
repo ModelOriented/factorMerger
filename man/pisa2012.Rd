@@ -3,6 +3,7 @@
 \docType{data}
 \name{pisa2012}
 \alias{pisa2012}
+\alias{pisaEuro}
 \title{PISA 2012 dataset}
 \usage{
 data(pisa2012)
@@ -27,3 +28,4 @@ The variables are as follows (original column names from the \code{PISA2012lite}
 }
 }
 \keyword{data}
+

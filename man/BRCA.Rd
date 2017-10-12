@@ -24,3 +24,4 @@ The variables are as follows (original column names from the \code{RTCGA.clinica
 }
 }
 \keyword{data}
+

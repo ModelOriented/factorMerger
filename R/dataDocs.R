@@ -42,6 +42,7 @@ NULL
 #' }
 #'
 #' @name pisa2012
+#' @aliases pisaEuro
 #' @docType data
 #' @usage data(pisa2012)
 #' @keywords data
