@@ -26,4 +26,3 @@ generateSample(100, 2)
 generateSample(100, 2, "exp")
 
 }
-

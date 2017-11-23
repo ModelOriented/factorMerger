@@ -24,4 +24,3 @@ to the final cluster split.}
 Plots heatmap for each dimension of the response variable. Vector of means of factor levels for a given
 dimension is scaled to have mean equal to zero and standard deviation equal to one.
 }
-

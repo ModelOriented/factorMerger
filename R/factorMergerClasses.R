@@ -30,67 +30,70 @@ cleanFactor <- function(factor) {
     return(factor)
 }
 
-merger <- function(response, factor,
+merger <- function(response, factor, covariates=NULL,
                    family = "gaussian",
                    abbreviate) {
-
-    stopifnot(NROW(response) == NROW(factor))
-
-    factor <- cleanFactor(factor)
-
-    if (abbreviate) {
-        map <- data.frame(
-            `recoded` = paste0("(", abbreviate(levels(factor)), ")"),
-            `original` = levels(factor))
-        rownames(map) <- NULL
-        factor <- factor(factor, labels = map$recoded)
-
-    }
-
-    fm <- list(
-        response = response,
-        factor = factor,
-        mergingList = list(`1` = list(groups = levels(factor),
-                                modelStats = list(),
-                                groupStats = NA,
-                                merged = NA))
-    )
-
-    if (abbreviate) {
-        fm[["map"]] <- map
-    }
-
-    class(fm) <- "factorMerger"
-
-    switch(family,
-           "gaussian" = {
-               class(fm) <- append(class(fm), "gaussianFactorMerger")
-           },
-
-           "survival" = {
-               stopifnot(class(response) == "Surv")
-               class(fm) <- append(class(fm), "survivalFactorMerger")
-           },
-
-           "binomial" = {
-               stopifnot(!sum(!response %in% c(0, 1)))
-               class(fm) <- append(class(fm), "binomialFactorMerger")
-           },
-
-           "nonparametric" = {
-               class(fm) <- append(class(fm), "nonparametricFactorMerger")
-               stop("Non-parametric analysis is not supported yet.")
-           },
-           stop("Unknown family"))
-
-    if (NCOL(factor) > 1) {
-        class(fm) <- append(class(fm), "multiClassFactorMerger")
-        stop("Factor merging with multivariate factor is not supported yet.")
-    }
-
-    return(fm)
+  
+  stopifnot(NROW(response) == NROW(factor))
+  
+  factor <- cleanFactor(factor)
+  
+  if (abbreviate) {
+    map <- data.frame(
+      `recoded` = paste0("(", abbreviate(levels(factor)), ")"),
+      `original` = levels(factor))
+    rownames(map) <- NULL
+    factor <- factor(factor, labels = map$recoded)
+    
+  }
+  
+  
+  fm <- list(
+    response = response,
+    factor = factor,
+    covariates = covariates,
+    mergingList = list(`1` = list(groups = levels(factor),
+                                  modelStats = list(),
+                                  groupStats = NA,
+                                  merged = NA))
+  )
+  
+  if (abbreviate) {
+    fm[["map"]] <- map
+  }
+  
+  
+  
+  class(fm) <- "factorMerger"
+  
+  switch(family,
+         "gaussian" = {
+           class(fm) <- append(class(fm), "gaussianFactorMerger")
+         },
+         
+         "survival" = {
+           stopifnot(class(response) == "Surv")
+           class(fm) <- append(class(fm), "survival FactorMerger")
+         },
+         
+         "binomial" = {
+           stopifnot(!sum(!response %in% c(0, 1)))
+           class(fm) <- append(class(fm), "binomialFactorMerger")
+         },
+         
+         "nonparametric" = {
+           class(fm) <- append(class(fm), "nonparametricFactorMerger")
+           stop("Non-parametric analysis is not supported yet.")
+         },
+         stop("Unknown family"))
+  
+  if (NCOL(factor) > 1) {
+    class(fm) <- append(class(fm), "multiClassFactorMerger")
+    stop("Factor merging with multivariate factor is not supported yet.")
+  }
+  
+  return(fm)
 }
-
 stats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList, function(x) x$modelStats)
     do.call(rbind, statsList)
@@ -224,6 +227,7 @@ print.factorMerger <- function(x, ...) {
 #'
 #' @param response A response \code{vector/matrix} suitable for the model family.
 #' @param factor A factor \code{vector}.
+#' @param covariates A covariates \code{vector/matrix}.
 #' @param family Model family to be used in merging. Available models are: \code{"gaussian",}
 #' \code{ "survival", "binomial"}.
 #' By default \code{mergeFactors} uses \code{"gaussian"} model.
@@ -276,41 +280,41 @@ print.factorMerger <- function(x, ...) {
 #'
 #' @export
 #'
-mergeFactors <- function(response, factor,
+mergeFactors <- function(response, factor, covariates=NULL,
                          family = "gaussian",
                          method = "fast-adaptive",
                          abbreviate = TRUE) {
-
-    stopifnot(!is.null(response), !is.null(factor))
-    stopifnot(method %in% c("adaptive", "fast-adaptive",
-                            "fixed", "fast-fixed"))
-
-    successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
-
-    if (is.data.frame(response)) {
-        response <- as.matrix(response)
-    }
-
-    fm <- merger(response, factor, family, abbreviate)
-
-    if (grepl("adaptive", method)) {
-        return(mergeLRT(fm, successive))
-    }
-
-    return(mergeHClust(fm, successive))
+  
+  stopifnot(!is.null(response), !is.null(factor))
+  stopifnot(method %in% c("adaptive", "fast-adaptive",
+                          "fixed", "fast-fixed"))
+  
+  successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
+  
+  if (is.data.frame(response)) {
+    response <- as.matrix(response)
+  }
+  
+  fm <- merger(response, factor, covariates, family, abbreviate)
+  
+  if (grepl("adaptive", method)) {
+    return(mergeLRT(fm, successive))
+  }
+  
+  return(mergeHClust(fm, successive))
 }
 
 mergeLRT <- function(factorMerger, successive) {
-    fmList <- startMerging(factorMerger, successive, "LRT")
+  fmList <- startMerging(factorMerger, successive, "LRT")
+  fm <- fmList$factorMerger
+  
+  while (canBeMerged(fm)) {
+    fmList <- mergePairLRT(fm, successive, fmList$factor,
+                           fmList$model)
     fm <- fmList$factorMerger
-
-    while (canBeMerged(fm)) {
-        fmList <- mergePairLRT(fm, successive, fmList$factor,
-                               fmList$model)
-        fm <- fmList$factorMerger
-    }
-
-    return(fmList$factorMerger)
+  }
+  
+  return(fmList$factorMerger)
 }
 
 getPairWithLowestDist <- function(distance, pos) {

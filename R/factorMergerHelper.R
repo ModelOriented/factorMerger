@@ -1,42 +1,48 @@
 appendProjection <- function(factorMerger) {
-    UseMethod("appendProjection", factorMerger)
+  UseMethod("appendProjection", factorMerger)
 }
 
 appendProjection.default <- function(factorMerger) {
-    return(factorMerger)
+  return(factorMerger)
 }
 
 #' @importFrom dplyr filter left_join
 reverseOrder <- function(factorMerger, isoMDSproj) {
-    sim <- findSimilarities(factorMerger)
-    colnames(isoMDSproj)[1] <- "proj"
-    sim <- sim %>% filter(variable == levels(variable)[1]) %>%
-        left_join(isoMDSproj, by = c("level" = "factor"))
-    meansIncreasing <- sim[1, "mean"] < sim[nrow(sim), "mean"]
-    projIncreasing <- sim[1, "proj"] < sim[nrow(sim), "proj"]
-    if (xor(meansIncreasing, projIncreasing)) {
-        return(-isoMDSproj$proj)
-    }
-    return(isoMDSproj$proj)
+  sim <- findSimilarities(factorMerger)
+  colnames(isoMDSproj)[1] <- "proj"
+  sim <- sim %>% filter(variable == levels(variable)[1]) %>%
+    left_join(isoMDSproj, by = c("level" = "factor"))
+  meansIncreasing <- sim[1, "mean"] < sim[nrow(sim), "mean"] 
+  projIncreasing <- sim[1, "proj"] < sim[nrow(sim), "proj"] 
+  if (xor(meansIncreasing, projIncreasing)) { 
+    return(-isoMDSproj$proj)
+  }
+  return(isoMDSproj$proj) 
 }
 
 #' @importFrom dplyr left_join
 appendProjection.gaussianFactorMerger <- function(factorMerger) {
-    if (NCOL(factorMerger$response) > 1) {
-        groupMeans <- calculateMeans(factorMerger$response,
-                                     factorMerger$factor)
-        tmpResponse <- MASS::isoMDS(dist(groupMeans[, -1]),
-                                    k = 1, trace = FALSE)$points[, 1] %>%
-            as.data.frame()
-        tmpResponse$factor <- groupMeans$level
-        tmpResponse[, 1] <- reverseOrder(factorMerger, tmpResponse)
-        tmpResponse <- data.frame(factor = factorMerger$factor,
-                                  stringsAsFactors = FALSE) %>%
-            left_join(tmpResponse,
-                      by = "factor")
-        factorMerger$projectedResponse <- tmpResponse[, 2]
+  if (NCOL(factorMerger$response) > 1) {
+    if(length(factorMerger$covariates)==0){
+      factorMerger$covariates <- NULL
     }
-    return(factorMerger)
+    factorMerger$covariates <- factorMerger$covariates
+    groupMeans <- calculateMeans(factorMerger$response,
+                                 factorMerger$covariates,
+                                 factorMerger$factor)
+    tmpResponse <- MASS::isoMDS(dist(groupMeans[, -1]),
+                                k = 1, trace = FALSE)$points[, 1] %>%
+      as.data.frame()
+    tmpResponse$factor <- groupMeans$level
+    tmpResponse[, 1] <- reverseOrder(factorMerger, tmpResponse) 
+    tmpResponse <- data.frame(factor = factorMerger$factor,
+                              stringsAsFactors = FALSE) %>%
+      left_join(tmpResponse,
+                by = "factor") 
+    factorMerger$projectedResponse <- tmpResponse[, 2] 
+    
+  }
+  return(factorMerger)
 }
 
 convertToDistanceTensor <- function(modelsPvals, successive, labels) {
@@ -60,47 +66,47 @@ convertToDistanceTensor <- function(modelsPvals, successive, labels) {
 
 #' @importFrom MASS isoMDS
 startMerging <- function(factorMerger, successive, method) {
-
-    factorMerger <- appendProjection(factorMerger)
-    factorMerger$factor <- getIncreasingFactor(factorMerger)
-    factor <- factorMerger$factor
-    factorMerger$mergingList[[1]]$groupStats <-
-        calculateGroupStatistic(factorMerger, factor)
-    factorMerger$mergingList[[1]]$groups <- levels(factor)
-    model <- calculateModel(factorMerger, factor)
-    initStat <- calculateModelStatistic(model)
-    factorMerger$initialModel <- model
-    factorMerger$mergingList[[1]]$modelStats <- data.frame(
-        model = initStat,
-        pvalVsFull = 1,
-        pvalVsPrevious = 1)
-
-    if (method == "LRT") {
-        return(
-            list(
-                factorMerger = factorMerger,
-                factor = factor,
-                model = model
-            )
-        )
+  
+  factorMerger <- appendProjection(factorMerger)
+  factorMerger$factor <- getIncreasingFactor(factorMerger)
+  factor <- factorMerger$factor
+  factorMerger$mergingList[[1]]$groupStats <-
+    calculateGroupStatistic(factorMerger, factor)
+  factorMerger$mergingList[[1]]$groups <- levels(factor)
+  model <- calculateModel(factorMerger, factor)
+  initStat <- calculateModelStatistic(model)
+  factorMerger$initialModel <- model
+  factorMerger$mergingList[[1]]$modelStats <- data.frame(
+    model = initStat,
+    pvalVsFull = 1,
+    pvalVsPrevious = 1)
+  
+  if (method == "LRT") {
+    return(
+      list(
+        factorMerger = factorMerger,
+        factor = factor,
+        model = model
+      )
+    )
+  }
+  
+  # method "hclust"
+  pairs <- getPairList(levels(factorMerger$factor), successive)
+  modelsPvals <- sapply(pairs, function(x) {
+    if (x[1] == x[2]) {
+      return(1)
     }
-
-    # method "hclust"
-    pairs <- getPairList(levels(factorMerger$factor), successive)
-    modelsPvals <- sapply(pairs, function(x) {
-        if (x[1] == x[2]) {
-            return(1)
-        }
-        tmpFactor <- mergeLevels(factor, x[1], x[2])
-        tmpModel <- calculateModel(factorMerger, tmpFactor)
-        return(2 * initStat - 2 * calculateModelStatistic(tmpModel))
-    })
-
-    factorMerger$dist <- convertToDistanceTensor(modelsPvals,
-                                                 successive,
-                                                 levels(factorMerger$factor))
-
-    return(factorMerger)
+    tmpFactor <- mergeLevels(factor, x[1], x[2])
+    tmpModel <- calculateModel(factorMerger, tmpFactor)
+    return(2 * initStat - 2 * calculateModelStatistic(tmpModel))
+  })
+  
+  factorMerger$dist <- convertToDistanceTensor(modelsPvals,
+                                               successive,
+                                               levels(factorMerger$factor))
+  
+  return(factorMerger)
 }
 
 canBeMerged <- function(factorMerger) {

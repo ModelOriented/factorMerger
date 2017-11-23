@@ -14,4 +14,3 @@ plotTukey(factorMerger, palette = NULL)
 \description{
 TODO: Aga
 }
-

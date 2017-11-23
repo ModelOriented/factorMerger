@@ -18,4 +18,3 @@ plotGIC(factorMerger, color, penalty = 2, statistic)
 \description{
 Plots Generalized Information Criterion for models on the Factor Merger Tree.
 }
-

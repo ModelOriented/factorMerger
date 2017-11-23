@@ -24,4 +24,3 @@ to the final cluster split.}
 Plots rank plot - one series is a single factor level and one group
 on the OX axis is a single dimension of the response.
 }
-

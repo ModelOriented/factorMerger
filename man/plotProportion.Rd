@@ -23,4 +23,3 @@ to the final cluster split.}
 \description{
 Plots proportion of success for each factor level.
 }
-
