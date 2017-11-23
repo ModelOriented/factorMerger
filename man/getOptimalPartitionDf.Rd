@@ -32,3 +32,4 @@ GIC penalty and optimal GIC model is returned.
 By default, \code{cutree} returns factor partition
 corresponding to the optimal GIC model (with the lowest GIC).
 }
+

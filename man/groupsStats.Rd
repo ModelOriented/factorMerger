@@ -19,3 +19,4 @@ fm <- mergeFactors(randSample$response, randSample$factor)
 groupsStats(fm)
 
 }
+

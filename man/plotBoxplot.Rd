@@ -23,3 +23,4 @@ to the final cluster split.}
 \description{
 Plots boxplot with mean as a summary statistic groupping observation by factor levels.
 }
+
