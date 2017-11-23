@@ -29,4 +29,3 @@ fm <- mergeFactors(randSample$response, randSample$factor)
 mergingHistory(fm, showStats = TRUE)
 
 }
-

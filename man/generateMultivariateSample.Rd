@@ -26,4 +26,3 @@ parameters.
 generateMultivariateSample(N = 100, k = 10, d = 5)
 
 }
-

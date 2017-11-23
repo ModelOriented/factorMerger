@@ -497,21 +497,22 @@ plotResponse <- function(factorMerger, responsePanel,
 }
 
 findSimilarities <- function(factorMerger) {
-    stats <- calculateMeansAndRanks(factorMerger$response,
-                                    factorMerger$factor)
-    varsToBePloted <- reshape(stats %>% subset(select = -mean),
-                              idvar = "level",
-                              timevar = "variable",
-                              direction = "wide")
-    distances <- dist(varsToBePloted[, -1] %>% t(), method = "manhattan")
-    distances[distances == 0] <- 1e-4
-    iso <- MASS::isoMDS(distances, k = 1, trace = FALSE)$points[, 1]
-    iso <- data.frame(var = stats$variable %>% unique(), proj = iso) %>%
-        arrange(proj)
-    stats$variable <- factor(stats$variable,
-                             levels = iso$var)
-    return(stats)
-
+  stats <- calculateMeansAndRanks(factorMerger$response,
+                                  factorMerger$covariate,
+                                  factorMerger$factor)
+  varsToBePloted <- reshape(stats %>% subset(select = -mean),
+                            idvar = "level",
+                            timevar = "variable",
+                            direction = "wide")
+  distances <- dist(varsToBePloted[, -1] %>% t(), method = "manhattan") #liczy odleglosc miedzy wierszami, a tak naprawde miedzy wierszami ktore sa zmiennymi
+  distances[distances == 0] <- 1e-4
+  iso <- MASS::isoMDS(distances, k = 1, trace = FALSE)$points[, 1]
+  iso <- data.frame(var = stats$variable %>% unique(), proj = iso) %>%
+    arrange(proj)
+  stats$variable <- factor(stats$variable,
+                           levels = iso$var) #i tu mi zwraca najbardziej rozniace sie zmienne, zaczyna od V2
+  return(stats)
+  
 }
 
 #' Heatmap (multi-dimensional Gaussian)
