@@ -21,3 +21,4 @@ to the final cluster split.}
 \description{
 Plots barplot with group frequencies.
 }
+
