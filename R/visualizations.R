@@ -902,6 +902,8 @@ plotTukey <- function(factorMerger, palette = NULL) {
     levelsOrder <- getFinalOrderVec(factorMerger)
     tukeyGroups <- tukeyGroups %>% melt(id.vars = "level") %>%
         filter(!is.na(value))
+    
+    cols <- scales::hue_pal()(length(levels(tukeyGroups$variable)))
 
     tukPlot <- tukeyGroups %>%
         ggplot(aes(variable, factor(level, levels = levelsOrder))) +
@@ -913,7 +915,8 @@ plotTukey <- function(factorMerger, palette = NULL) {
         xlab("") + treeTheme(FALSE) + theme(axis.text.y = element_blank())
 
     if (is.null(palette)) {
-        return(tukPlot)
+        return(tukPlot + 
+                   scale_fill_manual(values = rev(cols)))
     }
     return(tukPlot + scale_fill_brewer(direction = -1, palette = palette))
 }

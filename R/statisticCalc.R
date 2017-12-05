@@ -152,17 +152,24 @@ calculateAnovaTable.coxph <- function(model) {
 }
 
 getTukeyGroups <- function(response, factor) {
+    # Performs HSD.test. Let's say that k is the number of groups that contain 
+    # subpopulations that do not differ significantly and n is the number of subpopulations. 
+    # getTukeyGroups returns a table with k columns and n rows. 
+    # Cell [i, j] is TRUE iff i-th subpopulation belogs to j-th group.
     aovData <- aov(response ~ factor)
     hsd <- HSD.test(aovData, "factor")
-    realGroupNames <- hsd$means %>% rownames() %>% as.character %>% sort()
-    changedGroupNames <- hsd$groups$trt %>% as.character %>% sort()
+    realGroupNames <- hsd$means %>% 
+        rownames() %>% 
+        as.character() %>% sort()
+    changedGroupNames <- hsd$groups %>% rownames() %>% as.character() %>% sort()
     namesDict <- data.frame(real = realGroupNames,
                             changed = changedGroupNames,
                             stringsAsFactors = FALSE)
-    hsd$groups$trt <- as.character(hsd$groups$trt)
-    namesDict <- hsd$groups %>% left_join(namesDict, by = c("trt" = "changed"))
+    hsd$groups$trt <- as.character(rownames(hsd$groups))
+    namesDict <- hsd$groups %>% 
+        left_join(namesDict, by = c("trt" = "changed"))
 
-    groups <- data.frame(groups = hsd$groups$M)
+    groups <- data.frame(groups = hsd$groups$groups)
     groupList <- apply(groups, 1,
                        function(x) substring(x, 1:nchar(x), 1:nchar(x)))
     names(groupList) <- namesDict$real
