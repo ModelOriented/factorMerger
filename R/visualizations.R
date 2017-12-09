@@ -262,7 +262,7 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
         arrange(-y1)
     showY <- nodesSpacing != "equidistant"
 
-    g <- df %>% ggplot() +
+    g <- ggplot(df) +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), size = 0.5) +
         geom_point(data = pointsDf, aes(x = x1, y = y1), size = 0.75) +
         scale_y_continuous(limits = getLimits(labelsDf, showY),
@@ -275,8 +275,11 @@ plotCustomizedTree <- function(factorMerger, statistic, clusterSplit,
         labs(title = title,
              subtitle = subtitle) + treeTheme(panelGrid)
     if (color) {
-        g <- addClustersColors(g, segment, factorMerger,
-                               clusterSplit, statistic, palette)
+        g <- addClustersColors(g, segment = segment, 
+                               factorMerger = factorMerger,
+                               clusterSplit = clusterSplit, 
+                               statistic = statistic, 
+                               palette = palette)
     } else {
         clusterColors <- getClustersColorsNames(palette,
                                                 NROW(colorsDf),

@@ -8,3 +8,5 @@
 ^ignoreFiles$
 ^README_.*\.png$
 ^README.md$
+^docs$
+^_pkgdown\.yml$

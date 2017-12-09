@@ -121,16 +121,16 @@ Similarly to `cutTree`, functions `getOptimalPartition` and `getOptimalPartition
 We may plot results using function `plot`. 
 
 
-```{r, fig.height = 9, fig.width = 18}
+```{r, fig.height = 9, fig.width = 18, eval=FALSE}
 plot(fm, panel = "all", nodesSpacing = "equidistant", colorCluster = TRUE)
 ```
 
-```{r, fig.height = 5, fig.width = 10}
+```{r, fig.height = 5, fig.width = 10, eval=FALSE}
 plot(fmAll, panel = "tree", statistic = "p-value", 
      nodesSpacing = "effects", colorCluster = TRUE)
 ```
 
-```{r}
+```{r, eval=FALSE}
 plot(fm, colorCluster = TRUE, panel = "response")
 ```
 
@@ -138,7 +138,7 @@ The heatmap on the right shows means of all variables taken into analysis by gro
 
 
 
-```{r, fig.height = 5, fig.width = 10}
+```{r, fig.height = 5, fig.width = 10, eval=FALSE}
 plot(fm, colorCluster = TRUE, panel = "response", responsePanel = "profile")
 ```
 
@@ -147,7 +147,7 @@ In the above plots colours are connected with the group. The plot on the right s
 
 It is also possible to plot *GIC* together with the merging path plot.
 
-```{r, fig.width = 5}
+```{r, fig.width = 5, eval=FALSE}
 plot(fm, panel = "GIC", penalty = 5)
 ```
 
@@ -164,11 +164,11 @@ oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor,
 mergingHistory(oneDimFm, showStats = TRUE) %>% 
     kable()
 ```
-```{r}
+```{r, eval=FALSE}
 plot(oneDimFm, palette = "Reds")
 ```
 
-```{r}
+```{r, eval=FALSE}
 plot(oneDimFm, responsePanel = "boxplot", colorCluster = TRUE)
 ```
 
@@ -196,11 +196,11 @@ mergingHistory(binomFm, showStats = TRUE) %>%
 
 ```
 
-```{r}
+```{r, eval=FALSE}
 plot(binomFm, colorCluster = TRUE, penalty = 7)
 ```
 
-```{r}
+```{r, eval=FALSE}
 plot(binomFm, gicPanelColor = "red")
 ```
 
