@@ -143,16 +143,14 @@ groupsStats <- function(factorMerger) {
 #' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 #' fm <- mergeFactors(randSample$response, randSample$factor)
 #' mergingHistory(fm, showStats = TRUE)
-#'
-#' @importFrom dplyr rename
 mergingHistory <- function(factorMerger, showStats = FALSE,
                            penalty, round = TRUE) {
-    mergingList <- sapply(factorMerger$mergingList,
-                        function(x)  x$merged )
-    mergingDf <- do.call(rbind, mergingList) %>%
-        as.data.frame(stringsAsFactors = FALSE) %>%
-        rename(groupA = V1, groupB = V2)
-
+  groupA <- unlist(sapply(factorMerger$mergingList,
+                          function(x)  x$merged[1]))
+  groupB <- unlist(sapply(factorMerger$mergingList,
+                          function(x)  x$merged[1]))
+  mergingDf <- data.frame(groupA, groupB, stringsAsFactors = FALSE)
+  
     if (showStats) {
         st <- stats(factorMerger)
         if (round) {
