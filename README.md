@@ -33,10 +33,10 @@ devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
 
 ### Cheatsheet for `factorMerger`
 
-The [pdf version](https://github.com/MI2DataLab/factorMerger/blob/master/materials/factorMerger-cheatsheet.pdf).
+[pdf version](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.pdf)
 
-![factorMerger cheatsheet](materials/factorMerger-cheatsheet.png)
+![factorMerger cheatsheet](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.png)
 
 ### Working with `factorMerger`
 
-<img src="https://github.com/MI2DataLab/factorMerger/blob/master/README_workflow.png" alt="fm_workflow" width = '650'/>
+<img src="https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/README_workflow.png" alt="fm_workflow" width = '650'/>
