@@ -148,7 +148,7 @@ mergingHistory <- function(factorMerger, showStats = FALSE,
   groupA <- unlist(sapply(factorMerger$mergingList,
                           function(x)  x$merged[1]))
   groupB <- unlist(sapply(factorMerger$mergingList,
-                          function(x)  x$merged[1]))
+                          function(x)  x$merged[2]))
   mergingDf <- data.frame(groupA, groupB, stringsAsFactors = FALSE)
   
     if (showStats) {

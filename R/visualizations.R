@@ -223,7 +223,7 @@ plotSimpleTree <- function(factorMerger, statistic, clusterSplit,
                            alpha, color, colorsDf, palette = NULL,
                            title, subtitle, panelGrid) {
     # We want to have reverse order of variables! TODO
-    nodesPosition <- getFinalOrder(factorMerger, TRUE) %>% data.frame()
+    nodesPosition <- as.data.frame(getFinalOrder(factorMerger, TRUE))
     mH <- mergingHistory(factorMerger)
     noStep <- nrow(mH)
 
