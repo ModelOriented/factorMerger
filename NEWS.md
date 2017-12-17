@@ -1,3 +1,12 @@
+factorMerger 0.3.4
+----------------------------------------------------------------
+* **Misc**:
+    * Changed intro message (now it's more compact)
+
+* **Fixes**:
+    * Vigniette building (#67)
+    * Fix in Tukey's plots
+
 factorMerger 0.3.3
 ----------------------------------------------------------------
 * **New features**:
