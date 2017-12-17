@@ -834,6 +834,7 @@ getGICBreaks <- function(mH) {
 #' @param color GIC plot color.
 #' @param statistic cluster split statistic
 #' @param penalty GIC penalty
+#' @importFrom grDevices hcl
 #'
 #' @export
 plotGIC <- function(factorMerger, color, penalty = 2, statistic) {

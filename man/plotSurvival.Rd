@@ -23,4 +23,3 @@ to the final cluster split.}
 \description{
 Plots adjusted survival curves for coxph model for each group. Survival probabilities are calculated from \code{coxph} model.
 }
-

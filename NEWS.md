@@ -2,6 +2,7 @@ factorMerger 0.3.4
 ----------------------------------------------------------------
 * **Misc**:
     * Changed intro message (now it's more compact)
+    * Added tests [#69](https://github.com/MI2DataLab/factorMerger/issues/69)
 
 * **Fixes**:
     * Vigniette building (#67)

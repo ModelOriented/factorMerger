@@ -88,4 +88,3 @@ quantile of chi-square distribution. Otherwise, panel is blank.}
 \description{
 Plot Factor Merger
 }
-

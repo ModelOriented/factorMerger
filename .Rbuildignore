@@ -3,6 +3,7 @@
 ^.travis.yml$
 ^\.travis\.yml$
 ^figures$
+^misc$
 ^materials$
 ^analysis$
 ^ignoreFiles$

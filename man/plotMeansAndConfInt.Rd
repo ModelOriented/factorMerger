@@ -23,4 +23,3 @@ to the final cluster split.}
 \description{
 For each factor level plots its mean and interval of the length equal to its standard deviation.
 }
-
