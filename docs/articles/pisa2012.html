@@ -83,7 +83,7 @@
       <h1>PISA 2012 - multi dimensional Gaussian merging</h1>
                         <h4 class="author">Agnieszka Sitko</h4>
             
-            <h4 class="date">2017-12-09</h4>
+            <h4 class="date">2017-12-17</h4>
           </div>
 
     
@@ -139,7 +139,7 @@ pisaFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/merg
                        <span class="kw">factor</span>(pisa2012<span class="op">$</span>country[pisaIdxSubset]))
 
 <span class="kw">plot</span>(pisaFM, <span class="dt">type=</span><span class="st">"tree"</span>, <span class="dt">responsePanel =</span> <span class="st">"profile"</span>)</code></pre></div>
-<p>It’s faster to use “fast-adaptive” or “fast-fixed” methods on a big dataset. They enable comparisons between neighbours only (neighbours is a pair of groups with close means).</p>
+<p><img src="pisa2012_files/figure-html/unnamed-chunk-8-1.png" width="960"> It’s faster to use “fast-adaptive” or “fast-fixed” methods on a big dataset. They enable comparisons between neighbours only (neighbours is a pair of groups with close means).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pisaIdxSubset &lt;-<span class="st"> </span><span class="kw">which</span>(pisa2012<span class="op">$</span>country <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"Belgium"</span>,
                                            <span class="st">"Netherlands"</span>,
                                            <span class="st">"Poland"</span>,
@@ -148,14 +148,14 @@ pisaFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/merg
                                            <span class="st">"Estonia"</span>))
 pisaFMHClust &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(pisa2012[pisaIdxSubset, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],
                        <span class="kw">factor</span>(pisa2012<span class="op">$</span>country[pisaIdxSubset]),
-                       <span class="dt">fuse =</span> <span class="st">"fast-fixed"</span>) 
+                       <span class="dt">method =</span> <span class="st">"fast-fixed"</span>) 
 
 <span class="kw">plot</span>(pisaFMHClust, <span class="dt">responsePanel =</span> <span class="st">"profile"</span>, 
-     <span class="dt">penalty =</span> <span class="kw">log</span>(<span class="kw">NROW</span>(pisaFMHClustMath<span class="op">$</span>factor)), 
+     <span class="dt">penalty =</span> <span class="kw">log</span>(<span class="kw">length</span>(pisaFMHClust<span class="op">$</span>factor)), 
      <span class="dt">panel =</span> <span class="st">"response"</span>, <span class="dt">nodesSpacing =</span> <span class="st">"effects"</span>, 
      <span class="dt">panelGrid =</span> F, <span class="dt">palette =</span> <span class="st">"Dark2"</span>,
      <span class="dt">title =</span> <span class="st">"PISA 2012 - students' performance"</span>)</code></pre></div>
-<p>Let’s now have a try using European countries only.</p>
+<p><img src="pisa2012_files/figure-html/unnamed-chunk-9-1.png" width="960"> Let’s now have a try using European countries only.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 pisaEuropean &lt;-<span class="st"> </span><span class="kw"><a href="http://dplyr.tidyverse.org/reference/filter.html">filter</a></span>(pisa2012, country <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"Austria"</span>, <span class="st">"Belgium"</span>, <span class="st">"Bulgaria"</span>,
                                             <span class="st">"Czech Republic"</span>, <span class="st">"Germany"</span>, <span class="st">"Denmark"</span>,
@@ -169,9 +169,10 @@ pisaEuropean &lt;-<span class="st"> </span><span class="kw"><a href="http://dply
 
 pisaFMHClustEurope &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(pisaEuropean[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],
                        <span class="kw">factor</span>(pisaEuropean<span class="op">$</span>country),
-                       <span class="dt">fuse =</span> <span class="st">"fast-fixed"</span>) 
+                       <span class="dt">method =</span> <span class="st">"fast-fixed"</span>) 
 
 <span class="kw">plot</span>(pisaFMHClustEurope)</code></pre></div>
+<p><img src="pisa2012_files/figure-html/unnamed-chunk-10-1.png" width="960"></p>
 </div>
 </div>
   </div>

@@ -1,0 +1,11 @@
+bibentry(bibtype = "Manual",
+  title        = "{The Merging Path Plot}: adaptive fusing of k-groups with likelihood-based model selection",
+  author       = c(person(given = "Agnieszka",
+                          family = "Sitko"),
+                    person(given = "Przemyslaw",
+                          family = "Biecek")),
+  year         = "2017",
+  url          = "https://arxiv.org/abs/1709.04412",
+  header       = "To cite factorMerger in publications use:"
+)
+

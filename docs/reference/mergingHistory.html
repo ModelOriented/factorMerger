@@ -143,17 +143,17 @@ By default <code>showStats</code> is set to <code>FALSE</code>.</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>randSample</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateMultivariateSample.html'>generateMultivariateSample</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='fl'>3</span>)
 <span class='no'>fm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mergeFactors.html'>mergeFactors</a></span>(<span class='no'>randSample</span>$<span class='no'>response</span>, <span class='no'>randSample</span>$<span class='no'>factor</span>)
-<span class='fu'>mergingHistory</span>(<span class='no'>fm</span>, <span class='kw'>showStats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                        groupA                      groupB     model pvalVsFull
-#&gt; 0                                                         -393.9290     1.0000
-#&gt; 1                         (I)                         (I) -394.1126     0.9553
-#&gt; 2                         (B)                         (B) -394.4748     0.9863
-#&gt; 3                         (E)                         (E) -395.0902     0.9897
-#&gt; 4                         (C)                         (C) -396.0618     0.9854
-#&gt; 5                   (E)(I)(A)                   (E)(I)(A) -397.3549     0.9745
-#&gt; 6                      (B)(G)                      (B)(G) -399.5083     0.9233
-#&gt; 7                         (H)                         (H) -400.8045     0.9183
-#&gt; 8                (H)(B)(G)(F)                (H)(B)(G)(F) -404.8644     0.6756
-#&gt; 9 (H)(B)(G)(F)(E)(I)(A)(C)(J) (H)(B)(G)(F)(E)(I)(A)(C)(J) -411.5390     0.2076
+<span class='fu'>mergingHistory</span>(<span class='no'>fm</span>, <span class='kw'>showStats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                        groupA          groupB     model pvalVsFull
+#&gt; 0                                             -393.9290     1.0000
+#&gt; 1                         (I)             (A) -394.1126     0.9553
+#&gt; 2                         (B)             (G) -394.4748     0.9863
+#&gt; 3                         (E)          (I)(A) -395.0902     0.9897
+#&gt; 4                         (C)             (J) -396.0618     0.9854
+#&gt; 5                   (E)(I)(A)          (C)(J) -397.3549     0.9745
+#&gt; 6                      (B)(G)             (F) -399.5083     0.9233
+#&gt; 7                         (H)       (B)(G)(F) -400.8045     0.9183
+#&gt; 8                (H)(B)(G)(F) (E)(I)(A)(C)(J) -404.8644     0.6756
+#&gt; 9 (H)(B)(G)(F)(E)(I)(A)(C)(J)             (D) -411.5390     0.2076
 #&gt;   pvalVsPrevious
 #&gt; 0         1.0000
 #&gt; 1         0.9553

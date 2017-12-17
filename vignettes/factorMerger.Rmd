@@ -121,16 +121,16 @@ Similarly to `cutTree`, functions `getOptimalPartition` and `getOptimalPartition
 We may plot results using function `plot`. 
 
 
-```{r, fig.height = 9, fig.width = 18, eval=FALSE}
+```{r, fig.height = 9, fig.width = 18}
 plot(fm, panel = "all", nodesSpacing = "equidistant", colorCluster = TRUE)
 ```
 
-```{r, fig.height = 5, fig.width = 10, eval=FALSE}
+```{r, fig.height = 5, fig.width = 10}
 plot(fmAll, panel = "tree", statistic = "p-value", 
      nodesSpacing = "effects", colorCluster = TRUE)
 ```
 
-```{r, eval=FALSE}
+```{r}
 plot(fm, colorCluster = TRUE, panel = "response")
 ```
 
@@ -138,7 +138,7 @@ The heatmap on the right shows means of all variables taken into analysis by gro
 
 
 
-```{r, fig.height = 5, fig.width = 10, eval=FALSE}
+```{r, fig.height = 5, fig.width = 10}
 plot(fm, colorCluster = TRUE, panel = "response", responsePanel = "profile")
 ```
 
@@ -147,7 +147,7 @@ In the above plots colours are connected with the group. The plot on the right s
 
 It is also possible to plot *GIC* together with the merging path plot.
 
-```{r, fig.width = 5, eval=FALSE}
+```{r, fig.width = 5}
 plot(fm, panel = "GIC", penalty = 5)
 ```
 
@@ -164,11 +164,11 @@ oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor,
 mergingHistory(oneDimFm, showStats = TRUE) %>% 
     kable()
 ```
-```{r, eval=FALSE}
+```{r}
 plot(oneDimFm, palette = "Reds")
 ```
 
-```{r, eval=FALSE}
+```{r}
 plot(oneDimFm, responsePanel = "boxplot", colorCluster = TRUE)
 ```
 
@@ -196,11 +196,11 @@ mergingHistory(binomFm, showStats = TRUE) %>%
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 plot(binomFm, colorCluster = TRUE, penalty = 7)
 ```
 
-```{r, eval=FALSE}
+```{r}
 plot(binomFm, gicPanelColor = "red")
 ```
 
@@ -210,27 +210,26 @@ plot(binomFm, gicPanelColor = "red")
 If `family = "survival"` response must be of a class `Surv`.
  
 ```{r}
-# TODO: Waiting for CRAN update for survival
-# library(survival)
-# data(veteran)
-# survResponse <- Surv(time = veteran$time, 
-#                  event = veteran$status)
-# survivalFm <- mergeFactors(response = survResponse, 
-#                    factor = veteran$celltype, 
-#                    family = "survival")
+ library(survival)
+ data(veteran)
+ survResponse <- Surv(time = veteran$time, 
+                  event = veteran$status)
+ survivalFm <- mergeFactors(response = survResponse, 
+                    factor = veteran$celltype, 
+                    family = "survival")
 ```
 
 ```{r}
-# mergingHistory(survivalFm, showStats = TRUE) %>%
-#     kable()
+ mergingHistory(survivalFm, showStats = TRUE) %>%
+     kable()
 ```
 
 
 ```{r}
-# plot(survivalFm)
+ plot(survivalFm)
 ```
 
 ```{r}
-# plot(survivalFm, nodesSpacing = "effects", colorCluster = TRUE)
+ plot(survivalFm, nodesSpacing = "effects", colorCluster = TRUE)
 ```
 

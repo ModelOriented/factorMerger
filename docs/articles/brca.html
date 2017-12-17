@@ -83,7 +83,7 @@
       <h1>BRCA - the Cox regression merging</h1>
                         <h4 class="author">Agnieszka Sitko</h4>
             
-            <h4 class="date">2017-12-09</h4>
+            <h4 class="date">2017-12-17</h4>
           </div>
 
     
@@ -114,8 +114,25 @@ drugName &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdoc
                            <span class="dt">family =</span> <span class="st">"survival"</span>)
 
 <span class="kw">plot</span>(drugNameFM, <span class="dt">nodesSpacing =</span> <span class="st">"effects"</span>, <span class="dt">gicPanelColor =</span> <span class="st">"grey2"</span>)</code></pre></div>
+<p><img src="brca_files/figure-html/unnamed-chunk-7-1.png" width="960"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">anova</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/survival/topics/coxph">coxph</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(drugName)] <span class="op">~</span><span class="st"> </span>drugName[<span class="op">!</span><span class="kw">is.na</span>(drugName)]))
-<span class="kw">anova</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/survival/topics/coxph">coxph</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(drugName)] <span class="op">~</span><span class="st"> </span><span class="kw"><a href="../reference/cutTree.html">cutTree</a></span>(drugNameFM)))</code></pre></div>
+<span class="co">#&gt; Analysis of Deviance Table</span>
+<span class="co">#&gt;  Cox model: response is brcaSurv[!is.na(drugName)]</span>
+<span class="co">#&gt; Terms added sequentially (first to last)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                             loglik  Chisq Df Pr(&gt;|Chi|)</span>
+<span class="co">#&gt; NULL                       -131.16                     </span>
+<span class="co">#&gt; drugName[!is.na(drugName)] -128.44 5.4416  7     0.6062</span>
+<span class="kw">anova</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/survival/topics/coxph">coxph</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(drugName)] <span class="op">~</span><span class="st"> </span><span class="kw"><a href="../reference/cutTree.html">cutTree</a></span>(drugNameFM)))
+<span class="co">#&gt; Analysis of Deviance Table</span>
+<span class="co">#&gt;  Cox model: response is brcaSurv[!is.na(drugName)]</span>
+<span class="co">#&gt; Terms added sequentially (first to last)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                      loglik  Chisq Df Pr(&gt;|Chi|)  </span>
+<span class="co">#&gt; NULL                -131.16                       </span>
+<span class="co">#&gt; cutTree(drugNameFM) -129.19 3.9493  1    0.04689 *</span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></code></pre></div>
 </div>
 <div id="cancer-subtype" class="section level2">
 <h2 class="hasAnchor">
@@ -128,6 +145,7 @@ subtypeFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m
                            <span class="dt">family =</span> <span class="st">"survival"</span>)
 
 <span class="kw">plot</span>(subtypeFM) </code></pre></div>
+<p><img src="brca_files/figure-html/unnamed-chunk-9-1.png" width="960"></p>
 </div>
 <div id="pathologic-category" class="section level2">
 <h2 class="hasAnchor">
@@ -139,8 +157,25 @@ patCatFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/me
                          <span class="dt">family =</span> <span class="st">"survival"</span>)
 
 <span class="kw">plot</span>(patCatFM, <span class="dt">responsePanel =</span> <span class="st">"frequency"</span>, <span class="dt">gicPanelColor =</span> <span class="st">"red"</span>)</code></pre></div>
+<p><img src="brca_files/figure-html/unnamed-chunk-10-1.png" width="960"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">anova</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/survival/topics/coxph">coxph</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(patCat)] <span class="op">~</span><span class="st"> </span>patCat[<span class="op">!</span><span class="kw">is.na</span>(patCat)]))
-<span class="kw">anova</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/survival/topics/coxph">coxph</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(subtype)] <span class="op">~</span><span class="st"> </span><span class="kw"><a href="../reference/cutTree.html">cutTree</a></span>(subtypeFM)))</code></pre></div>
+<span class="co">#&gt; Analysis of Deviance Table</span>
+<span class="co">#&gt;  Cox model: response is brcaSurv[!is.na(patCat)]</span>
+<span class="co">#&gt; Terms added sequentially (first to last)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                         loglik  Chisq Df Pr(&gt;|Chi|)</span>
+<span class="co">#&gt; NULL                   -539.39                     </span>
+<span class="co">#&gt; patCat[!is.na(patCat)] -536.59 5.5993  4     0.2311</span>
+<span class="kw">anova</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/survival/topics/coxph">coxph</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(subtype)] <span class="op">~</span><span class="st"> </span><span class="kw"><a href="../reference/cutTree.html">cutTree</a></span>(subtypeFM)))
+<span class="co">#&gt; Analysis of Deviance Table</span>
+<span class="co">#&gt;  Cox model: response is brcaSurv[!is.na(subtype)]</span>
+<span class="co">#&gt; Terms added sequentially (first to last)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                     loglik  Chisq Df Pr(&gt;|Chi|)   </span>
+<span class="co">#&gt; NULL               -539.39                        </span>
+<span class="co">#&gt; cutTree(subtypeFM) -534.89 8.9946  1   0.002708 **</span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></code></pre></div>
 </div>
 </div>
 </div>

@@ -47,7 +47,7 @@ drugName <- fct_lump(as.factor(drugName), prop = 0.05)
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 drugNameFM <- mergeFactors(brcaSurv[!is.na(drugName)], 
                            drugName[!is.na(drugName)], 
                            family = "survival")
@@ -55,7 +55,7 @@ drugNameFM <- mergeFactors(brcaSurv[!is.na(drugName)],
 plot(drugNameFM, nodesSpacing = "effects", gicPanelColor = "grey2")
 ```
 
-```{r, eval=FALSE}
+```{r}
 anova(coxph(brcaSurv[!is.na(drugName)] ~ drugName[!is.na(drugName)]))
 anova(coxph(brcaSurv[!is.na(drugName)] ~ cutTree(drugNameFM)))
 ```
@@ -63,7 +63,7 @@ anova(coxph(brcaSurv[!is.na(drugName)] ~ cutTree(drugNameFM)))
 
 ## Cancer subtype
 
-```{r, eval=FALSE}
+```{r}
 subtype <- BRCA$histologicalType
 subtype <- fct_lump(as.factor(subtype), prop = 0.05) 
 
@@ -76,7 +76,7 @@ plot(subtypeFM)
 
 ## Pathologic category
 
-```{r, eval=FALSE}
+```{r}
 patCat <- BRCA$pathologicCategory %>% substr(1, 2)
 
 patCatFM <- mergeFactors(brcaSurv[!is.na(patCat)],
@@ -86,7 +86,7 @@ patCatFM <- mergeFactors(brcaSurv[!is.na(patCat)],
 plot(patCatFM, responsePanel = "frequency", gicPanelColor = "red")
 ```
 
-```{r, eval=FALSE}
+```{r}
 anova(coxph(brcaSurv[!is.na(patCat)] ~ patCat[!is.na(patCat)]))
 anova(coxph(brcaSurv[!is.na(subtype)] ~ cutTree(subtypeFM)))
 ```

@@ -8,14 +8,6 @@
 
 The aim of this project is to create an algorithm of post-hoc testing that would enable to extract hierarchical structure of factors.
 
-A short overview is available here
-
-https://rawgit.com/MI2DataLab/factorMerger/master/materials/vignette.html
-
-Longer description may be found here
-
-https://github.com/MI2DataLab/factorMerger/blob/master/materials/useR/user_abstract.pdf
-
 
 ### Installing and loading `factorMerger`
 
@@ -31,9 +23,15 @@ To install and load the latest version of`factorMerger` from **Github** run:
 devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
 ```
 
-### Cheatsheet for `factorMerger`
+### Materials for `factorMerger`
 
-[pdf version](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.pdf)
+[Methodology, https://arxiv.org/abs/1709.04412](https://arxiv.org/abs/1709.04412)
+
+[Short overview](https://rawgit.com/MI2DataLab/factorMerger/master/materials/vignette.html)
+
+[Longer description](https://github.com/MI2DataLab/factorMerger/blob/master/materials/useR/user_abstract.pdf)
+
+[Cheatsheet, the pdf version](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.pdf)
 
 ![factorMerger cheatsheet](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.png)
 
