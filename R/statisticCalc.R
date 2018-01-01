@@ -7,33 +7,93 @@ calculateModel <- function(factorMerger, factor) {
 }
 
 calculateModel.gaussianFactorMerger <- function(factorMerger, factor) {
-    if (length(unique(factor)) > 1) {
-        return(lm(factorMerger$response ~ factor - 1))
+  
+  df <- cbind(factor, factorMerger$covariates)
+  df <- as.data.frame(df)
+  colnames(df)[1] <- "factor"
+  df$factor <- factor(df$factor)
+  if(is.null(factorMerger$weights)){
+  #df$factor <- factor(df$factor, levels=levels(factor))
+    if (length(unique(factor)) > 1 & length(factorMerger$covariates)==0) {
+      return(lm(factorMerger$response ~ factor - 1, data = df))
+    }
+    if(length(unique(factor)) > 1 & length(factorMerger$covariates)>0){
+      return(lm(factorMerger$response ~ . - 1 , data = df))
     }
     return(lm(factorMerger$response ~ 1))
+  }else{
+    if (length(unique(factor)) > 1 & length(factorMerger$covariates)==0) {
+      return(lm(factorMerger$response ~ factor - 1, data = df, weights = factorMerger$weights))
+    }
+    if(length(unique(factor)) > 1 & length(factorMerger$covariates)>0){
+      return(lm(factorMerger$response ~ . - 1 , data = df, weights = factorMerger$weights))
+    }
+    return(lm(factorMerger$response ~ 1, weights = factorMerger$weights))
+  }  
+  
 }
 
 #' @importFrom survival Surv coxph coxph.control
 calculateModel.survivalFactorMerger <- function(factorMerger, factor) {
-    response <- factorMerger$response
-    if (length(unique(factor)) > 1) {
-        return(coxph(response ~ factor))
+  response <- factorMerger$response
+  df <- cbind(factor, factorMerger$covariates)
+  df <- as.data.frame(df)
+  colnames(df)[1] <- "factor"
+  df$factor <- factor(df$factor)
+  
+  if(is.null(factorMerger$weights)){
+    if(length(unique(factor)) > 1 & length(factorMerger$covariates)==0){
+      return(coxph(response ~ factor))
+    }
+    if (length(unique(factor)) > 1 & length(factorMerger$covariates)>0) {
+      return(coxph(response ~ . , data = df))
     }
     return(coxph(response ~ 1))
+  }else{
+    if(length(unique(factor)) > 1 & length(factorMerger$covariates)==0){
+      return(coxph(response ~ factor, weights = factorMerger$weights))
+    }
+    if (length(unique(factor)) > 1 & length(factorMerger$covariates)>0) {
+      return(coxph(response ~ . , data = df, weights = factorMerger$weights))
+    }
+    return(coxph(response ~ 1))
+    
+    
+  }
 }
 
 calculateModel.binomialFactorMerger <- function(factorMerger, factor) {
-    df <- data.frame(response = factorMerger$response,
-                     factor = factor)
+  df <- cbind(factor, factorMerger$covariates)
+  df <- as.data.frame(df)
+  colnames(df)[1] <- "factor"
+  df$factor <- factor(df$factor)
+  if(is.null(factorMerger$weights)){
     if (length(unique(factor)) > 1) {
-        mod <- glm(response ~ factor, family = "binomial", data = df)
-
+      if(length(factorMerger$covariates)>0){
+        mod <- glm(factorMerger$response ~ ., family = "binomial", data = df)
+      }else{
+        mod <- glm(factorMerger$response ~ factor, family = "binomial", data = df)
+      }
     } else {
-        mod <- glm(response ~ 1, family = "binomial", data = df)
+      mod <- glm(factorMerger$response ~ 1, family = "binomial", data = df)
     }
-
+  
     class(mod) <- c("binomglm", class(mod))
     return(mod)
+  }else{
+    if (length(unique(factor)) > 1) {
+      if(length(factorMerger$covariates)>0){
+        mod <- glm(factorMerger$response ~ ., family = "binomial", data = df, weights = factorMerger$weights)
+      }else{
+        mod <- glm(factorMerger$response ~ factor, family = "binomial", data = df, weights = factorMerger$weights)
+      }
+    } else {
+      mod <- glm(factorMerger$response ~ 1, family = "binomial", data = df, weights = factorMerger$weights)
+    }
+    
+    class(mod) <- c("binomglm", class(mod))
+    return(mod)
+  }
 }
 
 calculateModelStatistic <- function(model) {
@@ -152,24 +212,17 @@ calculateAnovaTable.coxph <- function(model) {
 }
 
 getTukeyGroups <- function(response, factor) {
-    # Performs HSD.test. Let's say that k is the number of groups that contain 
-    # subpopulations that do not differ significantly and n is the number of subpopulations. 
-    # getTukeyGroups returns a table with k columns and n rows. 
-    # Cell [i, j] is TRUE iff i-th subpopulation belogs to j-th group.
     aovData <- aov(response ~ factor)
     hsd <- HSD.test(aovData, "factor")
-    realGroupNames <- hsd$means %>% 
-        rownames() %>% 
-        as.character() %>% sort()
-    changedGroupNames <- hsd$groups %>% rownames() %>% as.character() %>% sort()
+    realGroupNames <- hsd$means %>% rownames() %>% as.character %>% sort()
+    changedGroupNames <- hsd$groups$trt %>% as.character %>% sort()
     namesDict <- data.frame(real = realGroupNames,
                             changed = changedGroupNames,
                             stringsAsFactors = FALSE)
-    hsd$groups$trt <- as.character(rownames(hsd$groups))
-    namesDict <- hsd$groups %>% 
-        left_join(namesDict, by = c("trt" = "changed"))
+    hsd$groups$trt <- as.character(hsd$groups$trt)
+    namesDict <- hsd$groups %>% left_join(namesDict, by = c("trt" = "changed"))
 
-    groups <- data.frame(groups = hsd$groups$groups)
+    groups <- data.frame(groups = hsd$groups$M)
     groupList <- apply(groups, 1,
                        function(x) substring(x, 1:nchar(x), 1:nchar(x)))
     names(groupList) <- namesDict$real
