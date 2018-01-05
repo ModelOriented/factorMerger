@@ -1,8 +1,3 @@
-as.character.formula <- getFromNamespace("as.character.formula", "formula.tools")
-lhs <- getFromNamespace("lhs", "formula.tools")
-rhs <- getFromNamespace("rhs", "formula.tools")
-
-
 #' @importFrom magrittr "%>%"
 #' @importFrom graphics text
 #' @importFrom stats aggregate anova aov as.dist ave
@@ -35,71 +30,67 @@ cleanFactor <- function(factor) {
     return(factor)
 }
 
-merger <- function(response, factor, covariates=NULL, weights = NULL,
+merger <- function(response, factor,
                    family = "gaussian",
                    abbreviate) {
-  
-  stopifnot(NROW(response) == NROW(factor))
-  
-  factor <- cleanFactor(factor)
-  
-  if (abbreviate) {
-    map <- data.frame(
-      `recoded` = paste0("(", abbreviate(levels(factor)), ")"),
-      `original` = levels(factor))
-    rownames(map) <- NULL
-    factor <- factor(factor, labels = map$recoded)
-    
-  }
-  
-  
-  fm <- list(
-    response = response,
-    factor = factor,
-    covariates = covariates,
-    weights = weights,
-    mergingList = list(`1` = list(groups = levels(factor),
-                                  modelStats = list(),
-                                  groupStats = NA,
-                                  merged = NA))
-  )
-  
-  if (abbreviate) {
-    fm[["map"]] <- map
-  }
-  
-  
-  
-  class(fm) <- "factorMerger"
-  
-  switch(family,
-         "gaussian" = {
-           class(fm) <- append(class(fm), "gaussianFactorMerger")
-         },
-         
-         "survival" = {
-           stopifnot(class(response) == "Surv")
-           class(fm) <- append(class(fm), "survivalFactorMerger")
-         },
-         
-         "binomial" = {
-           stopifnot(!sum(!response %in% c(0, 1)))
-           class(fm) <- append(class(fm), "binomialFactorMerger")
-         },
-         
-         "nonparametric" = {
-           class(fm) <- append(class(fm), "nonparametricFactorMerger")
-           stop("Non-parametric analysis is not supported yet.")
-         },
-         stop("Unknown family"))
-  
-  if (NCOL(factor) > 1) {
-    class(fm) <- append(class(fm), "multiClassFactorMerger")
-    stop("Factor merging with multivariate factor is not supported yet.")
-  }
-  
-  return(fm)
+
+    stopifnot(NROW(response) == NROW(factor))
+
+    factor <- cleanFactor(factor)
+
+    if (abbreviate) {
+        map <- data.frame(
+            `recoded` = paste0("(", abbreviate(levels(factor)), ")"),
+            `original` = levels(factor))
+        rownames(map) <- NULL
+        factor <- factor(factor, labels = map$recoded)
+
+    }
+
+    fm <- list(
+        response = response,
+        factor = factor,
+        mergingList = list(`1` = list(groups = levels(factor),
+                                modelStats = list(),
+                                groupStats = NA,
+                                merged = NA))
+    )
+
+    if (abbreviate) {
+        fm[["map"]] <- map
+    }
+
+    class(fm) <- "factorMerger"
+
+    switch(family,
+           "gaussian" = {
+               class(fm) <- append(class(fm), "gaussianFactorMerger")
+           },
+
+           "survival" = {
+               stopifnot(class(response) == "Surv")
+               class(fm) <- append(class(fm), "survivalFactorMerger")
+           },
+
+           "binomial" = {
+               stopifnot(!sum(!response %in% c(0, 1)))
+               class(fm) <- append(class(fm), "binomialFactorMerger")
+           },
+
+           "nonparametric" = {
+               class(fm) <- append(class(fm), "nonparametricFactorMerger")
+               stop("Non-parametric analysis is not supported yet.")
+           },
+           stop("Unknown family"))
+
+    if (NCOL(factor) > 1) {
+        class(fm) <- append(class(fm), "multiClassFactorMerger")
+        stop("Factor merging with multivariate factor is not supported yet.")
+    }
+
+    return(fm)
 }
+
 stats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList, function(x) x$modelStats)
     do.call(rbind, statsList)
@@ -113,11 +104,10 @@ stats <- function(factorMerger) {
 #' @param factorMerger object of a class \code{factorMerger}
 #'
 #' @examples
-#' \dontrun{
 #' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 #' fm <- mergeFactors(randSample$response, randSample$factor)
 #' groupsStats(fm)
-#'}
+#'
 #' @export
 groupsStats <- function(factorMerger) {
     statsList <- lapply(factorMerger$mergingList,
@@ -153,16 +143,14 @@ groupsStats <- function(factorMerger) {
 #' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 #' fm <- mergeFactors(randSample$response, randSample$factor)
 #' mergingHistory(fm, showStats = TRUE)
-#'
-#' @importFrom dplyr rename
 mergingHistory <- function(factorMerger, showStats = FALSE,
                            penalty, round = TRUE) {
-    mergingList <- sapply(factorMerger$mergingList,
-                        function(x)  x$merged )
-    mergingDf <- do.call(rbind, mergingList) %>%
-        as.data.frame(stringsAsFactors = FALSE) %>%
-        rename(groupA = V1, groupB = V2)
-
+  groupA <- unlist(sapply(factorMerger$mergingList,
+                          function(x)  x$merged[1]))
+  groupB <- unlist(sapply(factorMerger$mergingList,
+                          function(x)  x$merged[2]))
+  mergingDf <- data.frame(groupA, groupB, stringsAsFactors = FALSE)
+  
     if (showStats) {
         st <- stats(factorMerger)
         if (round) {
@@ -229,14 +217,11 @@ print.factorMerger <- function(x, ...) {
 
 
 #' Merge factors
-#' 
+#'
 #' @description Performs step-wise merging of factor levels.
-#' @aliases mergeFactor.default mergeFactor.formula
-#' 
-#' @param x,formula A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.
-#' @param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
-#' @param covariates A covariates \code{vector/matrix}, optional when we use \code{response} argument.
-#' @param weights A weights \code{vector}, optional when we use \code{response} argument. For more information see: \link[stats]{lm}, \link[stats]{glm}, \link[survival]{coxph}
+#'
+#' @param response A response \code{vector/matrix} suitable for the model family.
+#' @param factor A factor \code{vector}.
 #' @param family Model family to be used in merging. Available models are: \code{"gaussian",}
 #' \code{ "survival", "binomial"}.
 #' By default \code{mergeFactors} uses \code{"gaussian"} model.
@@ -282,142 +267,48 @@ print.factorMerger <- function(x, ...) {
 #'
 #' @param abbreviate Logical. If \code{TRUE}, the default, factor levels names
 #' are abbreviated.
-#' @param ... other arguments corresponding to type of first argument
-#'
-#' @method mergeFactors formula
-#' @method mergeFactors default
-#' 
 #'
 #' @examples
-#' \dontrun{
-#' rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
-#' 
-#' raSample$covariates <- runif(100)
-#' mergeFactors(x = rSample$response, factor = rSample$factor)
-#' mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
+#' randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+#' mergeFactors(randSample$response, randSample$factor)
 #'
-#'dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
-#'colnames(dataset) <- c("res1","res2","res3","fct","cov1")
+#' @export
 #'
-#'mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
-#'mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)
-#'
-#'}
-#'@aliases mergeFactors.default
-#'@aliases mergeFactors.formula
-#'
-#'@export mergeFactors
-
-
-
-mergeFactors <- function(x, factor, ...){
-  UseMethod("mergeFactors",x)
-}
-
-#'@title mergeFactors.default
-#'
-#'@description Default method for \code{mergeFactors()} function.
-#'@param x A response \code{vector/matrix} suitable for the model family.
-#'@param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
-#'@param covariates A covariates \code{vector/matrix}, optional when we use \code{response} argument.
-#'@param weights A weights \code{vector}, optional when we use \code{response} argument. For more information see: \link[stats]{lm}, \link[stats]{glm}, \link[survival]{coxph}
-#'@param family Model family to be used in merging. Available models are: \code{"gaussian",}
-#'\code{ "survival", "binomial"}.
-#'By default \code{mergeFactors} uses \code{"gaussian"} model.
-#'@param method A string specifying method used during merging.
-#'@param abbreviate Logical. If \code{TRUE}, the default, factor levels names
-#' are abbreviated.
-#'@export
-mergeFactors.default <- function(x, factor, covariates=NULL, weights = NULL,
+mergeFactors <- function(response, factor,
                          family = "gaussian",
                          method = "fast-adaptive",
                          abbreviate = TRUE) {
-  response <- x
-  stopifnot(!is.null(response), !is.null(factor))
-  stopifnot(method %in% c("adaptive", "fast-adaptive",
-                          "fixed", "fast-fixed"))
-  
-  successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
-  
-  if (is.data.frame(response)) {
-    response <- as.matrix(response)
-  }
-  
-  fm <- merger(response, factor, covariates, weights, family, abbreviate)
-  
-  if (grepl("adaptive", method)) {
-    return(mergeLRT(fm, successive))
-  }
-  
-  return(mergeHClust(fm, successive))
-}
 
-#'@title mergeFactors.formula
-#'@description Method for \code{mergeFactors()} when first argument is a formula.
-#'@param x Formula containing columns names from the \code{data} argument.
-#'@param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
-#'@param data A data frame to be used for modeling
-#'@param weights A weights \code{vector}, optional when we use \code{response} argument. For more information see: \link[stats]{lm}, \link[stats]{glm}, \link[survival]{coxph}
-#'@param family Model family to be used in merging. Available models are: \code{"gaussian",}
-#'\code{ "survival", "binomial"}.
-#'By default \code{mergeFactors} uses \code{"gaussian"} model.
-#'@param method A string specifying method used during merging.
-#'@param abbreviate Logical. If \code{TRUE}, the default, factor levels names
-#' are abbreviated.
-#'@export
+    stopifnot(!is.null(response), !is.null(factor))
+    stopifnot(method %in% c("adaptive", "fast-adaptive",
+                            "fixed", "fast-fixed"))
 
+    successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
 
-mergeFactors.formula <- function(x, factor, data=NULL, weights = NULL,
-                                 family = "gaussian",
-                                 method = "fast-adaptive",
-                                 abbreviate = TRUE) {
-  
-  formula <- x
-  stopifnot(method %in% c("adaptive", "fast-adaptive",
-                          "fixed", "fast-fixed"))
-  
-  successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
-  responseNames <- lhs(formula)
-  responseNames <- unlist(strsplit(as.character.formula(responseNames)," "))
-  responseNames <- responseNames[!responseNames %in% c("+")]
-  covariateNames <- rhs(formula)
-  covariateNames <- unlist(strsplit(as.character.formula(covariateNames)," "))
-  covariateNames <- covariateNames[!covariateNames %in% c("+")]
-  factorNames <- factor
-  
-  covariateNames <- covariateNames[!covariateNames %in% factorNames]
-  #opcja na surv jeszcze do rozpatrzenia
-  response <- data[, which(colnames(data) %in% c(responseNames))]
-  stopifnot(!is.null(response), !is.null(factor))
-  
-  covariates <- data[, which(colnames(data) %in% covariateNames)]
-  covariates <- as.data.frame(covariates)
-  factor <- data[, which(colnames(data) %in% factorNames)]
-  
-  if (is.data.frame(response)) {
-    response <- as.matrix(response)
-  }
-  
-  fm <- merger(response, factor, covariates, weights, family, abbreviate)
-  
-  if (grepl("adaptive", method)) {
-    return(mergeLRT(fm, successive))
-  }
-  
-  return(mergeHClust(fm, successive))
+    if (is.data.frame(response)) {
+        response <- as.matrix(response)
+    }
+
+    fm <- merger(response, factor, family, abbreviate)
+
+    if (grepl("adaptive", method)) {
+        return(mergeLRT(fm, successive))
+    }
+
+    return(mergeHClust(fm, successive))
 }
 
 mergeLRT <- function(factorMerger, successive) {
-  fmList <- startMerging(factorMerger, successive, "LRT")
-  fm <- fmList$factorMerger
-  
-  while (canBeMerged(fm)) {
-    fmList <- mergePairLRT(fm, successive, fmList$factor,
-                           fmList$model)
+    fmList <- startMerging(factorMerger, successive, "LRT")
     fm <- fmList$factorMerger
-  }
-  
-  return(fmList$factorMerger)
+
+    while (canBeMerged(fm)) {
+        fmList <- mergePairLRT(fm, successive, fmList$factor,
+                               fmList$model)
+        fm <- fmList$factorMerger
+    }
+
+    return(fmList$factorMerger)
 }
 
 getPairWithLowestDist <- function(distance, pos) {

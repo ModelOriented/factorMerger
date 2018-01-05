@@ -2,22 +2,15 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{mergeFactors}
 \alias{mergeFactors}
-\alias{mergeFactor.default}
-\alias{mergeFactor.formula}
 \title{Merge factors}
 \usage{
-\method{mergeFactors}{formula}(x, factor, ...)
+mergeFactors(response, factor, family = "gaussian",
+  method = "fast-adaptive", abbreviate = TRUE)
 }
 \arguments{
-\item{x, formula}{A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.}
+\item{response}{A response \code{vector/matrix} suitable for the model family.}
 
-\item{factor}{A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.}
-
-\item{...}{other arguments corresponding to type of first argument}
-
-\item{covariates}{A covariates \code{vector/matrix}, optional when we use \code{response} argument.}
-
-\item{weights}{A weights \code{vector}, optional when we use \code{response} argument. For more information see: \link[stats]{lm}, \link[stats]{glm}, \link[survival]{coxph}}
+\item{factor}{A factor \code{vector}.}
 
 \item{family}{Model family to be used in merging. Available models are: \code{"gaussian",}
 \code{ "survival", "binomial"}.
@@ -70,18 +63,7 @@ are abbreviated.}
 Performs step-wise merging of factor levels.
 }
 \examples{
-\dontrun{
-rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
+mergeFactors(randSample$response, randSample$factor)
 
-raSample$covariates <- runif(100)
-mergeFactors(x = rSample$response, factor = rSample$factor)
-mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
-
-dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
-colnames(dataset) <- c("res1","res2","res3","fct","cov1")
-
-mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
-mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)
-
-}
 }

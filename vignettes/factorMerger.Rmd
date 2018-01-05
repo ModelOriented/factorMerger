@@ -214,7 +214,7 @@ If `family = "survival"` response must be of a class `Surv`.
  data(veteran)
  survResponse <- Surv(time = veteran$time, 
                   event = veteran$status)
- survivalFm <- mergeFactors(x = survResponse, 
+ survivalFm <- mergeFactors(response = survResponse, 
                     factor = veteran$celltype, 
                     family = "survival")
 ```
