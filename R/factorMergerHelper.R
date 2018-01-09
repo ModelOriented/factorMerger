@@ -22,21 +22,27 @@ reverseOrder <- function(factorMerger, isoMDSproj) {
 
 #' @importFrom dplyr left_join
 appendProjection.gaussianFactorMerger <- function(factorMerger) {
-    if (NCOL(factorMerger$response) > 1) {
-        groupMeans <- calculateMeans(factorMerger$response,
-                                     factorMerger$factor)
-        tmpResponse <- MASS::isoMDS(dist(groupMeans[, -1]),
-                                    k = 1, trace = FALSE)$points[, 1] %>%
-            as.data.frame()
-        tmpResponse$factor <- groupMeans$level
-        tmpResponse[, 1] <- reverseOrder(factorMerger, tmpResponse)
-        tmpResponse <- data.frame(factor = factorMerger$factor,
-                                  stringsAsFactors = FALSE) %>%
-            left_join(tmpResponse,
-                      by = "factor")
-        factorMerger$projectedResponse <- tmpResponse[, 2]
+  if (NCOL(factorMerger$response) > 1) {
+    if(length(factorMerger$covariates)==0){
+      factorMerger$covariates <- NULL
     }
-    return(factorMerger)
+    factorMerger$covariates <- factorMerger$covariates
+    groupMeans <- calculateMeans(factorMerger$response,
+                                 factorMerger$covariates,
+                                 factorMerger$factor)
+    tmpResponse <- MASS::isoMDS(dist(groupMeans[, -1]),
+                                k = 1, trace = FALSE)$points[, 1] %>%
+      as.data.frame()
+    tmpResponse$factor <- groupMeans$level
+    tmpResponse[, 1] <- reverseOrder(factorMerger, tmpResponse) 
+    tmpResponse <- data.frame(factor = factorMerger$factor,
+                              stringsAsFactors = FALSE) %>%
+      left_join(tmpResponse,
+                by = "factor") 
+    factorMerger$projectedResponse <- tmpResponse[, 2] 
+    
+  }
+  return(factorMerger)
 }
 
 convertToDistanceTensor <- function(modelsPvals, successive, labels) {
@@ -284,7 +290,7 @@ getFinalOrderVec <- function(factorMerger) {
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
-#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' \code{"loglikelihood"}, \code{"p-value"}, \code{"GIC"}.
 #' @param value cut threshold or penalty (for GIC)
 #'
 #' @details By default, \code{cutree} returns factor partition
@@ -339,7 +345,7 @@ cutTree <- function(factorMerger,
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
-#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' \code{"loglikelihood"}, \code{"p-value"}, \code{"GIC"}.
 #' @param value cut threshold / GIC penalty
 #'
 #' @details By default, \code{cutree} returns factor partition
@@ -370,7 +376,7 @@ getOptimalPartitionDf <- function(factorMerger,
 #'
 #' @param factorMerger object of a class \code{factorMerger}
 #' @param stat statistic used in the bottom-up search. Available statistics are:
-#' \code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.
+#' \code{"loglikelihood"}, \code{"p-value"}, \code{"GIC"}.
 #' @param value cut threshold / GIC penalty
 #'
 #' @details By default, \code{cutree} returns factor partition

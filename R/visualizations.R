@@ -138,7 +138,17 @@ plot.factorMerger <- function(x, panel = "all",
                return(mergingPathPlot)
            },
            "all" = {
-               aovTable <- plotTable(calculateAnovaTable(x$initialModel))
+             anTable <- calculateAnovaTable(x$initialModel)
+             if(length(x$covariates)>0){
+               if(class(x)[2]=="gaussianFactorMerger"){
+                 anTable <- t(anTable)
+                 nGroups <- as.numeric(anTable[1,2])
+                 nGroups <- nGroups-dim(x$covariates)[2]
+                 anTable[1,2] <- nGroups 
+                 anTable <- t(anTable)
+               }
+             }
+               aovTable <- plotTable(anTable)
                return(ggarrange(mergingPathPlot, responsePlot,
                                    plotGIC(x, gicPanelColor,
                                            penalty, statistic),
@@ -501,6 +511,7 @@ plotResponse <- function(factorMerger, responsePanel,
 
 findSimilarities <- function(factorMerger) {
     stats <- calculateMeansAndRanks(factorMerger$response,
+                                    factorMerger$covariate,
                                     factorMerger$factor)
     varsToBePloted <- reshape(stats %>% subset(select = -mean),
                               idvar = "level",

@@ -59,7 +59,7 @@ By default (with argument `abbreviate = TRUE`) factor levels are abbreviated and
 ### Computations
 
 ```{r}
-fmAll <- mergeFactors(randSample$response, randSample$factor)
+fmAll <- mergeFactors(x = randSample$response, factor = randSample$factor)
 ```
 
 `mergeFactors` outputs with information about the 'merging history'. 
@@ -74,7 +74,7 @@ Each row of the above frame describes one step of the merging algorithm. First t
 If we choose a *fast* version of merging one dimensional response is fitted using `isoMDS{MASS}`. Next, in each step only groups whose means are closed are compared.
 
 ```{r}
-fm <- mergeFactors(randSample$response, randSample$factor, 
+fm <- mergeFactors(x = randSample$response, factor = randSample$factor, 
                    method = "fast-fixed")
 
 mergingHistory(fm, showStats = TRUE) %>% 
@@ -159,7 +159,7 @@ Model with the lowest GIC is marked.
 oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
-oneDimFm <- mergeFactors(oneDimRandSample$response, oneDimRandSample$factor, 
+oneDimFm <- mergeFactors(x= oneDimRandSample$response, factor = oneDimRandSample$factor, 
                          method = "fixed")
 mergingHistory(oneDimFm, showStats = TRUE) %>% 
     kable()
@@ -184,8 +184,8 @@ table(binomRandSample$response, binomRandSample$factor) %>%
 ```
 
 ```{r}
-binomFm <- mergeFactors(binomRandSample$response, 
-                        binomRandSample$factor, 
+binomFm <- mergeFactors(x = binomRandSample$response, 
+                        factor = binomRandSample$factor, 
                         family = "binomial", 
                         method = "fast-adaptive")
 mergingHistory(binomFm, showStats = TRUE) %>% 
@@ -214,7 +214,7 @@ If `family = "survival"` response must be of a class `Surv`.
  data(veteran)
  survResponse <- Surv(time = veteran$time, 
                   event = veteran$status)
- survivalFm <- mergeFactors(response = survResponse, 
+ survivalFm <- mergeFactors(x = survResponse, 
                     factor = veteran$celltype, 
                     family = "survival")
 ```

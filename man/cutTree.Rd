@@ -10,7 +10,7 @@ cutTree(factorMerger, stat = "GIC", value = 2)
 \item{factorMerger}{object of a class \code{factorMerger}}
 
 \item{stat}{statistic used in the bottom-up search. Available statistics are:
-\code{"loglikelihood"}, \code{"pvalue"}, \code{"GIC"}.}
+\code{"loglikelihood"}, \code{"p-value"}, \code{"GIC"}.}
 
 \item{value}{cut threshold or penalty (for GIC)}
 }

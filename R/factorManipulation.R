@@ -37,7 +37,7 @@ calculateGroupStatistic <- function(factorMerger, factor) {
 
 calculateGroupStatistic.default <- function(factorMerger, factor) {
     if (NCOL(factorMerger$response) == 1) {
-        return(calculateMeans(factorMerger$response, factor))
+      return(calculateMeans(factorMerger$response, factorMerger$covariates, factor))
     }
     else {
         if (!"projectedResponse" %in% names(factorMerger)) {
@@ -45,7 +45,7 @@ calculateGroupStatistic.default <- function(factorMerger, factor) {
                 MASS::isoMDS(dist(factorMerger$response),
                              k = 1, trace = FALSE)$points[, 1]
         }
-        return(calculateMeans(factorMerger$projectedResponse, factor))
+      return(calculateMeans(factorMerger$projectedResponse, factorMerger$covariates, factor))
     }
 }
 
@@ -60,11 +60,15 @@ calculateGroupStatistic.survivalFactorMerger <- function(factorMerger, factor) {
 }
 
 #' @importFrom dplyr group_by summarize arrange
-calculateMeans <- function(response, factor) {
+calculateMeans <- function(response, covariates=NULL, factor) {
     if (is.null(response)) {
         return(NA)
     }
-    df <- data.frame(response, level = factor)
+    if(is.null(covariates)){
+      df <- data.frame(response, level = factor)
+    }else{
+      df <- data.frame(response, covariates, level = factor)
+    }
     df <- aggregate(. ~ level, function(x) mean(x, na.rm = TRUE), data = df)
 
     if (NCOL(response) == 1) {
@@ -76,21 +80,21 @@ calculateMeans <- function(response, factor) {
 
 #' @importFrom reshape2 melt
 #' @importFrom dplyr rename
-calculateMeansAndRanks <- function(response, factor) {
-    means <- apply(as.data.frame(response), 2, function(x) {
-        aggregate(x ~ level, function(x) mean(x, na.rm = T),
-                  data = data.frame(x = x, level = factor))
-    })
-
-    means <- lapply(means, function(x) {
-        df <- x %>% arrange(-x)
-        df$rank <- ave(df$x, FUN = rank)
-        df$rank <- nrow(df) - df$rank + 1
-        df
-    })
-
-    attr(means, "varname") <- "variable"
-
-    return(melt(means, id.vars = c("level", "rank"),
-                value.name = "mean"))
+calculateMeansAndRanks <- function(response, covariates=NULL, factor) {
+  means <- apply(as.data.frame(response, covariates), 2, function(x) {
+    aggregate(x ~ level, function(x) mean(x, na.rm = T),
+              data = data.frame(x = x, level = factor))
+  })
+  
+  means <- lapply(means, function(x) {
+    df <- x %>% arrange(-x)
+    df$rank <- ave(df$x, FUN = rank)
+    df$rank <- nrow(df) - df$rank + 1
+    df
+  })
+  
+  attr(means, "varname") <- "variable"
+  
+  return(melt(means, id.vars = c("level", "rank"),
+              value.name = "mean"))
 }

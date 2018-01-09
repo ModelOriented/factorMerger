@@ -2,68 +2,34 @@
 % Please edit documentation in R/factorMergerClasses.R
 \name{mergeFactors}
 \alias{mergeFactors}
+\alias{mergeFactor.default}
 \title{Merge factors}
 \usage{
-mergeFactors(response, factor, family = "gaussian",
-  method = "fast-adaptive", abbreviate = TRUE)
+mergeFactors(x, factor, ...)
 }
 \arguments{
-\item{response}{A response \code{vector/matrix} suitable for the model family.}
+\item{x}{A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.}
 
-\item{factor}{A factor \code{vector}.}
+\item{factor}{A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.}
 
-\item{family}{Model family to be used in merging. Available models are: \code{"gaussian",}
-\code{ "survival", "binomial"}.
-By default \code{mergeFactors} uses \code{"gaussian"} model.}
-
-\item{method}{A string specifying method used during merging.
-Four methods are available:
-\itemize{
-\item \code{method = "adaptive"}. The objective function that is maximized
-throughout procedure is the logarithm of likelihood. The set of pairs enabled to merge
-contains all possible pairs of groups available in a given step.
-Pairwise LRT distances are recalculated every step.
-This option is the slowest one since it requires the largest number
-of comparisons. It requires {O}(k^3) model evaluations. (with k - the initial number of groups)
-\item \code{method = "fast-adaptive"}.
-For Gaussian family of response, at the very beginning, the groups are ordered according to increasing
-averages and then the set of pairs compared contains only pairs of closest groups.
-For other families the order corresponds to beta coefficients in
-a regression model.
-This option is much faster than \code{method = "adaptive"} and requires {O}(k^2) model evaluations.
-\item \code{method = "fixed"}. This option is based on the DMR
-algorithm introduced in \cite{Proch}. It was extended to cover
-survival models. The largest difference between this option and
-the \code{method = "adaptive"} is, that in the first
-step a pairwise distances are calculated between each groups
-based on the LRT statistic. Then the agglomerative clustering algorithm
-is used to merge consecutive pairs. It means that pairwise model differences
-are not recalculated as LRT statistics in every step but the
-\code{complete linkage} is used instead.
-This option is very fast and requires {O}(k^2) comparisons.
-\item \code{method = "fast-fixed"}. This option may be considered
-as a modification of \code{method = "fixed"}.
-Here, similarly as in the \code{fast-adaptive} version,
-we assume that if groups A, B and C are sorted according to their
-increasing beta coefficients, then the distance between groups A and B
-and the distance between groups B and C are not greater than the
-distance between groups A and C. This assumption enables to implement
-the \code{complete linkage} clustering more efficiently in a dynamic manner.
-The biggest difference is that in the first step we do not calculated
-whole matrix of pairwise differences, but instead only the differences
-between consecutive groups. Then in each step a only single distance is
-calculated. This helps to reduce the number of model evaluations to {O}(n).
-}
-The default option is \code{"fast-adaptive"}.}
-
-\item{abbreviate}{Logical. If \code{TRUE}, the default, factor levels names
-are abbreviated.}
+\item{...}{Other arguments corresponding to type of first argument}
 }
 \description{
 Performs step-wise merging of factor levels.
 }
 \examples{
-randSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
-mergeFactors(randSample$response, randSample$factor)
+\dontrun{
+rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 
+raSample$covariates <- runif(100)
+mergeFactors(x = rSample$response, factor = rSample$factor)
+mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
+
+dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
+colnames(dataset) <- c("res1","res2","res3","fct",covariates = "cov1")
+
+mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
+mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)
+
+}
 }

@@ -82,8 +82,8 @@ pisaIdxSubset <- which(pisa2012$country %in% c("Belgium",
                                            "Germany",
                                            "Finland",
                                            "Estonia"))
-pisaFMHClust <- mergeFactors(pisa2012[pisaIdxSubset, 1:3],
-                       factor(pisa2012$country[pisaIdxSubset]),
+pisaFMHClust <- mergeFactors(x = pisa2012[pisaIdxSubset, 1:3],
+                       factor = factor(pisa2012$country[pisaIdxSubset]),
                        method = "fast-fixed") 
 
 plot(pisaFMHClust, responsePanel = "profile", 
@@ -107,8 +107,8 @@ pisaEuropean <- filter(pisa2012, country %in% c("Austria", "Belgium", "Bulgaria"
                                             "Slovenia"))
 
 
-pisaFMHClustEurope <- mergeFactors(pisaEuropean[,1:3],
-                       factor(pisaEuropean$country),
+pisaFMHClustEurope <- mergeFactors(x = pisaEuropean[,1:3],
+                       factor = factor(pisaEuropean$country),
                        method = "fast-fixed") 
 
 plot(pisaFMHClustEurope)
