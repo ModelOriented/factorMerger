@@ -26,7 +26,7 @@ mergeFactors(x = rSample$response, factor = rSample$factor)
 mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
 
 dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
-colnames(dataset) <- c("res1","res2","res3","fct",covariates = "cov1")
+colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 
 mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
 mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)

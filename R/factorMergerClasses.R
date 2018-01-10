@@ -1,3 +1,8 @@
+as.character.formula <- getFromNamespace("as.character.formula", "formula.tools")
+lhs <- getFromNamespace("lhs", "formula.tools")
+rhs <- getFromNamespace("rhs", "formula.tools")
+
+
 #' @importFrom magrittr "%>%"
 #' @importFrom graphics text
 #' @importFrom stats aggregate anova aov as.dist ave
@@ -233,6 +238,7 @@ print.factorMerger <- function(x, ...) {
 #' @param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
 #' @param ... Other arguments corresponding to type of first argument
 #' @method mergeFactors default
+#' @method mergeFactors formula
 #' 
 #' @usage mergeFactors(x, factor, ...)
 #' 
@@ -246,13 +252,14 @@ print.factorMerger <- function(x, ...) {
 #' mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
 #'
 #'dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
-#'colnames(dataset) <- c("res1","res2","res3","fct",covariates = "cov1")
+#'colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 #'
 #'mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
 #'mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)
 #'
 #'}
 #'@aliases mergeFactors.default
+#'@aliases mergeFactors.formula
 #'
 #'@export mergeFactors
 
@@ -343,6 +350,104 @@ mergeFactors.default <- function(x, factor, ..., covariates=NULL, weights = NULL
   
   return(mergeHClust(fm, successive))
 }
+
+#'@title mergeFactors.formula
+#'@description Method for \code{mergeFactors()} when first argument is a formula.
+#'@param x Formula containing columns names from the \code{data} argument.
+#'@param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
+#'@param ... Other arguments corresponding to type of first argument/
+#'@param data A data frame to be used for modeling
+#'@param weights A weights \code{vector}, optional when we use \code{response} argument. For more information see: \link[stats]{lm}, \link[stats]{glm}, \link[survival]{coxph}
+#'@param family Model family to be used in merging. Available models are: \code{"gaussian",}
+#'\code{ "survival", "binomial"}.
+#'By default \code{mergeFactors} uses \code{"gaussian"} model.
+#'@param method A string specifying method used during merging.
+#'Four methods are available:
+#'\itemize{
+#'\item \code{method = "adaptive"}. The objective function that is maximized
+#'throughout procedure is the logarithm of likelihood. The set of pairs enabled to merge
+#'contains all possible pairs of groups available in a given step.
+#'Pairwise LRT distances are recalculated every step.
+#'This option is the slowest one since it requires the largest number
+#'of comparisons. It requires {O}(k^3) model evaluations. (with k - the initial number of groups)
+#'\item \code{method = "fast-adaptive"}.
+#'For Gaussian family of response, at the very beginning, the groups are ordered according to increasing
+#'averages and then the set of pairs compared contains only pairs of closest groups.
+#'For other families the order corresponds to beta coefficients in
+#'a regression model.
+#'This option is much faster than \code{method = "adaptive"} and requires {O}(k^2) model evaluations.
+#'\item \code{method = "fixed"}. This option is based on the DMR
+#'algorithm introduced in \cite{Proch}. It was extended to cover
+#'survival models. The largest difference between this option and
+#'the \code{method = "adaptive"} is, that in the first
+#'step a pairwise distances are calculated between each groups
+#'based on the LRT statistic. Then the agglomerative clustering algorithm
+#'is used to merge consecutive pairs. It means that pairwise model differences
+#'are not recalculated as LRT statistics in every step but the
+#'\code{complete linkage} is used instead.
+#'This option is very fast and requires {O}(k^2) comparisons.
+#'\item \code{method = "fast-fixed"}. This option may be considered
+#'as a modification of \code{method = "fixed"}.
+#'Here, similarly as in the \code{fast-adaptive} version,
+#'we assume that if groups A, B and C are sorted according to their
+#'increasing beta coefficients, then the distance between groups A and B
+#'and the distance between groups B and C are not greater than the
+#'distance between groups A and C. This assumption enables to implement
+#'the \code{complete linkage} clustering more efficiently in a dynamic manner.
+#'The biggest difference is that in the first step we do not calculated
+#'whole matrix of pairwise differences, but instead only the differences
+#'between consecutive groups. Then in each step a only single distance is
+#'calculated. This helps to reduce the number of model evaluations to {O}(n).
+#'}
+#'The default option is \code{"fast-adaptive"}.
+#'
+#'@param abbreviate Logical. If \code{TRUE}, the default, factor levels names
+#'are abbreviated.
+#'
+#'@export
+
+
+mergeFactors.formula <- function(x, factor, ..., data=NULL, weights = NULL,
+                                 family = "gaussian",
+                                 method = "fast-adaptive",
+                                 abbreviate = TRUE) {
+  
+  formula <- x
+  stopifnot(method %in% c("adaptive", "fast-adaptive",
+                          "fixed", "fast-fixed"))
+  
+  successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
+  responseNames <- lhs(formula)
+  responseNames <- unlist(strsplit(as.character.formula(responseNames)," "))
+  responseNames <- responseNames[!responseNames %in% c("+")]
+  covariateNames <- rhs(formula)
+  covariateNames <- unlist(strsplit(as.character.formula(covariateNames)," "))
+  covariateNames <- covariateNames[!covariateNames %in% c("+")]
+  factorNames <- factor
+  
+  covariateNames <- covariateNames[!covariateNames %in% factorNames]
+  #opcja na surv jeszcze do rozpatrzenia
+  response <- data[, which(colnames(data) %in% c(responseNames))]
+  stopifnot(!is.null(response), !is.null(factor))
+  
+  covariates <- data[, which(colnames(data) %in% covariateNames)]
+  covariates <- as.data.frame(covariates)
+  factor <- data[, which(colnames(data) %in% factorNames)]
+  
+  if (is.data.frame(response)) {
+    response <- as.matrix(response)
+  }
+  
+  fm <- merger(response, factor, covariates, weights, family, abbreviate)
+  
+  if (grepl("adaptive", method)) {
+    return(mergeLRT(fm, successive))
+  }
+  
+  return(mergeHClust(fm, successive))
+}
+
+
 
 mergeLRT <- function(factorMerger, successive) {
     fmList <- startMerging(factorMerger, successive, "LRT")
