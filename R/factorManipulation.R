@@ -67,7 +67,7 @@ calculateMeans <- function(response, covariates=NULL, factor) {
     if(is.null(covariates)){
       df <- data.frame(response, level = factor)
     }else{
-      df <- data.frame(response, covariates, level = factor)
+      df <- data.frame(response, level = factor)
     }
     df <- aggregate(. ~ level, function(x) mean(x, na.rm = TRUE), data = df)
 
@@ -81,7 +81,7 @@ calculateMeans <- function(response, covariates=NULL, factor) {
 #' @importFrom reshape2 melt
 #' @importFrom dplyr rename
 calculateMeansAndRanks <- function(response, covariates=NULL, factor) {
-  means <- apply(as.data.frame(response, covariates), 2, function(x) {
+  means <- apply(as.data.frame(response), 2, function(x) {
     aggregate(x ~ level, function(x) mean(x, na.rm = T),
               data = data.frame(x = x, level = factor))
   })
