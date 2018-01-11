@@ -1,3 +1,9 @@
+factorMerger 0.3.5
+----------------------------------------------------------------
+* **Misc**:
+    * Weighted regression with the `weights` argument in `mergeFactors` [#63](https://github.com/MI2DataLab/factorMerger/issues/63)
+    * Added support for formulas in in `mergeFactors` [#76](https://github.com/MI2DataLab/factorMerger/issues/76)
+
 factorMerger 0.3.4
 ----------------------------------------------------------------
 * **Misc**:
