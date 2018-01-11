@@ -248,9 +248,10 @@ print.factorMerger <- function(x, ...) {
 #' rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 #' 
 #' rSample$covariates <- runif(100)
+#' rSample$weights <- runif(100)
 #' mergeFactors(response = rSample$response, factor = rSample$factor)
 #' mergeFactors(response = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
-#'
+#' mergeFactors(rSample$response[,1], rSample$factor, covariates = rSample$covariates, weights = rSample$weights)
 #'dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
 #'colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 #'
@@ -336,6 +337,9 @@ mergeFactors.default <- function(response, factor, ..., covariates=NULL, weights
   stopifnot(!is.null(response), !is.null(factor))
   stopifnot(method %in% c("adaptive", "fast-adaptive",
                           "fixed", "fast-fixed"))
+  if(NCOL(response)>1 && !is.null(weights)){
+    stop("Multivariate Linear Models with weights are not supported")
+  }
   
   successive  <- ifelse(grepl("fast", method), TRUE, FALSE)
   
@@ -427,9 +431,12 @@ mergeFactors.formula <- function(response, factor, ..., data=NULL, weights = NUL
   factorNames <- factor
   
   covariateNames <- covariateNames[!covariateNames %in% factorNames]
-  #opcja na surv jeszcze do rozpatrzenia
   response <- data[, which(colnames(data) %in% c(responseNames))]
   stopifnot(!is.null(response), !is.null(factor))
+  
+  if(NCOL(response)>1 && !is.null(weights)){
+    stop("Multivariate Linear Models with weights are not supported")
+  }
   
   covariates <- data[, which(colnames(data) %in% covariateNames)]
   covariates <- as.data.frame(covariates)
