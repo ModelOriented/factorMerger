@@ -337,7 +337,7 @@ mergeFactors.default <- function(response, factor, ..., covariates=NULL, weights
   stopifnot(!is.null(response), !is.null(factor))
   stopifnot(method %in% c("adaptive", "fast-adaptive",
                           "fixed", "fast-fixed"))
-  if(NCOL(response)>1 && !is.null(weights)){
+  if(NCOL(response)>1 && !is.null(weights) && family!="survival"){
     stop("Multivariate Linear Models with weights are not supported")
   }
   
@@ -434,7 +434,7 @@ mergeFactors.formula <- function(response, factor, ..., data=NULL, weights = NUL
   response <- data[, which(colnames(data) %in% c(responseNames))]
   stopifnot(!is.null(response), !is.null(factor))
   
-  if(NCOL(response)>1 && !is.null(weights)){
+  if(NCOL(response)>1 && !is.null(weights) && family!="survival"){
     stop("Multivariate Linear Models with weights are not supported")
   }
   

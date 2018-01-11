@@ -25,7 +25,7 @@ rSample$covariates <- runif(100)
 rSample$weights <- runif(100)
 mergeFactors(response = rSample$response, factor = rSample$factor)
 mergeFactors(response = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
-mergeFactors(response = rSample$response[,1], factor = rSample$factor, covariates = rSample$covariates, weights = rSample$weights)
+mergeFactors(rSample$response[,1], rSample$factor, covariates = rSample$covariates, weights = rSample$weights)
 dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
 colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 
