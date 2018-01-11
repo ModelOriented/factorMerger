@@ -111,77 +111,32 @@
     <p>Performs step-wise merging of factor levels.</p>
     
 
-    <pre class="usage"><span class='fu'>mergeFactors</span>(<span class='no'>response</span>, <span class='no'>factor</span>, <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"gaussian"</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"fast-adaptive"</span>, <span class='kw'>abbreviate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>mergeFactors</span>(<span class='no'>response</span>, <span class='no'>factor</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>response</th>
-      <td><p>A response <code>vector/matrix</code> suitable for the model family.</p></td>
+      <td><p>A response <code>vector/matrix</code> suitable for the model family or a formula containing columns names from the <code>data</code> argument or formula.</p></td>
     </tr>
     <tr>
       <th>factor</th>
-      <td><p>A factor <code>vector</code>.</p></td>
+      <td><p>A factor <code>vector</code> when we use <code>response</code> argument, otherwise the name of column from <code>data</code> argument containing which levels should be merged.</p></td>
     </tr>
     <tr>
-      <th>family</th>
-      <td><p>Model family to be used in merging. Available models are: <code>"gaussian",</code>
-<code> "survival", "binomial"</code>.
-By default <code>mergeFactors</code> uses <code>"gaussian"</code> model.</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>A string specifying method used during merging.
-Four methods are available:</p><ul>
-<li><p><code>method = "adaptive"</code>. The objective function that is maximized
-throughout procedure is the logarithm of likelihood. The set of pairs enabled to merge
-contains all possible pairs of groups available in a given step.
-Pairwise LRT distances are recalculated every step.
-This option is the slowest one since it requires the largest number
-of comparisons. It requires O(k^3) model evaluations. (with k - the initial number of groups)</p></li>
-<li><p><code>method = "fast-adaptive"</code>.
-For Gaussian family of response, at the very beginning, the groups are ordered according to increasing
-averages and then the set of pairs compared contains only pairs of closest groups.
-For other families the order corresponds to beta coefficients in
-a regression model.
-This option is much faster than <code>method = "adaptive"</code> and requires O(k^2) model evaluations.</p></li>
-<li><p><code>method = "fixed"</code>. This option is based on the DMR
-algorithm introduced in <cite>Proch</cite>. It was extended to cover
-survival models. The largest difference between this option and
-the <code>method = "adaptive"</code> is, that in the first
-step a pairwise distances are calculated between each groups
-based on the LRT statistic. Then the agglomerative clustering algorithm
-is used to merge consecutive pairs. It means that pairwise model differences
-are not recalculated as LRT statistics in every step but the
-<code>complete linkage</code> is used instead.
-This option is very fast and requires O(k^2) comparisons.</p></li>
-<li><p><code>method = "fast-fixed"</code>. This option may be considered
-as a modification of <code>method = "fixed"</code>.
-Here, similarly as in the <code>fast-adaptive</code> version,
-we assume that if groups A, B and C are sorted according to their
-increasing beta coefficients, then the distance between groups A and B
-and the distance between groups B and C are not greater than the
-distance between groups A and C. This assumption enables to implement
-the <code>complete linkage</code> clustering more efficiently in a dynamic manner.
-The biggest difference is that in the first step we do not calculated
-whole matrix of pairwise differences, but instead only the differences
-between consecutive groups. Then in each step a only single distance is
-calculated. This helps to reduce the number of model evaluations to O(n).</p></li>
-</ul><p>The default option is <code>"fast-adaptive"</code>.</p></td>
-    </tr>
-    <tr>
-      <th>abbreviate</th>
-      <td><p>Logical. If <code>TRUE</code>, the default, factor levels names
-are abbreviated.</p></td>
+      <th>...</th>
+      <td><p>Other arguments corresponding to type of first argument</p></td>
     </tr>
     </table>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>randSample</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateMultivariateSample.html'>generateMultivariateSample</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='fl'>3</span>)
-<span class='fu'>mergeFactors</span>(<span class='no'>randSample</span>$<span class='no'>response</span>, <span class='no'>randSample</span>$<span class='no'>factor</span>)</div><div class='output co'>#&gt; Family: gaussian Factor Merger.
+    <pre class="examples"><div class='input'><span class='no'>rSample</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateMultivariateSample.html'>generateMultivariateSample</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='fl'>3</span>)
+
+<span class='no'>rSample</span>$<span class='no'>covariates</span> <span class='kw'>&lt;-</span> <span class='fu'>runif</span>(<span class='fl'>100</span>)
+<span class='no'>rSample</span>$<span class='no'>weights</span> <span class='kw'>&lt;-</span> <span class='fu'>runif</span>(<span class='fl'>100</span>)
+<span class='fu'>mergeFactors</span>(<span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>response</span>, <span class='kw'>factor</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>factor</span>)</div><div class='output co'>#&gt; Family: gaussian Factor Merger.
 #&gt; Factor levels were recoded as below:
 #&gt; 
 #&gt; |recoded |original |
@@ -210,7 +165,128 @@ are abbreviated.</p></td>
 #&gt; |6  |(I)(C)          |(A)             | -410.6091|     0.9902|         0.4527|
 #&gt; |7  |(I)(C)(A)       |(H)(J)          | -412.2696|     0.9775|         0.3708|
 #&gt; |8  |(E)             |(B)(F)(G)(D)    | -415.5644|     0.8746|         0.0982|
-#&gt; |9  |(E)(B)(F)(G)(D) |(I)(C)(A)(H)(J) | -421.6679|     0.4341|         0.0082|</div><div class='input'>
+#&gt; |9  |(E)(B)(F)(G)(D) |(I)(C)(A)(H)(J) | -421.6679|     0.4341|         0.0082|</div><div class='input'><span class='fu'>mergeFactors</span>(<span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>response</span>, <span class='kw'>factor</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>factor</span>, <span class='kw'>covariates</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>covariates</span>)</div><div class='output co'>#&gt; Family: gaussian Factor Merger.
+#&gt; Factor levels were recoded as below:
+#&gt; 
+#&gt; |recoded |original |
+#&gt; |:-------|:--------|
+#&gt; |(J)     |J        |
+#&gt; |(A)     |A        |
+#&gt; |(E)     |E        |
+#&gt; |(H)     |H        |
+#&gt; |(I)     |I        |
+#&gt; |(C)     |C        |
+#&gt; |(D)     |D        |
+#&gt; |(G)     |G        |
+#&gt; |(F)     |F        |
+#&gt; |(B)     |B        |
+#&gt; 
+#&gt; Factor levels were merged in the following order:
+#&gt; 
+#&gt; |   |groupA          |groupB          |     model| pvalVsFull| pvalVsPrevious|
+#&gt; |:--|:---------------|:---------------|---------:|----------:|--------------:|
+#&gt; |0  |                |                | -404.2864|     1.0000|         1.0000|
+#&gt; |1  |(G)             |(D)             | -404.4716|     0.9554|         0.9554|
+#&gt; |2  |(I)             |(C)             | -404.8441|     0.9859|         0.8827|
+#&gt; |3  |(F)             |(G)(D)          | -405.3472|     0.9928|         0.8253|
+#&gt; |4  |(H)             |(J)             | -406.0264|     0.9944|         0.7460|
+#&gt; |5  |(B)             |(F)(G)(D)       | -407.0716|     0.9916|         0.5907|
+#&gt; |6  |(I)(C)          |(A)             | -408.3881|     0.9855|         0.4871|
+#&gt; |7  |(I)(C)(A)       |(H)(J)          | -409.7609|     0.9784|         0.4633|
+#&gt; |8  |(E)             |(B)(F)(G)(D)    | -413.2819|     0.8641|         0.0838|
+#&gt; |9  |(E)(B)(F)(G)(D) |(I)(C)(A)(H)(J) | -421.6679|     0.3686|         0.0149|</div><div class='input'><span class='fu'>mergeFactors</span>(<span class='no'>rSample</span>$<span class='no'>response</span>[,<span class='fl'>1</span>], <span class='no'>rSample</span>$<span class='no'>factor</span>, <span class='kw'>covariates</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>covariates</span>, <span class='kw'>weights</span> <span class='kw'>=</span> <span class='no'>rSample</span>$<span class='no'>weights</span>)</div><div class='output co'>#&gt; Family: gaussian Factor Merger.
+#&gt; Factor levels were recoded as below:
+#&gt; 
+#&gt; |recoded |original |
+#&gt; |:-------|:--------|
+#&gt; |(J)     |J        |
+#&gt; |(A)     |A        |
+#&gt; |(E)     |E        |
+#&gt; |(H)     |H        |
+#&gt; |(I)     |I        |
+#&gt; |(C)     |C        |
+#&gt; |(D)     |D        |
+#&gt; |(G)     |G        |
+#&gt; |(F)     |F        |
+#&gt; |(B)     |B        |
+#&gt; 
+#&gt; Factor levels were merged in the following order:
+#&gt; 
+#&gt; |   |groupA    |groupB                |     model| pvalVsFull| pvalVsPrevious|
+#&gt; |:--|:---------|:---------------------|---------:|----------:|--------------:|
+#&gt; |0  |          |                      | -142.8948|     1.0000|         1.0000|
+#&gt; |1  |(C)       |(D)                   | -142.9527|     0.7489|         0.7489|
+#&gt; |2  |(J)       |(A)                   | -143.0196|     0.8949|         0.7293|
+#&gt; |3  |(H)       |(I)                   | -143.1665|     0.9219|         0.6062|
+#&gt; |4  |(J)(A)    |(E)                   | -143.3946|     0.9246|         0.5182|
+#&gt; |5  |(F)       |(B)                   | -143.6705|     0.9239|         0.4749|
+#&gt; |6  |(C)(D)    |(G)                   | -144.3241|     0.8570|         0.2689|
+#&gt; |7  |(C)(D)(G) |(F)(B)                | -144.6868|     0.8581|         0.4077|
+#&gt; |8  |(H)(I)    |(C)(D)(G)(F)(B)       | -145.8920|     0.7017|         0.1292|
+#&gt; |9  |(J)(A)(E) |(H)(I)(C)(D)(G)(F)(B) | -158.1114|     0.0016|         0.0000|</div><div class='input'><span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'>cbind</span>(<span class='no'>rSample</span>$<span class='no'>response</span>, <span class='no'>rSample</span>$<span class='no'>factor</span>, <span class='no'>rSample</span>$<span class='no'>covariates</span>)
+<span class='fu'>colnames</span>(<span class='no'>dataset</span>) <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"res1"</span>,<span class='st'>"res2"</span>,<span class='st'>"res3"</span>,<span class='st'>"fct"</span>, <span class='st'>"cov1"</span>)
+
+<span class='no'>formula</span> <span class='kw'>&lt;-</span> <span class='fu'>as.formula</span>(<span class='st'>"res1+res2+res3~fct"</span>)
+<span class='no'>formulaCovariates</span> <span class='kw'>&lt;-</span><span class='fu'>as.formula</span>(<span class='st'>"res1+res2+res3~fct+cov1"</span>)
+<span class='fu'>mergeFactors</span>(<span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>formula</span>, <span class='kw'>factor</span><span class='kw'>=</span><span class='st'>"fct"</span>, <span class='kw'>data</span><span class='kw'>=</span><span class='no'>dataset</span>)</div><div class='output co'>#&gt; Family: gaussian Factor Merger.
+#&gt; Factor levels were recoded as below:
+#&gt; 
+#&gt; |recoded |original |
+#&gt; |:-------|:--------|
+#&gt; |(1)     |1        |
+#&gt; |(2)     |2        |
+#&gt; |(3)     |3        |
+#&gt; |(4)     |4        |
+#&gt; |(5)     |5        |
+#&gt; |(6)     |6        |
+#&gt; |(7)     |7        |
+#&gt; |(8)     |8        |
+#&gt; |(9)     |9        |
+#&gt; |(10)    |10       |
+#&gt; 
+#&gt; Factor levels were merged in the following order:
+#&gt; 
+#&gt; |   |groupA           |groupB          |     model| pvalVsFull| pvalVsPrevious|
+#&gt; |:--|:----------------|:---------------|---------:|----------:|--------------:|
+#&gt; |0  |                 |                | -406.8129|     1.0000|         1.0000|
+#&gt; |1  |(8)              |(7)             | -406.9139|     0.9809|         0.9809|
+#&gt; |2  |(5)              |(6)             | -407.2632|     0.9918|         0.8906|
+#&gt; |3  |(4)              |(1)             | -407.6956|     0.9963|         0.8536|
+#&gt; |4  |(9)              |(8)(7)          | -408.1706|     0.9982|         0.8329|
+#&gt; |5  |(10)             |(9)(8)(7)       | -409.2039|     0.9961|         0.5910|
+#&gt; |6  |(5)(6)           |(2)             | -410.6091|     0.9902|         0.4527|
+#&gt; |7  |(5)(6)(2)        |(4)(1)          | -412.2696|     0.9775|         0.3708|
+#&gt; |8  |(3)              |(10)(9)(8)(7)   | -415.5644|     0.8746|         0.0982|
+#&gt; |9  |(3)(10)(9)(8)(7) |(5)(6)(2)(4)(1) | -421.6679|     0.4341|         0.0082|</div><div class='input'><span class='fu'>mergeFactors</span>(<span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>formulaCovariates</span>, <span class='kw'>factor</span><span class='kw'>=</span><span class='st'>"fct"</span>, <span class='kw'>data</span><span class='kw'>=</span><span class='no'>dataset</span>)</div><div class='output co'>#&gt; Family: gaussian Factor Merger.
+#&gt; Factor levels were recoded as below:
+#&gt; 
+#&gt; |recoded |original |
+#&gt; |:-------|:--------|
+#&gt; |(1)     |1        |
+#&gt; |(2)     |2        |
+#&gt; |(3)     |3        |
+#&gt; |(4)     |4        |
+#&gt; |(5)     |5        |
+#&gt; |(6)     |6        |
+#&gt; |(7)     |7        |
+#&gt; |(8)     |8        |
+#&gt; |(9)     |9        |
+#&gt; |(10)    |10       |
+#&gt; 
+#&gt; Factor levels were merged in the following order:
+#&gt; 
+#&gt; |   |groupA           |groupB          |     model| pvalVsFull| pvalVsPrevious|
+#&gt; |:--|:----------------|:---------------|---------:|----------:|--------------:|
+#&gt; |0  |                 |                | -404.2864|     1.0000|         1.0000|
+#&gt; |1  |(8)              |(7)             | -404.4716|     0.9554|         0.9554|
+#&gt; |2  |(5)              |(6)             | -404.8441|     0.9859|         0.8827|
+#&gt; |3  |(9)              |(8)(7)          | -405.3472|     0.9928|         0.8253|
+#&gt; |4  |(4)              |(1)             | -406.0264|     0.9944|         0.7460|
+#&gt; |5  |(10)             |(9)(8)(7)       | -407.0716|     0.9916|         0.5907|
+#&gt; |6  |(5)(6)           |(2)             | -408.3881|     0.9855|         0.4871|
+#&gt; |7  |(5)(6)(2)        |(4)(1)          | -409.7609|     0.9784|         0.4633|
+#&gt; |8  |(3)              |(10)(9)(8)(7)   | -413.2819|     0.8641|         0.0838|
+#&gt; |9  |(3)(10)(9)(8)(7) |(5)(6)(2)(4)(1) | -421.6679|     0.3686|         0.0149|</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

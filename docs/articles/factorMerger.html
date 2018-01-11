@@ -83,7 +83,7 @@
       <h1>factorMerger: a set of tools to support results from post-hoc testing</h1>
                         <h4 class="author">Agnieszka Sitko</h4>
             
-            <h4 class="date">2017-12-17</h4>
+            <h4 class="date">2018-01-11</h4>
           </div>
 
     
@@ -132,7 +132,7 @@ randSample &lt;-<span class="st"> </span><span class="kw"><a href="../reference/
 <div id="computations" class="section level3">
 <h3 class="hasAnchor">
 <a href="#computations" class="anchor"></a>Computations</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fmAll &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(randSample<span class="op">$</span>response, randSample<span class="op">$</span>factor)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fmAll &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> randSample<span class="op">$</span>response, <span class="dt">factor =</span> randSample<span class="op">$</span>factor)</code></pre></div>
 <p><code>mergeFactors</code> outputs with information about the ‘merging history’.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/mergingHistory.html">mergingHistory</a></span>(fmAll, <span class="dt">showStats =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span><span class="kw"><a href="http://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>()</code></pre></div>
@@ -150,87 +150,87 @@ randSample &lt;-<span class="st"> </span><span class="kw"><a href="../reference/
 <td>0</td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="right">-395.4473</td>
+<td align="right">-398.7920</td>
 <td align="right">1.0000</td>
 <td align="right">1.0000</td>
 </tr>
 <tr class="even">
 <td>1</td>
-<td align="left">(E)</td>
-<td align="left">(D)</td>
-<td align="right">-395.5593</td>
-<td align="right">0.9779</td>
-<td align="right">0.9779</td>
+<td align="left">(A)</td>
+<td align="left">(B)</td>
+<td align="right">-398.7957</td>
+<td align="right">0.9999</td>
+<td align="right">0.9999</td>
 </tr>
 <tr class="odd">
 <td>2</td>
-<td align="left">(E)(D)</td>
-<td align="left">(H)</td>
-<td align="right">-396.2314</td>
-<td align="right">0.9654</td>
-<td align="right">0.7523</td>
+<td align="left">(I)</td>
+<td align="left">(C)</td>
+<td align="right">-398.8101</td>
+<td align="right">1.0000</td>
+<td align="right">0.9989</td>
 </tr>
 <tr class="even">
 <td>3</td>
-<td align="left">(C)</td>
-<td align="left">(G)</td>
-<td align="right">-396.9914</td>
-<td align="right">0.9720</td>
-<td align="right">0.7112</td>
+<td align="left">(A)(B)</td>
+<td align="left">(D)</td>
+<td align="right">-399.2967</td>
+<td align="right">0.9996</td>
+<td align="right">0.8301</td>
 </tr>
 <tr class="odd">
 <td>4</td>
-<td align="left">(F)</td>
-<td align="left">(I)</td>
-<td align="right">-397.9955</td>
-<td align="right">0.9697</td>
-<td align="right">0.6069</td>
+<td align="left">(I)(C)</td>
+<td align="left">(G)</td>
+<td align="right">-399.8000</td>
+<td align="right">0.9996</td>
+<td align="right">0.8204</td>
 </tr>
 <tr class="even">
 <td>5</td>
-<td align="left">(B)</td>
-<td align="left">(A)</td>
-<td align="right">-399.3775</td>
-<td align="right">0.9523</td>
-<td align="right">0.4651</td>
+<td align="left">(F)</td>
+<td align="left">(J)</td>
+<td align="right">-400.5202</td>
+<td align="right">0.9994</td>
+<td align="right">0.7214</td>
 </tr>
 <tr class="odd">
 <td>6</td>
-<td align="left">(E)(D)(H)</td>
-<td align="left">(C)(G)</td>
-<td align="right">-401.4422</td>
-<td align="right">0.8963</td>
-<td align="right">0.2769</td>
+<td align="left">(H)</td>
+<td align="left">(A)(B)(D)</td>
+<td align="right">-401.9765</td>
+<td align="right">0.9967</td>
+<td align="right">0.4363</td>
 </tr>
 <tr class="even">
 <td>7</td>
-<td align="left">(B)(A)</td>
-<td align="left">(J)</td>
-<td align="right">-404.4294</td>
-<td align="right">0.7334</td>
-<td align="right">0.1302</td>
+<td align="left">(I)(C)(G)</td>
+<td align="left">(E)</td>
+<td align="right">-403.5948</td>
+<td align="right">0.9897</td>
+<td align="right">0.3827</td>
 </tr>
 <tr class="odd">
 <td>8</td>
-<td align="left">(F)(I)</td>
-<td align="left">(E)(D)(H)(C)(G)</td>
-<td align="right">-408.1227</td>
-<td align="right">0.4943</td>
-<td align="right">0.0702</td>
+<td align="left">(I)(C)(G)(E)</td>
+<td align="left">(F)(J)</td>
+<td align="right">-407.6098</td>
+<td align="right">0.8744</td>
+<td align="right">0.0534</td>
 </tr>
 <tr class="even">
 <td>9</td>
-<td align="left">(F)(I)(E)(D)(H)(C)(G)</td>
-<td align="left">(B)(A)(J)</td>
-<td align="right">-420.3349</td>
-<td align="right">0.0149</td>
-<td align="right">0.0000</td>
+<td align="left">(H)(A)(B)(D)</td>
+<td align="left">(I)(C)(G)(E)(F)(J)</td>
+<td align="right">-414.1927</td>
+<td align="right">0.3823</td>
+<td align="right">0.0053</td>
 </tr>
 </tbody>
 </table>
 <p>Each row of the above frame describes one step of the merging algorithm. First two columns specify which groups were merged in the iteration, columns <em>model</em> and <em>GIC</em> gather loglikelihood and Generalized Information Criterion for the model after merging. Last two columns are p-values for the <em>Likelihood Ratio Test</em> – against the full model (<em>pvalVsFull</em>) and against the previous one (<em>pvalVsPrevious</em>).</p>
 <p>If we choose a <em>fast</em> version of merging one dimensional response is fitted using <code>isoMDS{MASS}</code>. Next, in each step only groups whose means are closed are compared.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(randSample<span class="op">$</span>response, randSample<span class="op">$</span>factor, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> randSample<span class="op">$</span>response, <span class="dt">factor =</span> randSample<span class="op">$</span>factor, 
                    <span class="dt">method =</span> <span class="st">"fast-fixed"</span>)
 
 <span class="kw"><a href="../reference/mergingHistory.html">mergingHistory</a></span>(fm, <span class="dt">showStats =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -249,81 +249,81 @@ randSample &lt;-<span class="st"> </span><span class="kw"><a href="../reference/
 <td>0</td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="right">-395.4473</td>
+<td align="right">-398.7920</td>
 <td align="right">1.0000</td>
 <td align="right">1.0000</td>
 </tr>
 <tr class="even">
 <td>1</td>
-<td align="left">(E)</td>
-<td align="left">(D)</td>
-<td align="right">-395.5593</td>
-<td align="right">0.9779</td>
-<td align="right">0.9779</td>
+<td align="left">(A)</td>
+<td align="left">(B)</td>
+<td align="right">-398.7957</td>
+<td align="right">0.9999</td>
+<td align="right">0.9999</td>
 </tr>
 <tr class="odd">
 <td>2</td>
-<td align="left">(E)(D)</td>
-<td align="left">(H)</td>
-<td align="right">-396.2314</td>
-<td align="right">0.9654</td>
-<td align="right">0.7523</td>
+<td align="left">(I)</td>
+<td align="left">(C)</td>
+<td align="right">-398.8101</td>
+<td align="right">1.0000</td>
+<td align="right">0.9989</td>
 </tr>
 <tr class="even">
 <td>3</td>
-<td align="left">(C)</td>
-<td align="left">(G)</td>
-<td align="right">-396.9914</td>
-<td align="right">0.9720</td>
-<td align="right">0.7112</td>
+<td align="left">(A)(B)</td>
+<td align="left">(D)</td>
+<td align="right">-399.2967</td>
+<td align="right">0.9996</td>
+<td align="right">0.8301</td>
 </tr>
 <tr class="odd">
 <td>4</td>
-<td align="left">(E)(D)(H)</td>
-<td align="left">(C)(G)</td>
-<td align="right">-399.1290</td>
-<td align="right">0.8765</td>
-<td align="right">0.2712</td>
+<td align="left">(I)(C)</td>
+<td align="left">(G)</td>
+<td align="right">-399.8000</td>
+<td align="right">0.9996</td>
+<td align="right">0.8204</td>
 </tr>
 <tr class="even">
 <td>5</td>
 <td align="left">(F)</td>
-<td align="left">(I)</td>
-<td align="right">-400.1154</td>
-<td align="right">0.9013</td>
-<td align="right">0.6096</td>
+<td align="left">(J)</td>
+<td align="right">-400.5202</td>
+<td align="right">0.9994</td>
+<td align="right">0.7214</td>
 </tr>
 <tr class="odd">
 <td>6</td>
-<td align="left">(F)(I)</td>
-<td align="left">(E)(D)(H)(C)(G)</td>
-<td align="right">-403.9600</td>
-<td align="right">0.6229</td>
-<td align="right">0.0661</td>
+<td align="left">(A)(B)(D)</td>
+<td align="left">(I)(C)(G)</td>
+<td align="right">-404.4020</td>
+<td align="right">0.9282</td>
+<td align="right">0.0641</td>
 </tr>
 <tr class="even">
 <td>7</td>
-<td align="left">(B)</td>
-<td align="left">(A)</td>
-<td align="right">-405.2276</td>
-<td align="right">0.6554</td>
-<td align="right">0.4944</td>
+<td align="left">(H)</td>
+<td align="left">(A)(B)(D)(I)(C)(G)</td>
+<td align="right">-406.5018</td>
+<td align="right">0.8671</td>
+<td align="right">0.2649</td>
 </tr>
 <tr class="odd">
 <td>8</td>
-<td align="left">(B)(A)</td>
-<td align="left">(J)</td>
-<td align="right">-408.1227</td>
-<td align="right">0.4943</td>
-<td align="right">0.1369</td>
+<td align="left">(E)</td>
+<td align="left">(F)(J)</td>
+<td align="right">-408.7361</td>
+<td align="right">0.7904</td>
+<td align="right">0.2340</td>
 </tr>
 <tr class="even">
 <td>9</td>
-<td align="left">(F)(I)(E)(D)(H)(C)(G)</td>
-<td align="left">(B)(A)(J)</td>
-<td align="right">-420.3349</td>
-<td align="right">0.0149</td>
-<td align="right">0.0000</td>
+<td align="left">(H)(A)(B)(D)(I)(C)(G)</td>
+<td align="left">(E)(F)(J)</td>
+<td align="right">-414.1927</td>
+<td align="right">0.3823</td>
+<td align="right">0.0146</td>
 </tr>
 </tbody>
 </table>
@@ -336,72 +336,61 @@ randSample &lt;-<span class="st"> </span><span class="kw"><a href="../reference/
 <li>predict new labels for observations</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/cutTree.html">cutTree</a></span>(fm)
-<span class="co">#&gt;   [1] (B)       (E)(D)(H) (E)(D)(H) (E)(D)(H) (I)       (E)(D)(H) (B)      </span>
-<span class="co">#&gt;   [8] (J)       (C)(G)    (C)(G)    (I)       (F)       (I)       (C)(G)   </span>
-<span class="co">#&gt;  [15] (I)       (A)       (F)       (I)       (E)(D)(H) (C)(G)    (E)(D)(H)</span>
-<span class="co">#&gt;  [22] (C)(G)    (J)       (E)(D)(H) (E)(D)(H) (F)       (E)(D)(H) (E)(D)(H)</span>
-<span class="co">#&gt;  [29] (F)       (C)(G)    (C)(G)    (E)(D)(H) (A)       (E)(D)(H) (J)      </span>
-<span class="co">#&gt;  [36] (E)(D)(H) (E)(D)(H) (E)(D)(H) (B)       (E)(D)(H) (E)(D)(H) (E)(D)(H)</span>
-<span class="co">#&gt;  [43] (I)       (E)(D)(H) (F)       (E)(D)(H) (A)       (F)       (E)(D)(H)</span>
-<span class="co">#&gt;  [50] (B)       (E)(D)(H) (F)       (C)(G)    (B)       (I)       (F)      </span>
-<span class="co">#&gt;  [57] (E)(D)(H) (I)       (F)       (F)       (E)(D)(H) (C)(G)    (E)(D)(H)</span>
-<span class="co">#&gt;  [64] (C)(G)    (E)(D)(H) (E)(D)(H) (C)(G)    (E)(D)(H) (E)(D)(H) (E)(D)(H)</span>
-<span class="co">#&gt;  [71] (E)(D)(H) (C)(G)    (E)(D)(H) (A)       (A)       (F)       (E)(D)(H)</span>
-<span class="co">#&gt;  [78] (F)       (B)       (C)(G)    (C)(G)    (I)       (F)       (J)      </span>
-<span class="co">#&gt;  [85] (E)(D)(H) (E)(D)(H) (E)(D)(H) (B)       (E)(D)(H) (I)       (E)(D)(H)</span>
-<span class="co">#&gt;  [92] (A)       (E)(D)(H) (E)(D)(H) (E)(D)(H) (E)(D)(H) (J)       (E)(D)(H)</span>
-<span class="co">#&gt;  [99] (E)(D)(H) (E)(D)(H)</span>
-<span class="co">#&gt; Levels: (F) (I) (E)(D)(H) (C)(G) (B) (A) (J)</span></code></pre></div>
+<span class="co">#&gt;   [1] (I)(C)(G) (A)(B)(D) (I)(C)(G) (F)(J)    (A)(B)(D) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;   [8] (I)(C)(G) (F)(J)    (E)       (A)(B)(D) (A)(B)(D) (H)       (H)      </span>
+<span class="co">#&gt;  [15] (H)       (A)(B)(D) (F)(J)    (I)(C)(G) (I)(C)(G) (F)(J)    (I)(C)(G)</span>
+<span class="co">#&gt;  [22] (A)(B)(D) (F)(J)    (I)(C)(G) (H)       (F)(J)    (A)(B)(D) (A)(B)(D)</span>
+<span class="co">#&gt;  [29] (E)       (F)(J)    (H)       (I)(C)(G) (A)(B)(D) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [36] (I)(C)(G) (I)(C)(G) (I)(C)(G) (A)(B)(D) (I)(C)(G) (I)(C)(G) (I)(C)(G)</span>
+<span class="co">#&gt;  [43] (A)(B)(D) (I)(C)(G) (F)(J)    (A)(B)(D) (A)(B)(D) (F)(J)    (E)      </span>
+<span class="co">#&gt;  [50] (F)(J)    (I)(C)(G) (I)(C)(G) (I)(C)(G) (F)(J)    (F)(J)    (I)(C)(G)</span>
+<span class="co">#&gt;  [57] (A)(B)(D) (I)(C)(G) (I)(C)(G) (A)(B)(D) (E)       (I)(C)(G) (F)(J)   </span>
+<span class="co">#&gt;  [64] (I)(C)(G) (I)(C)(G) (A)(B)(D) (I)(C)(G) (I)(C)(G) (I)(C)(G) (I)(C)(G)</span>
+<span class="co">#&gt;  [71] (I)(C)(G) (H)       (E)       (I)(C)(G) (F)(J)    (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [78] (F)(J)    (F)(J)    (F)(J)    (F)(J)    (A)(B)(D) (E)       (A)(B)(D)</span>
+<span class="co">#&gt;  [85] (F)(J)    (F)(J)    (F)(J)    (F)(J)    (I)(C)(G) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [92] (I)(C)(G) (F)(J)    (I)(C)(G) (A)(B)(D) (I)(C)(G) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [99] (F)(J)    (A)(B)(D)</span>
+<span class="co">#&gt; Levels: (H) (A)(B)(D) (I)(C)(G) (E) (F)(J)</span></code></pre></div>
 <p>By default, <code>cutTree</code> returns a factor split for the optimal GIC (with penalty = 2) model. However, we can specify different metrics (<code>stat = c("loglikelihood", "p-value", "GIC"</code>) we would like to use in cutting. If <code>loglikelihood</code> or <code>p-value</code> is chosen an exact threshold must be given as a <code>value</code> parameter. Then <code>cutTree</code> returns factor for the smallest model whose statistic is higher than the threshold. If we choose <code>GIC</code> then <code>value</code> is interpreted as GIC penalty.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mH &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergingHistory.html">mergingHistory</a></span>(fm, T)
 thres &lt;-<span class="st"> </span>mH<span class="op">$</span>model[<span class="kw">nrow</span>(mH) <span class="op">/</span><span class="st"> </span><span class="dv">2</span>]
 <span class="kw"><a href="../reference/cutTree.html">cutTree</a></span>(fm, <span class="dt">stat =</span> <span class="st">"loglikelihood"</span>, <span class="dt">value =</span> thres)
-<span class="co">#&gt;   [1] (B)             (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;   [5] (I)             (E)(D)(H)(C)(G) (B)             (J)            </span>
-<span class="co">#&gt;   [9] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (I)             (F)            </span>
-<span class="co">#&gt;  [13] (I)             (E)(D)(H)(C)(G) (I)             (A)            </span>
-<span class="co">#&gt;  [17] (F)             (I)             (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [21] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (J)             (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [25] (E)(D)(H)(C)(G) (F)             (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [29] (F)             (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [33] (A)             (E)(D)(H)(C)(G) (J)             (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [37] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (B)             (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [41] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (I)             (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [45] (F)             (E)(D)(H)(C)(G) (A)             (F)            </span>
-<span class="co">#&gt;  [49] (E)(D)(H)(C)(G) (B)             (E)(D)(H)(C)(G) (F)            </span>
-<span class="co">#&gt;  [53] (E)(D)(H)(C)(G) (B)             (I)             (F)            </span>
-<span class="co">#&gt;  [57] (E)(D)(H)(C)(G) (I)             (F)             (F)            </span>
-<span class="co">#&gt;  [61] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [65] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [69] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [73] (E)(D)(H)(C)(G) (A)             (A)             (F)            </span>
-<span class="co">#&gt;  [77] (E)(D)(H)(C)(G) (F)             (B)             (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [81] (E)(D)(H)(C)(G) (I)             (F)             (J)            </span>
-<span class="co">#&gt;  [85] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (B)            </span>
-<span class="co">#&gt;  [89] (E)(D)(H)(C)(G) (I)             (E)(D)(H)(C)(G) (A)            </span>
-<span class="co">#&gt;  [93] (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt;  [97] (J)             (E)(D)(H)(C)(G) (E)(D)(H)(C)(G) (E)(D)(H)(C)(G)</span>
-<span class="co">#&gt; Levels: (F) (I) (E)(D)(H)(C)(G) (B) (A) (J)</span></code></pre></div>
-<p>In this example data partition is created for the last model from the merging path whose loglikelihood is greater than -399.129.</p>
+<span class="co">#&gt;   [1] (I)(C)(G) (A)(B)(D) (I)(C)(G) (F)       (A)(B)(D) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;   [8] (I)(C)(G) (J)       (E)       (A)(B)(D) (A)(B)(D) (H)       (H)      </span>
+<span class="co">#&gt;  [15] (H)       (A)(B)(D) (J)       (I)(C)(G) (I)(C)(G) (J)       (I)(C)(G)</span>
+<span class="co">#&gt;  [22] (A)(B)(D) (J)       (I)(C)(G) (H)       (J)       (A)(B)(D) (A)(B)(D)</span>
+<span class="co">#&gt;  [29] (E)       (J)       (H)       (I)(C)(G) (A)(B)(D) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [36] (I)(C)(G) (I)(C)(G) (I)(C)(G) (A)(B)(D) (I)(C)(G) (I)(C)(G) (I)(C)(G)</span>
+<span class="co">#&gt;  [43] (A)(B)(D) (I)(C)(G) (F)       (A)(B)(D) (A)(B)(D) (F)       (E)      </span>
+<span class="co">#&gt;  [50] (F)       (I)(C)(G) (I)(C)(G) (I)(C)(G) (J)       (F)       (I)(C)(G)</span>
+<span class="co">#&gt;  [57] (A)(B)(D) (I)(C)(G) (I)(C)(G) (A)(B)(D) (E)       (I)(C)(G) (J)      </span>
+<span class="co">#&gt;  [64] (I)(C)(G) (I)(C)(G) (A)(B)(D) (I)(C)(G) (I)(C)(G) (I)(C)(G) (I)(C)(G)</span>
+<span class="co">#&gt;  [71] (I)(C)(G) (H)       (E)       (I)(C)(G) (J)       (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [78] (F)       (F)       (F)       (F)       (A)(B)(D) (E)       (A)(B)(D)</span>
+<span class="co">#&gt;  [85] (J)       (F)       (F)       (J)       (I)(C)(G) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [92] (I)(C)(G) (F)       (I)(C)(G) (A)(B)(D) (I)(C)(G) (A)(B)(D) (I)(C)(G)</span>
+<span class="co">#&gt;  [99] (J)       (A)(B)(D)</span>
+<span class="co">#&gt; Levels: (H) (A)(B)(D) (I)(C)(G) (E) (F) (J)</span></code></pre></div>
+<p>In this example data partition is created for the last model from the merging path whose loglikelihood is greater than -399.8.</p>
 <ul>
 <li>get final clusters and clusters dictionary</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/getOptimalPartition.html">getOptimalPartition</a></span>(fm)
-<span class="co">#&gt; [1] "(F)"       "(I)"       "(E)(D)(H)" "(C)(G)"    "(B)"       "(A)"      </span>
-<span class="co">#&gt; [7] "(J)"</span></code></pre></div>
+<span class="co">#&gt; [1] "(H)"       "(A)(B)(D)" "(I)(C)(G)" "(E)"       "(F)(J)"</span></code></pre></div>
 <p>Function <code>getOptimalPartition</code> returns a vector with the final cluster names from the factorMerger object.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/getOptimalPartitionDf.html">getOptimalPartitionDf</a></span>(fm)
 <span class="co">#&gt;    orig      pred</span>
-<span class="co">#&gt; 1   (B)       (B)</span>
-<span class="co">#&gt; 2   (E) (E)(D)(H)</span>
-<span class="co">#&gt; 3   (H) (E)(D)(H)</span>
-<span class="co">#&gt; 5   (I)       (I)</span>
-<span class="co">#&gt; 6   (D) (E)(D)(H)</span>
-<span class="co">#&gt; 8   (J)       (J)</span>
-<span class="co">#&gt; 9   (C)    (C)(G)</span>
-<span class="co">#&gt; 12  (F)       (F)</span>
-<span class="co">#&gt; 14  (G)    (C)(G)</span>
-<span class="co">#&gt; 16  (A)       (A)</span></code></pre></div>
+<span class="co">#&gt; 1   (G) (I)(C)(G)</span>
+<span class="co">#&gt; 2   (A) (A)(B)(D)</span>
+<span class="co">#&gt; 3   (I) (I)(C)(G)</span>
+<span class="co">#&gt; 4   (F)    (F)(J)</span>
+<span class="co">#&gt; 6   (B) (A)(B)(D)</span>
+<span class="co">#&gt; 9   (J)    (F)(J)</span>
+<span class="co">#&gt; 10  (E)       (E)</span>
+<span class="co">#&gt; 11  (D) (A)(B)(D)</span>
+<span class="co">#&gt; 13  (H)       (H)</span>
+<span class="co">#&gt; 19  (C) (I)(C)(G)</span></code></pre></div>
 <p>Function <code>getOptimalPartitionDf</code> returns a dictionary in a data frame format. Each row gives an original label of a factor level and its new (cluster) label.</p>
 <p>Similarly to <code>cutTree</code>, functions <code>getOptimalPartition</code> and <code>getOptimalPartitionDf</code> take arguments <code>stat</code> and <code>threshold</code>.</p>
 </div>
@@ -430,7 +419,7 @@ thres &lt;-<span class="st"> </span>mH<span class="op">$</span>model[<span class
 <h2 class="hasAnchor">
 <a href="#one-dimensional-gaussian-model" class="anchor"></a>One-dimensional Gaussian model</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">oneDimRandSample &lt;-<span class="st"> </span><span class="kw"><a href="../reference/generateSample.html">generateSample</a></span>(<span class="dv">1000</span>, <span class="dv">10</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">oneDimFm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(oneDimRandSample<span class="op">$</span>response, oneDimRandSample<span class="op">$</span>factor, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">oneDimFm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> oneDimRandSample<span class="op">$</span>response, <span class="dt">factor =</span> oneDimRandSample<span class="op">$</span>factor, 
                          <span class="dt">method =</span> <span class="st">"fixed"</span>)
 <span class="kw"><a href="../reference/mergingHistory.html">mergingHistory</a></span>(oneDimFm, <span class="dt">showStats =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span><span class="kw"><a href="http://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>()</code></pre></div>
@@ -448,81 +437,81 @@ thres &lt;-<span class="st"> </span>mH<span class="op">$</span>model[<span class
 <td>0</td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="right">-1419.367</td>
+<td align="right">-1391.926</td>
 <td align="right">1.0000</td>
 <td align="right">1.0000</td>
 </tr>
 <tr class="even">
 <td>1</td>
+<td align="left">(F)</td>
 <td align="left">(E)</td>
-<td align="left">(I)</td>
-<td align="right">-1419.367</td>
-<td align="right">0.9948</td>
-<td align="right">0.9948</td>
+<td align="right">-1391.926</td>
+<td align="right">0.9981</td>
+<td align="right">0.9981</td>
 </tr>
 <tr class="odd">
 <td>2</td>
-<td align="left">(A)</td>
-<td align="left">(H)</td>
-<td align="right">-1419.367</td>
-<td align="right">0.9994</td>
-<td align="right">0.9740</td>
+<td align="left">(D)</td>
+<td align="left">(F)(E)</td>
+<td align="right">-1391.926</td>
+<td align="right">0.9998</td>
+<td align="right">0.9840</td>
 </tr>
 <tr class="even">
 <td>3</td>
-<td align="left">(C)</td>
-<td align="left">(E)(I)</td>
-<td align="right">-1419.369</td>
-<td align="right">0.9999</td>
-<td align="right">0.9503</td>
+<td align="left">(G)</td>
+<td align="left">(D)(F)(E)</td>
+<td align="right">-1391.927</td>
+<td align="right">1.0000</td>
+<td align="right">0.9698</td>
 </tr>
 <tr class="odd">
 <td>4</td>
-<td align="left">(B)</td>
-<td align="left">(A)(H)</td>
-<td align="right">-1419.371</td>
+<td align="left">(H)</td>
+<td align="left">(J)</td>
+<td align="right">-1391.935</td>
 <td align="right">1.0000</td>
-<td align="right">0.9528</td>
+<td align="right">0.9001</td>
 </tr>
 <tr class="even">
 <td>5</td>
-<td align="left">(D)</td>
-<td align="left">(J)</td>
-<td align="right">-1419.377</td>
+<td align="left">(I)</td>
+<td align="left">(B)</td>
+<td align="right">-1391.944</td>
 <td align="right">1.0000</td>
-<td align="right">0.9130</td>
+<td align="right">0.8937</td>
 </tr>
 <tr class="odd">
 <td>6</td>
-<td align="left">(F)</td>
-<td align="left">(D)(J)</td>
-<td align="right">-1419.397</td>
-<td align="right">1.0000</td>
-<td align="right">0.8416</td>
+<td align="left">(C)</td>
+<td align="left">(A)</td>
+<td align="right">-1392.023</td>
+<td align="right">0.9999</td>
+<td align="right">0.6914</td>
 </tr>
 <tr class="even">
 <td>7</td>
-<td align="left">(G)</td>
-<td align="left">(C)(E)(I)</td>
-<td align="right">-1419.487</td>
-<td align="right">1.0000</td>
-<td align="right">0.6721</td>
+<td align="left">(G)(D)(F)(E)</td>
+<td align="left">(I)(B)</td>
+<td align="right">-1392.291</td>
+<td align="right">0.9981</td>
+<td align="right">0.4650</td>
 </tr>
 <tr class="odd">
 <td>8</td>
-<td align="left">(F)(D)(J)</td>
-<td align="left">(B)(A)(H)</td>
-<td align="right">-1420.048</td>
-<td align="right">0.9949</td>
-<td align="right">0.2903</td>
+<td align="left">(H)(J)</td>
+<td align="left">(G)(D)(F)(E)(I)(B)</td>
+<td align="right">-1392.984</td>
+<td align="right">0.9777</td>
+<td align="right">0.2399</td>
 </tr>
 <tr class="even">
 <td>9</td>
-<td align="left">(F)(D)(J)(B)(A)(H)</td>
-<td align="left">(G)(C)(E)(I)</td>
-<td align="right">-1422.667</td>
-<td align="right">0.6830</td>
-<td align="right">0.0223</td>
+<td align="left">(H)(J)(G)(D)(F)(E)(I)(B)</td>
+<td align="left">(C)(A)</td>
+<td align="right">-1394.924</td>
+<td align="right">0.7441</td>
+<td align="right">0.0491</td>
 </tr>
 </tbody>
 </table>
@@ -541,48 +530,48 @@ thres &lt;-<span class="st"> </span>mH<span class="op">$</span>model[<span class
 <table class="table">
 <thead><tr class="header">
 <th></th>
-<th align="right">H</th>
-<th align="right">C</th>
 <th align="right">B</th>
+<th align="right">F</th>
 <th align="right">G</th>
+<th align="right">H</th>
+<th align="right">E</th>
+<th align="right">C</th>
 <th align="right">I</th>
 <th align="right">J</th>
-<th align="right">F</th>
-<th align="right">E</th>
 <th align="right">D</th>
 <th align="right">A</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td>0</td>
-<td align="right">87</td>
-<td align="right">63</td>
-<td align="right">64</td>
-<td align="right">57</td>
-<td align="right">60</td>
-<td align="right">56</td>
-<td align="right">36</td>
-<td align="right">28</td>
-<td align="right">11</td>
-<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">97</td>
+<td align="right">92</td>
+<td align="right">83</td>
+<td align="right">76</td>
+<td align="right">68</td>
+<td align="right">52</td>
+<td align="right">45</td>
+<td align="right">37</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
 <td>1</td>
-<td align="right">18</td>
-<td align="right">28</td>
-<td align="right">37</td>
-<td align="right">39</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">9</td>
+<td align="right">23</td>
+<td align="right">25</td>
+<td align="right">25</td>
+<td align="right">36</td>
 <td align="right">57</td>
-<td align="right">60</td>
-<td align="right">51</td>
-<td align="right">66</td>
-<td align="right">83</td>
-<td align="right">98</td>
+<td align="right">52</td>
+<td align="right">118</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binomFm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(binomRandSample<span class="op">$</span>response, 
-                        binomRandSample<span class="op">$</span>factor, 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">binomFm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> binomRandSample<span class="op">$</span>response, 
+                        <span class="dt">factor =</span> binomRandSample<span class="op">$</span>factor, 
                         <span class="dt">family =</span> <span class="st">"binomial"</span>, 
                         <span class="dt">method =</span> <span class="st">"fast-adaptive"</span>)
 <span class="kw"><a href="../reference/mergingHistory.html">mergingHistory</a></span>(binomFm, <span class="dt">showStats =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -601,79 +590,79 @@ thres &lt;-<span class="st"> </span>mH<span class="op">$</span>model[<span class
 <td>0</td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="right">-552.6434</td>
+<td align="right">-410.2303</td>
 <td align="right">1.0000</td>
 <td align="right">1.0000</td>
 </tr>
 <tr class="even">
 <td>1</td>
-<td align="left">(I)</td>
-<td align="left">(J)</td>
-<td align="right">-552.7487</td>
-<td align="right">0.6463</td>
-<td align="right">0.6463</td>
+<td align="left">(E)</td>
+<td align="left">(C)</td>
+<td align="right">-410.2876</td>
+<td align="right">0.7349</td>
+<td align="right">0.7349</td>
 </tr>
 <tr class="odd">
 <td>2</td>
-<td align="left">(B)</td>
-<td align="left">(G)</td>
-<td align="right">-552.9142</td>
-<td align="right">0.7628</td>
-<td align="right">0.5651</td>
+<td align="left">(J)</td>
+<td align="left">(D)</td>
+<td align="right">-410.3505</td>
+<td align="right">0.8868</td>
+<td align="right">0.7230</td>
 </tr>
 <tr class="even">
 <td>3</td>
-<td align="left">(C)</td>
-<td align="left">(B)(G)</td>
-<td align="right">-553.7482</td>
-<td align="right">0.5301</td>
-<td align="right">0.1965</td>
+<td align="left">(H)</td>
+<td align="left">(E)(C)</td>
+<td align="right">-410.6634</td>
+<td align="right">0.8336</td>
+<td align="right">0.4289</td>
 </tr>
 <tr class="odd">
 <td>4</td>
-<td align="left">(I)(J)</td>
+<td align="left">(B)</td>
 <td align="left">(F)</td>
-<td align="right">-554.6498</td>
-<td align="right">0.4043</td>
-<td align="right">0.1793</td>
+<td align="right">-412.0700</td>
+<td align="right">0.4511</td>
+<td align="right">0.0935</td>
 </tr>
 <tr class="even">
 <td>5</td>
-<td align="left">(I)(J)(F)</td>
-<td align="left">(E)</td>
-<td align="right">-559.4232</td>
-<td align="right">0.0187</td>
-<td align="right">0.0020</td>
+<td align="left">(I)</td>
+<td align="left">(J)(D)</td>
+<td align="right">-415.2306</td>
+<td align="right">0.0752</td>
+<td align="right">0.0119</td>
 </tr>
 <tr class="odd">
 <td>6</td>
-<td align="left">(D)</td>
-<td align="left">(A)</td>
-<td align="right">-564.8564</td>
-<td align="right">0.0004</td>
-<td align="right">0.0010</td>
+<td align="left">(B)(F)</td>
+<td align="left">(G)</td>
+<td align="right">-420.8533</td>
+<td align="right">0.0017</td>
+<td align="right">0.0008</td>
 </tr>
 <tr class="even">
 <td>7</td>
-<td align="left">(H)</td>
-<td align="left">(C)(B)(G)</td>
-<td align="right">-571.8259</td>
+<td align="left">(H)(E)(C)</td>
+<td align="left">(I)(J)(D)</td>
+<td align="right">-444.7039</td>
 <td align="right">0.0000</td>
-<td align="right">0.0002</td>
+<td align="right">0.0000</td>
 </tr>
 <tr class="odd">
 <td>8</td>
-<td align="left">(H)(C)(B)(G)</td>
-<td align="left">(I)(J)(F)(E)</td>
-<td align="right">-598.7175</td>
+<td align="left">(B)(F)(G)</td>
+<td align="left">(H)(E)(C)(I)(J)(D)</td>
+<td align="right">-518.2516</td>
 <td align="right">0.0000</td>
 <td align="right">0.0000</td>
 </tr>
 <tr class="even">
 <td>9</td>
-<td align="left">(H)(C)(B)(G)(I)(J)(F)(E)</td>
-<td align="left">(D)(A)</td>
-<td align="right">-690.4067</td>
+<td align="left">(B)(F)(G)(H)(E)(C)(I)(J)(D)</td>
+<td align="left">(A)</td>
+<td align="right">-645.5697</td>
 <td align="right">0.0000</td>
 <td align="right">0.0000</td>
 </tr>

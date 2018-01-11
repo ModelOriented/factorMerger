@@ -144,27 +144,27 @@ By default <code>showStats</code> is set to <code>FALSE</code>.</p></td>
     <pre class="examples"><div class='input'><span class='no'>randSample</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateMultivariateSample.html'>generateMultivariateSample</a></span>(<span class='kw'>N</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>d</span> <span class='kw'>=</span> <span class='fl'>3</span>)
 <span class='no'>fm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='mergeFactors.html'>mergeFactors</a></span>(<span class='no'>randSample</span>$<span class='no'>response</span>, <span class='no'>randSample</span>$<span class='no'>factor</span>)
 <span class='fu'>mergingHistory</span>(<span class='no'>fm</span>, <span class='kw'>showStats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt;                        groupA          groupB     model pvalVsFull
-#&gt; 0                                             -393.9290     1.0000
-#&gt; 1                         (I)             (A) -394.1126     0.9553
-#&gt; 2                         (B)             (G) -394.4748     0.9863
-#&gt; 3                         (E)          (I)(A) -395.0902     0.9897
-#&gt; 4                         (C)             (J) -396.0618     0.9854
-#&gt; 5                   (E)(I)(A)          (C)(J) -397.3549     0.9745
-#&gt; 6                      (B)(G)             (F) -399.5083     0.9233
-#&gt; 7                         (H)       (B)(G)(F) -400.8045     0.9183
-#&gt; 8                (H)(B)(G)(F) (E)(I)(A)(C)(J) -404.8644     0.6756
-#&gt; 9 (H)(B)(G)(F)(E)(I)(A)(C)(J)             (D) -411.5390     0.2076
+#&gt; 0                                             -393.6009     1.0000
+#&gt; 1                         (C)             (A) -393.7679     0.9608
+#&gt; 2                         (D)             (B) -394.2750     0.9764
+#&gt; 3                         (F)             (I) -395.7468     0.9183
+#&gt; 4                         (H)          (D)(B) -397.6964     0.8266
+#&gt; 5                      (F)(I)       (H)(D)(B) -399.6460     0.7464
+#&gt; 6                      (C)(A)             (E) -401.8645     0.6445
+#&gt; 7                         (G)       (C)(A)(E) -403.7338     0.5985
+#&gt; 8                (G)(C)(A)(E) (F)(I)(H)(D)(B) -407.5849     0.3595
+#&gt; 9 (G)(C)(A)(E)(F)(I)(H)(D)(B)             (J) -421.7691     0.0037
 #&gt;   pvalVsPrevious
 #&gt; 0         1.0000
-#&gt; 1         0.9553
-#&gt; 2         0.8853
-#&gt; 3         0.7737
-#&gt; 4         0.6198
-#&gt; 5         0.4951
-#&gt; 6         0.2586
-#&gt; 7         0.4844
-#&gt; 8         0.0514
-#&gt; 9         0.0049</div></pre>
+#&gt; 1         0.9608
+#&gt; 2         0.8236
+#&gt; 3         0.4464
+#&gt; 4         0.3121
+#&gt; 5         0.3072
+#&gt; 6         0.2459
+#&gt; 7         0.3165
+#&gt; 8         0.0614
+#&gt; 9         0.0000</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

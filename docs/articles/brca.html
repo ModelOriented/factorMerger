@@ -83,7 +83,7 @@
       <h1>BRCA - the Cox regression merging</h1>
                         <h4 class="author">Agnieszka Sitko</h4>
             
-            <h4 class="date">2017-12-17</h4>
+            <h4 class="date">2018-01-11</h4>
           </div>
 
     
@@ -109,8 +109,8 @@
 <a href="#drug-name" class="anchor"></a>Drug name</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">drugName &lt;-<span class="st"> </span>BRCA<span class="op">$</span>drugName <span class="co"># drug name</span>
 drugName &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/forcats/topics/fct_lump">fct_lump</a></span>(<span class="kw">as.factor</span>(drugName), <span class="dt">prop =</span> <span class="fl">0.05</span>) </code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">drugNameFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(drugName)], 
-                           drugName[<span class="op">!</span><span class="kw">is.na</span>(drugName)], 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">drugNameFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(drugName)], 
+                           <span class="dt">factor =</span> drugName[<span class="op">!</span><span class="kw">is.na</span>(drugName)], 
                            <span class="dt">family =</span> <span class="st">"survival"</span>)
 
 <span class="kw">plot</span>(drugNameFM, <span class="dt">nodesSpacing =</span> <span class="st">"effects"</span>, <span class="dt">gicPanelColor =</span> <span class="st">"grey2"</span>)</code></pre></div>
@@ -140,8 +140,8 @@ drugName &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdoc
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">subtype &lt;-<span class="st"> </span>BRCA<span class="op">$</span>histologicalType
 subtype &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/forcats/topics/fct_lump">fct_lump</a></span>(<span class="kw">as.factor</span>(subtype), <span class="dt">prop =</span> <span class="fl">0.05</span>) 
 
-subtypeFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(subtype)], 
-                          subtype[<span class="op">!</span><span class="kw">is.na</span>(subtype)],
+subtypeFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(subtype)], 
+                          <span class="dt">factor =</span> subtype[<span class="op">!</span><span class="kw">is.na</span>(subtype)],
                            <span class="dt">family =</span> <span class="st">"survival"</span>)
 
 <span class="kw">plot</span>(subtypeFM) </code></pre></div>
@@ -152,8 +152,8 @@ subtypeFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/m
 <a href="#pathologic-category" class="anchor"></a>Pathologic category</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patCat &lt;-<span class="st"> </span>BRCA<span class="op">$</span>pathologicCategory <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">substr</span>(<span class="dv">1</span>, <span class="dv">2</span>)
 
-patCatFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(patCat)],
-                         patCat[<span class="op">!</span><span class="kw">is.na</span>(patCat)],
+patCatFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> brcaSurv[<span class="op">!</span><span class="kw">is.na</span>(patCat)],
+                         <span class="dt">factor =</span> patCat[<span class="op">!</span><span class="kw">is.na</span>(patCat)],
                          <span class="dt">family =</span> <span class="st">"survival"</span>)
 
 <span class="kw">plot</span>(patCatFM, <span class="dt">responsePanel =</span> <span class="st">"frequency"</span>, <span class="dt">gicPanelColor =</span> <span class="st">"red"</span>)</code></pre></div>

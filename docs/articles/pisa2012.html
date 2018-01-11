@@ -83,7 +83,7 @@
       <h1>PISA 2012 - multi dimensional Gaussian merging</h1>
                         <h4 class="author">Agnieszka Sitko</h4>
             
-            <h4 class="date">2017-12-17</h4>
+            <h4 class="date">2018-01-11</h4>
           </div>
 
     
@@ -146,8 +146,8 @@ pisaFM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/merg
                                            <span class="st">"Germany"</span>,
                                            <span class="st">"Finland"</span>,
                                            <span class="st">"Estonia"</span>))
-pisaFMHClust &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(pisa2012[pisaIdxSubset, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],
-                       <span class="kw">factor</span>(pisa2012<span class="op">$</span>country[pisaIdxSubset]),
+pisaFMHClust &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> pisa2012[pisaIdxSubset, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],
+                       <span class="dt">factor =</span> <span class="kw">factor</span>(pisa2012<span class="op">$</span>country[pisaIdxSubset]),
                        <span class="dt">method =</span> <span class="st">"fast-fixed"</span>) 
 
 <span class="kw">plot</span>(pisaFMHClust, <span class="dt">responsePanel =</span> <span class="st">"profile"</span>, 
@@ -167,8 +167,8 @@ pisaEuropean &lt;-<span class="st"> </span><span class="kw"><a href="http://dply
                                             <span class="st">"Slovenia"</span>))
 
 
-pisaFMHClustEurope &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(pisaEuropean[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],
-                       <span class="kw">factor</span>(pisaEuropean<span class="op">$</span>country),
+pisaFMHClustEurope &lt;-<span class="st"> </span><span class="kw"><a href="../reference/mergeFactors.html">mergeFactors</a></span>(<span class="dt">response =</span> pisaEuropean[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>],
+                       <span class="dt">factor =</span> <span class="kw">factor</span>(pisaEuropean<span class="op">$</span>country),
                        <span class="dt">method =</span> <span class="st">"fast-fixed"</span>) 
 
 <span class="kw">plot</span>(pisaFMHClustEurope)</code></pre></div>
