@@ -4,12 +4,12 @@
 \alias{mergeFactors.default}
 \title{mergeFactors.default}
 \usage{
-\method{mergeFactors}{default}(x, factor, ..., covariates = NULL,
+\method{mergeFactors}{default}(response, factor, ..., covariates = NULL,
   weights = NULL, family = "gaussian", method = "fast-adaptive",
   abbreviate = TRUE)
 }
 \arguments{
-\item{x}{A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.}
+\item{response}{A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.}
 
 \item{factor}{A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.}
 

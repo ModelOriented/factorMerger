@@ -4,11 +4,12 @@
 \alias{mergeFactors.formula}
 \title{mergeFactors.formula}
 \usage{
-\method{mergeFactors}{formula}(x, factor, ..., data = NULL, weights = NULL,
-  family = "gaussian", method = "fast-adaptive", abbreviate = TRUE)
+\method{mergeFactors}{formula}(response, factor, ..., data = NULL,
+  weights = NULL, family = "gaussian", method = "fast-adaptive",
+  abbreviate = TRUE)
 }
 \arguments{
-\item{x}{Formula containing columns names from the \code{data} argument.}
+\item{response}{Formula containing columns names from the \code{data} argument.}
 
 \item{factor}{A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.}
 

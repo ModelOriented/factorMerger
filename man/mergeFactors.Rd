@@ -5,10 +5,10 @@
 \alias{mergeFactor.default}
 \title{Merge factors}
 \usage{
-mergeFactors(x, factor, ...)
+mergeFactors(response, factor, ...)
 }
 \arguments{
-\item{x}{A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.}
+\item{response}{A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.}
 
 \item{factor}{A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.}
 
@@ -21,15 +21,17 @@ Performs step-wise merging of factor levels.
 \dontrun{
 rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 
-raSample$covariates <- runif(100)
-mergeFactors(x = rSample$response, factor = rSample$factor)
-mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
+rSample$covariates <- runif(100)
+mergeFactors(response = rSample$response, factor = rSample$factor)
+mergeFactors(response = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
 
 dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
 colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 
-mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
-mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)
+formula <- as.formula("res1+res2+res3~fct")
+formulaCovariates <-as.formula("res1+res2+res3~fct+cov1")
+mergeFactors(response = formula, factor="fct", data=dataset)
+mergeFactors(response = formulaCovariates, factor="fct", data=dataset)
 
 }
 }

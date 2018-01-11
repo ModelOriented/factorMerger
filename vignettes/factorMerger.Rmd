@@ -59,7 +59,7 @@ By default (with argument `abbreviate = TRUE`) factor levels are abbreviated and
 ### Computations
 
 ```{r}
-fmAll <- mergeFactors(x = randSample$response, factor = randSample$factor)
+fmAll <- mergeFactors(response = randSample$response, factor = randSample$factor)
 ```
 
 `mergeFactors` outputs with information about the 'merging history'. 
@@ -74,7 +74,7 @@ Each row of the above frame describes one step of the merging algorithm. First t
 If we choose a *fast* version of merging one dimensional response is fitted using `isoMDS{MASS}`. Next, in each step only groups whose means are closed are compared.
 
 ```{r}
-fm <- mergeFactors(x = randSample$response, factor = randSample$factor, 
+fm <- mergeFactors(response = randSample$response, factor = randSample$factor, 
                    method = "fast-fixed")
 
 mergingHistory(fm, showStats = TRUE) %>% 
@@ -159,7 +159,7 @@ Model with the lowest GIC is marked.
 oneDimRandSample <- generateSample(1000, 10)
 ```
 ```{r}
-oneDimFm <- mergeFactors(x= oneDimRandSample$response, factor = oneDimRandSample$factor, 
+oneDimFm <- mergeFactors(response = oneDimRandSample$response, factor = oneDimRandSample$factor, 
                          method = "fixed")
 mergingHistory(oneDimFm, showStats = TRUE) %>% 
     kable()
@@ -184,7 +184,7 @@ table(binomRandSample$response, binomRandSample$factor) %>%
 ```
 
 ```{r}
-binomFm <- mergeFactors(x = binomRandSample$response, 
+binomFm <- mergeFactors(response = binomRandSample$response, 
                         factor = binomRandSample$factor, 
                         family = "binomial", 
                         method = "fast-adaptive")
@@ -214,7 +214,7 @@ If `family = "survival"` response must be of a class `Surv`.
  data(veteran)
  survResponse <- Surv(time = veteran$time, 
                   event = veteran$status)
- survivalFm <- mergeFactors(x = survResponse, 
+ survivalFm <- mergeFactors(response = survResponse, 
                     factor = veteran$celltype, 
                     family = "survival")
 ```

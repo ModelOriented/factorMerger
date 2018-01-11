@@ -234,13 +234,13 @@ print.factorMerger <- function(x, ...) {
 #' 
 #' @aliases mergeFactor.default
 #' 
-#' @param x  A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.
+#' @param response  A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.
 #' @param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
 #' @param ... Other arguments corresponding to type of first argument
 #' @method mergeFactors default
 #' @method mergeFactors formula
 #' 
-#' @usage mergeFactors(x, factor, ...)
+#' @usage mergeFactors(response, factor, ...)
 #' 
 #'
 #' @examples
@@ -248,16 +248,16 @@ print.factorMerger <- function(x, ...) {
 #' rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 #' 
 #' rSample$covariates <- runif(100)
-#' mergeFactors(x = rSample$response, factor = rSample$factor)
-#' mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
+#' mergeFactors(response = rSample$response, factor = rSample$factor)
+#' mergeFactors(response = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
 #'
 #'dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
 #'colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 #'
 #'formula <- as.formula("res1+res2+res3~fct")
 #'formulaCovariates <-as.formula("res1+res2+res3~fct+cov1")
-#'mergeFactors(formula, factor="fct", data=dataset)
-#'mergeFactors(formulaCovariates, factor="fct", data=dataset)
+#'mergeFactors(response = formula, factor="fct", data=dataset)
+#'mergeFactors(response = formulaCovariates, factor="fct", data=dataset)
 #'
 #'}
 #'@aliases mergeFactors.default
@@ -267,15 +267,15 @@ print.factorMerger <- function(x, ...) {
 
 
 
-mergeFactors <- function(x, factor, ...){
-  UseMethod("mergeFactors",x)
+mergeFactors <- function(response, factor, ...){
+  UseMethod("mergeFactors",response)
 }
 
 #'@title mergeFactors.default
 #'
 #'
 #'@description Default method for \code{mergeFactors()} function.
-#'@param x A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.
+#'@param response A response \code{vector/matrix} suitable for the model family or a formula containing columns names from the \code{data} argument or formula.
 #'@param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
 #'@param ... Other arguments corresponding to type of first argument
 #' @param covariates A covariates \code{vector/matrix}, optional when we use \code{response} argument.
@@ -329,11 +329,10 @@ mergeFactors <- function(x, factor, ...){
 #' 
 #' 
 #'@export
-mergeFactors.default <- function(x, factor, ..., covariates=NULL, weights = NULL,
+mergeFactors.default <- function(response, factor, ..., covariates=NULL, weights = NULL,
                                  family = "gaussian",
                                  method = "fast-adaptive",
                                  abbreviate = TRUE) {
-  response <- x
   stopifnot(!is.null(response), !is.null(factor))
   stopifnot(method %in% c("adaptive", "fast-adaptive",
                           "fixed", "fast-fixed"))
@@ -355,7 +354,7 @@ mergeFactors.default <- function(x, factor, ..., covariates=NULL, weights = NULL
 
 #'@title mergeFactors.formula
 #'@description Method for \code{mergeFactors()} when first argument is a formula.
-#'@param x Formula containing columns names from the \code{data} argument.
+#'@param response Formula containing columns names from the \code{data} argument.
 #'@param factor A factor \code{vector} when we use \code{response} argument, otherwise the name of column from \code{data} argument containing which levels should be merged.
 #'@param ... Other arguments corresponding to type of first argument/
 #'@param data A data frame to be used for modeling
@@ -409,12 +408,12 @@ mergeFactors.default <- function(x, factor, ..., covariates=NULL, weights = NULL
 #'@export
 
 
-mergeFactors.formula <- function(x, factor, ..., data=NULL, weights = NULL,
+mergeFactors.formula <- function(response, factor, ..., data=NULL, weights = NULL,
                                  family = "gaussian",
                                  method = "fast-adaptive",
                                  abbreviate = TRUE) {
   
-  formula <- x
+  formula <- response
   stopifnot(method %in% c("adaptive", "fast-adaptive",
                           "fixed", "fast-fixed"))
   
