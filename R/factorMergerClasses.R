@@ -247,15 +247,17 @@ print.factorMerger <- function(x, ...) {
 #' \dontrun{
 #' rSample <- generateMultivariateSample(N = 100, k = 10, d = 3)
 #' 
-#' raSample$covariates <- runif(100)
+#' rSample$covariates <- runif(100)
 #' mergeFactors(x = rSample$response, factor = rSample$factor)
 #' mergeFactors(x = rSample$response, factor = rSample$factor, covariates = rSample$covariates)
 #'
 #'dataset <- cbind(rSample$response, rSample$factor, rSample$covariates)
 #'colnames(dataset) <- c("res1","res2","res3","fct", "cov1")
 #'
-#'mergeFactors(x=as.formula("res1+res2+res3~fct"), factor="fct", data=dataset)
-#'mergeFactors(x=as.formula("res1+res2+res3~fct+cov1"), factor="fct", data=dataset)
+#'formula <- as.formula("res1+res2+res3~fct")
+#'formulaCovariates <-as.formula("res1+res2+res3~fct+cov1")
+#'mergeFactors(formula, factor="fct", data=dataset)
+#'mergeFactors(formulaCovariates, factor="fct", data=dataset)
 #'
 #'}
 #'@aliases mergeFactors.default
