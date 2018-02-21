@@ -65,50 +65,15 @@ It seems that there exist some differences among countries included in PISA. Let
 
 # Factor Merger
 
-```{r, fig.width=10, fig.height=10}
-pisaIdxSubset <- sample(1:nrow(pisa2012), size = 500)
-pisaFM <- mergeFactors(pisa2012[pisaIdxSubset, 1:3],
-                       factor(pisa2012$country[pisaIdxSubset]))
+Let's now have a try using factorMerger for exploration.
 
-plot(pisaFM, type="tree", responsePanel = "profile")
-```
 It's faster to use "fast-adaptive" or "fast-fixed" methods on a big dataset.
-They enable comparisons between neighbours only (neighbours is a pair of groups with close means). 
+They enable comparisons between neighbours only (neighbours are pairs of groups with close means). 
 
-```{r}
-pisaIdxSubset <- which(pisa2012$country %in% c("Belgium",
-                                           "Netherlands",
-                                           "Poland",
-                                           "Germany",
-                                           "Finland",
-                                           "Estonia"))
-pisaFMHClust <- mergeFactors(response = pisa2012[pisaIdxSubset, 1:3],
-                       factor = factor(pisa2012$country[pisaIdxSubset]),
-                       method = "fast-fixed") 
-
-plot(pisaFMHClust, responsePanel = "profile", 
-     penalty = log(length(pisaFMHClust$factor)), 
-     panel = "response", nodesSpacing = "effects", 
-     panelGrid = F, palette = "Dark2",
-     title = "PISA 2012 - students' performance")
-
-```
-Let's now have a try using European countries only.
 
 ```{r, fig.width=10, fig.height=10}
-
-pisaEuropean <- filter(pisa2012, country %in% c("Austria", "Belgium", "Bulgaria",
-                                            "Czech Republic", "Germany", "Denmark",
-                                            "Spain", "Estonia", "Finland",
-                                            "France", "Hungary", "Ireland",
-                                            "Italy", "Netherlands", "Norway",
-                                            "Poland", "Portugal",
-                                            "Russian Federation", "Slovak Republic",
-                                            "Slovenia"))
-
-
-pisaFMHClustEurope <- mergeFactors(response = pisaEuropean[,1:3],
-                       factor = factor(pisaEuropean$country),
+pisaFMHClustEurope <- mergeFactors(response = pisa2012[,1:3],
+                       factor = factor(pisa2012$country),
                        method = "fast-fixed") 
 
 plot(pisaFMHClustEurope)
