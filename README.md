@@ -24,7 +24,7 @@ devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
 
 ## Materials for `factorMerger`
 
-A longer description of `factorMerger` may be found [here(https://arxiv.org/abs/1709.04412)](https://arxiv.org/abs/1709.04412).
+A longer description of `factorMerger` may be found [here (https://arxiv.org/abs/1709.04412)](https://arxiv.org/abs/1709.04412).
 
 [Cheatsheet, the pdf version](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.pdf)
 
