@@ -206,6 +206,23 @@ treeTheme <- function(panelGrid = TRUE) {
     return(myTheme)
 }
 
+#' Plot Tree - Helper Function
+#' 
+#' @param factorMerger object to be plotted
+#' @param statistic this parameter will be passed to plotSimpleTree
+#' @param nodesSpacing this parameter will be passed to plotSimpleTree
+#' @param clusterSplit this parameter will be passed to plotSimpleTree
+#' @param markBestModel this parameter will be passed to plotSimpleTree
+#' @param markStars this parameter will be passed to plotSimpleTree
+#' @param alpha this parameter will be passed to plotSimpleTree
+#' @param color this parameter will be passed to plotSimpleTree
+#' @param colorsDf this parameter will be passed to plotSimpleTree
+#' @param palette this parameter will be passed to plotSimpleTree
+#' @param title this parameter will be passed to plotSimpleTree
+#' @param subtitle this parameter will be passed to plotSimpleTree
+#' @param panelGrid this parameter will be passed to plotSimpleTree
+#' @export
+ 
 plotTree <- function(factorMerger, statistic, nodesSpacing,
                      clusterSplit, markBestModel, markStars,
                      alpha, color, colorsDf,
@@ -464,6 +481,14 @@ warnIfUnexpectedResponsePanel <- function(responsePanelSet,
     }
     return(responsePanel)
 }
+
+#' Plot Response - Helper Function
+#' @param factorMerger object to be plotted
+#' @param responsePanel logical - shall it be plotted
+#' @param colorClusters colors
+#' @param clusterSplit criteria for splitting
+#' @param responsePanelPalette colors for reponse
+#' @export
 
 plotResponse <- function(factorMerger, responsePanel,
                          colorClusters, clusterSplit,
