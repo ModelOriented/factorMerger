@@ -1,3 +1,10 @@
+factorMerger 0.3.6
+----------------------------------------------------------------
+* **Misc**:
+    * create a lighter version of Pisa dataset
+    * make some plotting functions public
+
+
 factorMerger 0.3.5
 ----------------------------------------------------------------
 * **Misc**:
