@@ -4,9 +4,9 @@
 \alias{plotTree}
 \title{Plot Tree - Helper Function}
 \usage{
-plotTree(factorMerger, statistic, nodesSpacing, clusterSplit, markBestModel,
-  markStars, alpha, color, colorsDf, palette = NULL, title, subtitle,
-  panelGrid)
+plotTree(factorMerger, statistic, nodesSpacing, clusterSplit,
+  markBestModel, markStars, alpha, color, colorsDf, palette = NULL,
+  title, subtitle, panelGrid)
 }
 \arguments{
 \item{factorMerger}{object to be plotted}

@@ -4,12 +4,13 @@
 \alias{plot.factorMerger}
 \title{Plot Factor Merger}
 \usage{
-\method{plot}{factorMerger}(x, panel = "all", statistic = "loglikelihood",
-  nodesSpacing = "equidistant", colorClusters = TRUE,
-  splitStatistic = "GIC", splitThreshold = NULL, penalty = 2,
-  showSplit = FALSE, showSignificance = TRUE,
-  title = "Factor Merger Tree", subtitle = " ", palette = NULL,
-  responsePanel = NULL, responsePanelPalette = NULL, gicPanelColor = NULL,
+\method{plot}{factorMerger}(x, panel = "all",
+  statistic = "loglikelihood", nodesSpacing = "equidistant",
+  colorClusters = TRUE, splitStatistic = "GIC",
+  splitThreshold = NULL, penalty = 2, showSplit = FALSE,
+  showSignificance = TRUE, title = "Factor Merger Tree",
+  subtitle = " ", palette = NULL, responsePanel = NULL,
+  responsePanelPalette = NULL, gicPanelColor = NULL,
   panelGrid = TRUE, chisqQuantile = 0.05, ...)
 }
 \arguments{
@@ -28,7 +29,8 @@ the GIC Plot (GIC vs. loglikelihood/p-value).
 
 \item{statistic}{Statistic to be displayed on the OX axis of the Factor Merger Tree.
 Possible values are \code{c("loglikelihood", "p-value")}.
-If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot on the OX axis.}
+If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot 
+on the OX axis.}
 
 \item{nodesSpacing}{Type of vertical nodes spacing in the Factor Merger Tree). May be chosen from
  \code{c("equidistant", "effects", "modelSpecific")}. \code{"effects"} arranges nodes according to
@@ -54,7 +56,8 @@ The same penalty is used in the GIC plot.}
 \item{showSplit}{Boolean. If \code{TRUE} plots vertical line crossing the optimal split.}
 
 \item{showSignificance}{Boolean. If \code{TRUE}, the default, marks partitions
-that are significantly worse than their predecessors on the Factor Merger Tree (uses the Likelihood Ratio Test).
+that are significantly worse than their predecessors on the Factor Merger Tree (uses the 
+Likelihood Ratio Test).
 
 Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.}
 
