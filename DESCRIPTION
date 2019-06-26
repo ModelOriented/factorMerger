@@ -18,9 +18,9 @@ Description:
     this approach fails with a large number of groups in both interpretation 
     and visualization layer.
     The Merging Path Plot solves this problem by using an easy-to-understand 
-    description of dissimilarity among groups based on Likelihood Ratio Test (LRT) statistic.
-    Work on this package was financially
-    supported by the 'NCN Opus grant 2016/21/B/ST6/02176'.
+    description of dissimilarity among groups based on Likelihood Ratio Test (LRT) statistic (Sitko, Biecek 2017) <arXiv:1709.04412>.
+    'factorMerger' is a part of the 'DrWhy.AI' universe (Biecek 2018) <arXiv:1806.08915>.
+    Work on this package was financially supported by the 'NCN Opus grant 2016/21/B/ST6/02176'.
 Depends:
     R (>= 3.0)
 License: GPL
@@ -42,6 +42,9 @@ Imports:
     agricolae,
     forcats, 
     formula.tools
+Imports:
+    forcats,
+    survminer
 RoxygenNote: 6.1.1
 URL: https://github.com/MI2DataLab/factorMerger
 Suggests:
