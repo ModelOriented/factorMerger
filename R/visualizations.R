@@ -1,11 +1,7 @@
-#' @importFrom ggplot2 ggplot aes aes_string coord_flip xlab ylab labs stat_summary guides 
-#' position_dodge annotate unit ggtitle
-#' @importFrom ggplot2 geom_point geom_step geom_bar geom_rect geom_ribbon geom_line geom_boxplot 
-#' geom_errorbar geom_label geom_segment geom_vline geom_text geom_tile
-#' @importFrom ggplot2 scale_y_discrete scale_y_continuous scale_x_discrete scale_color_manual 
-#' scale_fill_brewer scale_fill_manual scale_fill_distiller scale_x_continuous scale_x_log10
-#' @importFrom ggplot2 theme_classic theme theme_bw theme_minimal element_line element_blank 
-#' element_text
+#' @importFrom ggplot2 ggplot aes aes_string coord_flip xlab ylab labs stat_summary guides position_dodge annotate unit ggtitle
+#' @importFrom ggplot2 geom_point geom_step geom_bar geom_rect geom_ribbon geom_line geom_boxplot geom_errorbar geom_label geom_segment geom_vline geom_text geom_tile
+#' @importFrom ggplot2 scale_y_discrete scale_y_continuous scale_x_discrete scale_color_manual scale_fill_brewer scale_fill_manual scale_fill_distiller scale_x_continuous scale_x_log10
+#' @importFrom ggplot2 theme_classic theme theme_bw theme_minimal element_line element_blank element_text
 #' @importFrom ggplot2 scale_color_brewer ggplot_build
 NULL
 
@@ -40,8 +36,7 @@ NULL
 #' }
 #' @param statistic Statistic to be displayed on the OX axis of the Factor Merger Tree.
 #' Possible values are \code{c("loglikelihood", "p-value")}.
-#' If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot 
-#' on the OX axis.
+#' If \code{"p-value"} is chosen p-value for the Likelihood Ratio Test against the full model is plot on the OX axis.
 #' @param nodesSpacing Type of vertical nodes spacing in the Factor Merger Tree). May be chosen from
 #'  \code{c("equidistant", "effects", "modelSpecific")}. \code{"effects"} arranges nodes according to
 #'  the model coefficients estimatiors (e.g. in Gaussian case on the OY axis group means are plotted).
@@ -69,8 +64,7 @@ NULL
 #' The same penalty is used in the GIC plot.
 #' @param showSplit Boolean. If \code{TRUE} plots vertical line crossing the optimal split.
 #' @param showSignificance Boolean. If \code{TRUE}, the default, marks partitions
-#' that are significantly worse than their predecessors on the Factor Merger Tree (uses the 
-#' Likelihood Ratio Test).
+#' that are significantly worse than their predecessors on the Factor Merger Tree (uses the Likelihood Ratio Test).
 #'
 #' Significance codes are:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1.
 #' @param chisqQuantile Significance level used if \code{panelGrid = TRUE}.
@@ -140,11 +134,13 @@ plot.factorMerger <- function(x, panel = "all",
                                 title, subtitle, panelGrid)
 
     switch(panel,
-           "tree" = { return(mergingPathPlot) },
-           "all"  = {
+           "tree" = {
+               return(mergingPathPlot)
+           },
+           "all" = {
              anTable <- calculateAnovaTable(x$initialModel)
-             if (length(x$covariates) > 0) {
-               if (class(x)[2] == "gaussianFactorMerger") {
+             if(length(x$covariates)>0){
+               if(class(x)[2]=="gaussianFactorMerger"){
                  anTable <- t(anTable)
                  nGroups <- as.numeric(anTable[1,2])
                  nGroups <- nGroups-dim(x$covariates)[2]
