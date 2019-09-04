@@ -1,40 +1,43 @@
-# factorMerger: A Set of Tools to Support Adaptive Post-Hoc Fusing of Groups
+# factorMerger
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
-[![Build Status](https://travis-ci.org/MI2DataLab/factorMerger.svg?branch=master)](https://travis-ci.org/MI2DataLab/factorMerger)
-[![Pending Pull-Requests](http://githubbadges.herokuapp.com/MI2DataLab/factorMerger/pulls.svg)](https://github.com/MI2DataLab/factorMerger/pulls)
-[![Github Issues](http://githubbadges.herokuapp.com/MI2DataLab/factorMerger/issues.svg)](https://github.com/MI2DataLab/factorMerger/issues)
+[![Build Status](https://travis-ci.org/ModelOriented/factorMerger.svg?branch=master)](https://travis-ci.org/ModelOriented/factorMerger)
+[![Pending Pull-Requests](http://githubbadges.herokuapp.com/ModelOriented/factorMerger/pulls.svg)](https://github.com/ModelOriented/factorMerger/pulls)
+[![Github Issues](http://githubbadges.herokuapp.com/ModelOriented/factorMerger/issues.svg)](https://github.com/ModelOriented/factorMerger/issues)
 [![DOI](https://zenodo.org/badge/70429809.svg)](https://zenodo.org/badge/latestdoi/70429809)
 
-The aim of this project is to create an algorithm of post-hoc testing that would enable to extract hierarchical structure of factors with respect to a given response.
+## Overview
 
-## Installing and loading `factorMerger`
+`factorMerger` is a set of tools to support post-hoc testing that would enable to extract hierarchical structure of factors with respect to a given response.
 
-`factorMerger` can be installed from [CRAN](https://cran.r-project.org/package=factorMerger) as follows:
+## Installation
 
 ```{r}
+# the easiest way to get factorMerger is to install it from CRAN:
 install.packages("factorMerger")
+
+# Or the the development version from GitHub:
+# install.packages("devtools")
+devtools::install_github("ModelOriented/factorMerger", build_vignettes = FALSE)
 ```
 
-To install and load the latest version of`factorMerger` from **Github** run:
+## More
 
-```{r}
-devtools::install_github("MI2DataLab/factorMerger", build_vignettes = FALSE)
-```
+The description of `factorMerger` may be found in the paper *The Merging Path Plot: adaptive fusing of k-groups with likelihood-based model selection* [(here)](https://arxiv.org/abs/1709.04412).
 
-## Materials for `factorMerger`
 
-A longer description of `factorMerger` may be found [here (https://arxiv.org/abs/1709.04412)](https://arxiv.org/abs/1709.04412).
+### Workflow
 
-[Cheatsheet, the pdf version](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.pdf)
+<img src="https://raw.githubusercontent.com/ModelOriented/factorMerger/master/README_workflow.png" alt="fm_workflow" width = '650'/>
 
-![factorMerger cheatsheet](https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/materials/factorMerger-cheatsheet.png)
+### Cheatsheet
 
-## Working with `factorMerger`
+[Download cheatsheet](https://raw.githubusercontent.com/ModelOriented/factorMerger/master/materials/factorMerger-cheatsheet.pdf)
 
-<img src="https://raw.githubusercontent.com/MI2DataLab/factorMerger/master/README_workflow.png" alt="fm_workflow" width = '650'/>
+![](https://raw.githubusercontent.com/ModelOriented/factorMerger/master/materials/factorMerger-cheatsheet.png)
 
-### Examples
+
+### Example
 
 #### Survival analysis
 
@@ -42,7 +45,7 @@ A longer description of `factorMerger` may be found [here (https://arxiv.org/abs
 library(factorMerger)
 library(forcats) # distinguish meaningful factors (fct_lump)
 
-data("BRCA")
+data(BRCA)
 brcaSurv <- survival::Surv(time = BRCA$time, event = BRCA$vitalStatus)
 drugName <- fct_lump(as.factor(BRCA$drugName), prop = 0.05) 
 
@@ -53,5 +56,3 @@ drugNameFM <- mergeFactors(response = brcaSurv[!is.na(drugName)],
 plot(drugNameFM, nodesSpacing = "effects", gicPanelColor = "grey2")
 
 ```
-
-
