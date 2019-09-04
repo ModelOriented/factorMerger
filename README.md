@@ -2,8 +2,7 @@
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/factorMerger)](https://cran.r-project.org/package=factorMerger)
 [![Build Status](https://travis-ci.org/ModelOriented/factorMerger.svg?branch=master)](https://travis-ci.org/ModelOriented/factorMerger)
-[![Pending Pull-Requests](http://githubbadges.herokuapp.com/ModelOriented/factorMerger/pulls.svg)](https://github.com/ModelOriented/factorMerger/pulls)
-[![Github Issues](http://githubbadges.herokuapp.com/ModelOriented/factorMerger/issues.svg)](https://github.com/ModelOriented/factorMerger/issues)
+![GitHub issues](https://img.shields.io/github/issues-raw/ModelOriented/factorMerger)
 [![DOI](https://zenodo.org/badge/70429809.svg)](https://zenodo.org/badge/latestdoi/70429809)
 
 ## Overview
